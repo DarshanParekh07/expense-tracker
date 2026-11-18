@@ -747,8 +747,14 @@
       checkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         item.isPaid = !item.isPaid;
-        if (item.isPaid && !item.statusNote) item.statusNote = 'Paid';
-        if (!item.isPaid && item.statusNote.toLowerCase() === 'paid') item.statusNote = 'Pending';
+        const note = (item.statusNote || '').trim();
+        if (item.isPaid) {
+          if (!note || note.toLowerCase() === 'pending') item.statusNote = 'Paid';
+          else if (/^pending/i.test(note)) item.statusNote = note.replace(/^pending/i, 'Paid');
+        } else {
+          if (!note || note.toLowerCase() === 'paid') item.statusNote = 'Pending';
+          else if (/^paid/i.test(note)) item.statusNote = note.replace(/^paid/i, 'Pending');
+        }
         saveState();
         renderAll();
       });
@@ -1109,6 +1115,23 @@
     document.getElementById('btnTypeInvestment').addEventListener('click', () => { modalSection = 'investments'; updateTypeButtons(); });
     document.getElementById('btnCloseEntryModal').addEventListener('click', closeEntryModal);
     document.getElementById('btnCancelEntry').addEventListener('click', closeEntryModal);
+    document.getElementById('inputEntryPaid').addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      const noteEl = document.getElementById('inputEntryNote');
+      const note = noteEl.value.trim();
+      if (checked) {
+        if (!note || note.toLowerCase() === 'pending') noteEl.value = 'Paid';
+        else if (/^pending/i.test(note)) noteEl.value = note.replace(/^pending/i, 'Paid');
+      } else {
+        if (!note || note.toLowerCase() === 'paid') noteEl.value = 'Pending';
+        else if (/^paid/i.test(note)) noteEl.value = note.replace(/^paid/i, 'Pending');
+      }
+    });
+    document.getElementById('inputEntryNote').addEventListener('input', (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      if (val.startsWith('paid')) document.getElementById('inputEntryPaid').checked = true;
+      else if (val.startsWith('pending')) document.getElementById('inputEntryPaid').checked = false;
+    });
 
     document.getElementById('btnSaveEntry').addEventListener('click', () => {
       const m = getActiveMonth();
