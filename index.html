@@ -343,7 +343,7 @@
           <label class="block text-xs font-medium text-slate-600 mb-1">Type</label>
           <select id="selectZanKind" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
             <option value="DEDUCTION">Pre-spent Deduction (minus from Transfer, e.g. Dmart, Cash)</option>
-            <option value="EXTRA">Extra Pay (added on top, not fixed)</option>
+            <option value="EXTRA">Addition / Extra / Tuition (+)</option>
             <option value="DEBIT">Debit-Taken (minus from Monthly Fix)</option>
             <option value="SODEXO">Sodexo / Fixed Credit</option>
           </select>
@@ -612,7 +612,7 @@
       const lbl = (z.label || '').toLowerCase();
       if (lbl === 'transfer') return 'TRANSFER';
       if (lbl.includes('sodexo')) return 'SODEXO';
-      if (lbl.includes('extra')) return 'EXTRA';
+      if (lbl.includes('extra') || lbl.includes('tution') || lbl.includes('tuition')) return 'EXTRA';
       if ((Number(z.debitTaken) || 0) > 0 && (Number(z.creditGiven) || 0) === 0) return 'DEBIT';
       return 'DEDUCTION';
     }
@@ -632,8 +632,9 @@
       const transfer = 21500 + 1500 - deductions - debit;
       const transferItem = items.find(z => classifyZanItem(z) === 'TRANSFER');
       if (transferItem) transferItem.creditGiven = transfer;
+      const transferToSend = transfer + extra;
       const totalZanHome = transfer + deductions + sodexo + extra;
-      return { transfer, deductions, extra, debit, sodexo, totalZanHome };
+      return { transfer, transferToSend, deductions, extra, debit, sodexo, totalZanHome };
     }
 
     function syncZanHomeTotal(month) {
@@ -840,8 +841,8 @@
     }
 
     function renderZan(m) {
-      const { transfer, deductions, extra, totalZanHome } = computeZanSummary(m);
-      document.getElementById('zanTransferTotal').textContent = formatInr(transfer);
+      const { transferToSend, deductions, extra, totalZanHome } = computeZanSummary(m);
+      document.getElementById('zanTransferTotal').textContent = formatInr(transferToSend);
       document.getElementById('zanDeductionTotal').textContent = formatInr(deductions);
       document.getElementById('zanExtraTotal').textContent = formatInr(extra);
       document.getElementById('zanNetTotal').textContent = formatInr(totalZanHome);
