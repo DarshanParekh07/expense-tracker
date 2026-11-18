@@ -108,16 +108,23 @@
     <!-- Zan-Home View -->
     <section id="viewZan" class="hidden space-y-4">
       <div class="rounded-2xl bg-slate-800 text-white p-4 shadow-sm">
-        <div class="text-xs font-medium text-slate-300 uppercase tracking-wider">Net Zan-Home (Auto-synced)</div>
-        <div id="zanNetTotal" class="text-3xl font-bold mt-1">₹0</div>
-        <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-white/15 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">Transfer to Send</span>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-white/15 text-slate-200">Fix: ₹21,500 + ₹1,500</span>
+        </div>
+        <div id="zanTransferTotal" class="text-3xl font-bold text-teal-300 mt-1">₹0</div>
+        <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/15 text-xs">
           <div>
-            <span class="text-slate-300">Credit-Given:</span>
-            <span id="zanCreditTotal" class="font-semibold text-emerald-300 ml-1">₹0</span>
+            <div class="text-[11px] text-slate-300">Deductions (-)</div>
+            <div id="zanDeductionTotal" class="font-semibold text-amber-300">₹0</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[11px] text-slate-300">Extra (+)</div>
+            <div id="zanExtraTotal" class="font-semibold text-emerald-300">₹0</div>
           </div>
           <div class="text-right">
-            <span class="text-slate-300">Debit-Taken:</span>
-            <span id="zanDebitTotal" class="font-semibold text-rose-300 ml-1">₹0</span>
+            <div class="text-[11px] text-slate-300">Total Zan-Home</div>
+            <div id="zanNetTotal" class="font-semibold text-white">₹0</div>
           </div>
         </div>
       </div>
@@ -290,18 +297,21 @@
       </div>
       <div class="space-y-3">
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Label</label>
-          <input id="inputZanLabel" type="text" placeholder="e.g. Transfer, Dmart, Sodexo" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+          <label class="block text-xs font-medium text-slate-600 mb-1">Type</label>
+          <select id="selectZanKind" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
+            <option value="DEDUCTION">Pre-spent Deduction (minus from Transfer, e.g. Dmart, Cash)</option>
+            <option value="EXTRA">Extra Pay (plus to Monthly Fix)</option>
+            <option value="DEBIT">Debit-Taken (minus from Monthly Fix)</option>
+            <option value="SODEXO">Sodexo / Fixed Credit</option>
+          </select>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Credit-Given (₹)</label>
-            <input id="inputZanCredit" type="number" inputmode="numeric" value="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Debit-Taken (₹)</label>
-            <input id="inputZanDebit" type="number" inputmode="numeric" value="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-          </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Item / Label</label>
+          <input id="inputZanLabel" type="text" placeholder="e.g. Dmart, Cash, Extra" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
+          <input id="inputZanAmount" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
         </div>
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1">Note</label>
@@ -554,11 +564,40 @@
       return state.months.find(m => m.id === state.selectedMonthId) || state.months[0] || null;
     }
 
+    function classifyZanItem(z) {
+      if (z.kind) return z.kind;
+      const lbl = (z.label || '').toLowerCase();
+      if (lbl === 'transfer') return 'TRANSFER';
+      if (lbl.includes('sodexo')) return 'SODEXO';
+      if (lbl.includes('extra')) return 'EXTRA';
+      if ((Number(z.debitTaken) || 0) > 0 && (Number(z.creditGiven) || 0) === 0) return 'DEBIT';
+      return 'DEDUCTION';
+    }
+
+    function computeZanSummary(month) {
+      const items = month.zanItems || [];
+      let deductions = 0, extra = 0, debit = 0, sodexo = 0;
+      items.forEach(z => {
+        const k = classifyZanItem(z);
+        const c = Number(z.creditGiven) || 0;
+        const d = Number(z.debitTaken) || 0;
+        debit += d;
+        if (k === 'DEDUCTION') deductions += c;
+        else if (k === 'EXTRA') extra += c;
+        else if (k === 'SODEXO') sodexo += c;
+      });
+      const transfer = 21500 + 1500 - deductions - debit;
+      const transferItem = items.find(z => classifyZanItem(z) === 'TRANSFER');
+      if (transferItem) transferItem.creditGiven = transfer;
+      const totalZanHome = transfer + deductions + sodexo + extra;
+      return { transfer, deductions, extra, debit, sodexo, totalZanHome };
+    }
+
     function syncZanHomeTotal(month) {
-      const net = month.zanItems.reduce((acc, z) => acc + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
+      const { totalZanHome } = computeZanSummary(month);
       const zanRow = month.expenses.find(e => e.isZanLinked || e.title.toLowerCase() === 'zan-home');
       if (zanRow) {
-        zanRow.amount = net;
+        zanRow.amount = totalZanHome;
         zanRow.isZanLinked = true;
       }
     }
@@ -758,11 +797,11 @@
     }
 
     function renderZan(m) {
-      const credit = m.zanItems.reduce((s, z) => s + (Number(z.creditGiven) || 0), 0);
-      const debit = m.zanItems.reduce((s, z) => s + (Number(z.debitTaken) || 0), 0);
-      document.getElementById('zanNetTotal').textContent = formatInr(credit - debit);
-      document.getElementById('zanCreditTotal').textContent = formatInr(credit);
-      document.getElementById('zanDebitTotal').textContent = formatInr(debit);
+      const { transfer, deductions, extra, totalZanHome } = computeZanSummary(m);
+      document.getElementById('zanTransferTotal').textContent = formatInr(transfer);
+      document.getElementById('zanDeductionTotal').textContent = formatInr(deductions);
+      document.getElementById('zanExtraTotal').textContent = formatInr(extra);
+      document.getElementById('zanNetTotal').textContent = formatInr(totalZanHome);
 
       const list = document.getElementById('zanList');
       list.innerHTML = '';
@@ -771,12 +810,15 @@
         return;
       }
       m.zanItems.forEach(z => {
+        const k = classifyZanItem(z);
         const card = document.createElement('div');
         card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-300';
         const left = document.createElement('div');
         left.className = 'min-w-0';
-        left.innerHTML = `<div class="text-sm font-semibold text-slate-900 truncate"></div>${z.note ? '<div class="text-xs text-slate-500 truncate mt-0.5"></div>' : ''}`;
-        left.children[0].textContent = z.label;
+        const tag = k === 'TRANSFER' ? 'AUTO' : (k === 'EXTRA' ? '+ FIX' : (k === 'SODEXO' ? 'SODEXO' : (k === 'DEBIT' ? 'DEBIT' : '- TRANSFER')));
+        const tagCls = k === 'EXTRA' ? 'bg-emerald-50 text-emerald-700' : (k === 'DEDUCTION' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600');
+        left.innerHTML = `<div class="flex items-center gap-1.5"><span class="text-sm font-semibold text-slate-900 truncate"></span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${tagCls}">${tag}</span></div>${z.note ? '<div class="text-xs text-slate-500 truncate mt-0.5"></div>' : ''}`;
+        left.querySelector('span').textContent = z.label;
         if (z.note) left.children[1].textContent = z.note;
 
         const right = document.createElement('div');
@@ -784,7 +826,7 @@
         if (z.creditGiven > 0) {
           const c = document.createElement('div');
           c.className = 'text-teal-700';
-          c.textContent = `+ ${formatInr(z.creditGiven)}`;
+          c.textContent = formatInr(z.creditGiven);
           right.appendChild(c);
         }
         if (z.debitTaken > 0) {
@@ -800,7 +842,9 @@
           right.appendChild(zero);
         }
 
-        card.addEventListener('click', () => openZanModal(z));
+        if (k !== 'TRANSFER') {
+          card.addEventListener('click', () => openZanModal(z));
+        }
         card.appendChild(left);
         card.appendChild(right);
         list.appendChild(card);
@@ -993,10 +1037,12 @@
     // Zan Modal Logic
     function openZanModal(item = null) {
       state.editingZanId = item ? item.id : null;
+      const kind = item ? classifyZanItem(item) : 'DEDUCTION';
+      const amt = item ? (kind === 'DEBIT' ? (Number(item.debitTaken) || 0) : (Number(item.creditGiven) || 0)) : '';
       document.getElementById('zanModalTitle').textContent = item ? 'Edit Zan-Home Item' : 'Add Zan-Home Item';
+      document.getElementById('selectZanKind').value = kind;
       document.getElementById('inputZanLabel').value = item ? item.label : '';
-      document.getElementById('inputZanCredit').value = item ? item.creditGiven : 0;
-      document.getElementById('inputZanDebit').value = item ? item.debitTaken : 0;
+      document.getElementById('inputZanAmount').value = amt;
       document.getElementById('inputZanNote').value = item ? item.note : '';
       document.getElementById('btnDeleteZan').classList.toggle('hidden', !item);
       document.getElementById('zanModal').classList.remove('hidden');
@@ -1071,23 +1117,26 @@
     document.getElementById('btnCancelZan').addEventListener('click', closeZanModal);
     document.getElementById('btnSaveZan').addEventListener('click', () => {
       const m = getActiveMonth();
+      if (!m) { showToast('Load or create a month first'); return; }
+      const kind = document.getElementById('selectZanKind').value;
       const label = document.getElementById('inputZanLabel').value.trim();
-      const creditGiven = parseFloat(document.getElementById('inputZanCredit').value) || 0;
-      const debitTaken = parseFloat(document.getElementById('inputZanDebit').value) || 0;
+      if (!label) { showToast('Please enter an Item / Label'); return; }
+      const amt = parseFloat(document.getElementById('inputZanAmount').value) || 0;
+      const creditGiven = kind === 'DEBIT' ? 0 : amt;
+      const debitTaken = kind === 'DEBIT' ? amt : 0;
       const note = document.getElementById('inputZanNote').value.trim();
-      if (!label || !m) { showToast('Please enter a label'); return; }
 
       if (state.editingZanId) {
         const idx = m.zanItems.findIndex(z => z.id === state.editingZanId);
-        if (idx !== -1) m.zanItems[idx] = { ...m.zanItems[idx], label, creditGiven, debitTaken, note };
+        if (idx !== -1) m.zanItems[idx] = { ...m.zanItems[idx], kind, label, creditGiven, debitTaken, note };
       } else {
-        m.zanItems.push({ id: `${m.id}-zan-${Date.now()}`, label, creditGiven, debitTaken, note });
+        m.zanItems.push({ id: `${m.id}-zan-${Date.now()}`, kind, label, creditGiven, debitTaken, note });
       }
       syncZanHomeTotal(m);
       saveState();
       closeZanModal();
       renderAll();
-      showToast('Zan-Home synced');
+      showToast('Transfer & Zan-Home updated');
     });
 
     document.getElementById('btnDeleteZan').addEventListener('click', () => {
@@ -1239,22 +1288,33 @@
       years.forEach(yearStr => {
         const yMonths = byYear[yearStr].slice().sort((a, b) => b.monthNumber - a.monthNumber);
         const rows = [];
+        const formulas = [];
         yMonths.forEach(m => {
           rows.push([`(${m.monthName} ${m.year})`]);
           rows.push(['Investments']);
+          const invStart = rows.length + 1;
           let invTot = 0;
           m.investments.forEach(i => {
             const amt = Number(i.amount) || 0;
             invTot += amt;
             rows.push([amt, i.title, i.statusNote || (i.isPaid ? 'Paid' : 'Pending')]);
           });
+          const invEnd = rows.length;
+          const invTotRow = rows.length + 1;
           rows.push([invTot]);
+          if (invEnd >= invStart) formulas.push({ r: invTotRow - 1, c: 0, f: `SUM(A${invStart}:A${invEnd})`, v: invTot });
+
           rows.push(['Expenses']);
           const exps = m.expenses || [];
           const zans = m.zanItems || [];
           const maxR = Math.max(exps.length, zans.length + 2);
+          const expStart = rows.length + 1;
+          const zanStart = expStart + 1;
+          const zanEnd = zanStart + zans.length - 1;
+          const zanTotRow = zanStart + zans.length;
           let expTot = 0, zCr = 0, zDb = 0;
           for (let i = 0; i < maxR; i++) {
+            const curRow1 = rows.length + 1;
             const row = ['', '', '', '', '', '', ''];
             if (i < exps.length) {
               const e = exps[i];
@@ -1263,6 +1323,9 @@
               row[0] = amt;
               row[1] = e.title;
               row[2] = e.statusNote || (e.isPaid ? 'Paid' : 'Pending');
+              if ((e.isZanLinked || (e.title || '').toLowerCase() === 'zan-home') && zans.length > 0) {
+                formulas.push({ r: curRow1 - 1, c: 0, f: `E${zanTotRow}-F${zanTotRow}`, v: amt });
+              }
             }
             if (i === 0) {
               row[3] = 'Zan'; row[4] = 'Credit-Given'; row[5] = 'Debit-Taken';
@@ -1274,14 +1337,28 @@
               row[3] = z.label; row[4] = c || ''; row[5] = d || ''; row[6] = z.note || '';
             } else if (i - 1 === zans.length) {
               row[4] = zCr; row[5] = zDb;
+              if (zanEnd >= zanStart) {
+                formulas.push({ r: curRow1 - 1, c: 4, f: `SUM(E${zanStart}:E${zanEnd})`, v: zCr });
+                formulas.push({ r: curRow1 - 1, c: 5, f: `SUM(F${zanStart}:F${zanEnd})`, v: zDb });
+              }
             }
             rows.push(row);
           }
+          const expEnd = expStart + exps.length - 1;
+          const expTotRow = rows.length + 1;
           rows.push([expTot]);
+          if (expEnd >= expStart) formulas.push({ r: expTotRow - 1, c: 0, f: `SUM(A${expStart}:A${expEnd})`, v: expTot });
+
+          const grandRow = rows.length + 1;
           rows.push([invTot + expTot, 'Total Expense']);
+          formulas.push({ r: grandRow - 1, c: 0, f: `A${invTotRow}+A${expTotRow}`, v: invTot + expTot });
           rows.push([]);
         });
         const ws = XLSX.utils.aoa_to_sheet(rows);
+        formulas.forEach(fm => {
+          const addr = XLSX.utils.encode_cell({ r: fm.r, c: fm.c });
+          ws[addr] = { t: 'n', f: fm.f, v: fm.v };
+        });
         XLSX.utils.book_append_sheet(wb, ws, yearStr);
       });
       // Separate Udhar sheet
