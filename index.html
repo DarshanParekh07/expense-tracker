@@ -1425,8 +1425,29 @@
 
     // --- Google Drive OAuth 2.0 Sync ---
     const DRIVE_CFG_KEY = 'monthly_exp_drive_cfg_v1';
+    const DRIVE_TOKEN_KEY = 'monthly_exp_drive_tok_v1';
     let driveToken = null;
     let driveAutoTimer = null;
+
+    function restoreDriveToken() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || 'null');
+        if (saved && saved.token && saved.expiresAt && Date.now() < saved.expiresAt) {
+          driveToken = saved.token;
+          updateDriveBadge(true);
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    function storeDriveToken(token, expiresIn) {
+      driveToken = token;
+      const ttl = Math.max(60, (Number(expiresIn) || 3500) - 60) * 1000;
+      try {
+        localStorage.setItem(DRIVE_TOKEN_KEY, JSON.stringify({ token, expiresAt: Date.now() + ttl, wasConnected: true }));
+      } catch (e) {}
+    }
 
     function loadDriveConfig() {
       try {
@@ -1541,7 +1562,7 @@
         if (!res.ok) throw new Error('Upload failed');
         showToast('Excel saved to Google Drive');
       } catch (err) {
-        updateDriveBadge(false, 'Reconnect Drive'); showToast('Drive session expired — tap Reconnect Drive');
+        driveToken = null; try { const prev = JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || '{}'); localStorage.setItem(DRIVE_TOKEN_KEY, JSON.stringify({ wasConnected: prev.wasConnected })); } catch(e){} updateDriveBadge(false, 'Reconnect Drive'); showToast('Drive session expired — tap Reconnect Drive');
       }
     }
 
@@ -1585,7 +1606,7 @@
         scope: 'https://www.googleapis.com/auth/drive',
         callback: (resp) => {
           if (resp && resp.access_token) {
-            driveToken = resp.access_token;
+            storeDriveToken(resp.access_token, resp.expires_in);
             updateDriveBadge(true);
             showToast('Google Drive connected');
           } else {
@@ -1610,6 +1631,28 @@
     };
 
     loadDriveConfig();
+    if (!restoreDriveToken()) {
+      // Attempt silent token refresh if user connected previously
+      window.addEventListener('load', () => {
+        try {
+          const prev = JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || 'null');
+          const cid = document.getElementById('inputClientId').value.trim();
+          if (prev && prev.wasConnected && cid && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+            const c = google.accounts.oauth2.initTokenClient({
+              client_id: cid,
+              scope: 'https://www.googleapis.com/auth/drive',
+              callback: (resp) => {
+                if (resp && resp.access_token) {
+                  storeDriveToken(resp.access_token, resp.expires_in);
+                  updateDriveBadge(true);
+                }
+              }
+            });
+            c.requestAccessToken({ prompt: '' });
+          }
+        } catch (e) {}
+      });
+    }
 
     
     // --- Udhar (Loans Given / Taken) ---
