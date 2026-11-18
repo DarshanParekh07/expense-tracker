@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0f766e" />
+  <link rel="manifest" href="manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>2026 Monthly Expenses</title>
@@ -21,6 +22,15 @@
     }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body.dark { background-color: #0f172a; color: #f1f5f9; }
+    body.dark header, body.dark nav { background-color: #1e293b; border-color: #334155; }
+    body.dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; color: #f1f5f9 !important; }
+    body.dark .bg-slate-50 { background-color: #0f172a !important; border-color: #334155 !important; }
+    body.dark .bg-slate-100 { background-color: #334155 !important; color: #e2e8f0 !important; }
+    body.dark .text-slate-900, body.dark .text-slate-800 { color: #f8fafc !important; }
+    body.dark .text-slate-700, body.dark .text-slate-600 { color: #cbd5e1 !important; }
+    body.dark .text-slate-500, body.dark .text-slate-400 { color: #94a3b8 !important; }
+    body.dark input, body.dark select { background-color: #0f172a !important; color: #f8fafc !important; border-color: #475569 !important; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -32,15 +42,18 @@
     <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
       <div class="min-w-0">
         <h1 class="text-lg font-bold text-slate-900 truncate">Monthly Expenses</h1>
-        <p id="headerSubtitle" class="text-xs text-slate-500 truncate">2026 • Stored locally</p>
+        <p id="headerSubtitle" class="text-xs text-slate-500 truncate">Stored locally</p>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btnThemeToggle" type="button" title="Toggle Dark Mode" class="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">🌙</button>
         <button id="btnNewYearTop" type="button" class="px-2 py-1.5 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold hover:bg-teal-100 transition">+ Year</button>
         <button id="btnNewMonthTop" type="button" class="px-2 py-1.5 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold hover:bg-teal-100 transition">+ Month</button>
-        <button id="btnBackup" type="button" class="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">Drive / Backup</button>
+        <button id="btnDrivePill" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">Drive: Offline</button>
+        <button id="btnBackup" type="button" class="px-2 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">⚙️</button>
       </div>
     </div>
-    <!-- Month Chips -->
+    <!-- Year & Month Chips -->
+    <div id="yearStripWrap" class="max-w-2xl mx-auto px-4 pb-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
     <div id="monthStripWrap" class="max-w-2xl mx-auto px-4 pb-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar"></div>
   </header>
 
@@ -49,19 +62,26 @@
     <!-- Monthly View -->
     <section id="viewMonthly" class="space-y-4">
       <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <span class="text-xs font-medium text-teal-100 uppercase tracking-wider">Total Outflow</span>
-          <span id="monthlyPaidBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0/0 Paid</span>
+          <div class="flex items-center gap-1.5">
+            <button id="btnPendingFilter" type="button" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">Pending Only</button>
+            <span id="monthlyPaidBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0/0 Paid</span>
+          </div>
         </div>
         <div id="heroGrandTotal" class="text-3xl font-bold mt-1">₹0</div>
-        <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-white/15">
+        <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/15">
           <div>
-            <div class="text-xs text-teal-100">Investments</div>
-            <div id="heroInvTotal" class="text-base font-semibold">₹0</div>
+            <div class="text-[11px] text-teal-100">Investments</div>
+            <div id="heroInvTotal" class="text-sm font-semibold">₹0</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[11px] text-teal-100">Expenses</div>
+            <div id="heroExpTotal" class="text-sm font-semibold">₹0</div>
           </div>
           <div class="text-right">
-            <div class="text-xs text-teal-100">Expenses</div>
-            <div id="heroExpTotal" class="text-base font-semibold">₹0</div>
+            <div class="text-[11px] text-amber-200">Pending</div>
+            <div id="heroPendingTotal" class="text-sm font-semibold text-amber-200">₹0</div>
           </div>
         </div>
       </div>
@@ -112,9 +132,43 @@
     <!-- Summary View -->
     <section id="viewSummary" class="hidden space-y-4">
       <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
-        <div id="summaryCountLabel" class="text-xs font-medium text-teal-100 uppercase tracking-wider">2026 Total</div>
+        <div id="summaryCountLabel" class="text-xs font-medium text-teal-100 uppercase tracking-wider">Total</div>
         <div id="summaryGrandTotal" class="text-3xl font-bold mt-1">₹0</div>
         <div id="summaryAvgLabel" class="text-sm text-teal-100 mt-1">Monthly Avg: ₹0</div>
+      </div>
+
+      <!-- Search Across All Months -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-3 space-y-2">
+        <input id="inputSummarySearch" type="search" placeholder="Search items across all months (e.g. EMI, Light Bill, Lakshya)..." class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        <div id="summarySearchResults" class="hidden space-y-1.5 max-h-56 overflow-y-auto pt-1"></div>
+      </div>
+
+      <!-- KPI Highlights Strip -->
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-[10px] font-semibold uppercase text-slate-400">Highest Month</div>
+          <div id="kpiHighestVal" class="text-sm font-bold text-slate-900 mt-0.5">₹0</div>
+          <div id="kpiHighestName" class="text-[11px] text-slate-500 truncate">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-[10px] font-semibold uppercase text-slate-400">Lowest Month</div>
+          <div id="kpiLowestVal" class="text-sm font-bold text-slate-900 mt-0.5">₹0</div>
+          <div id="kpiLowestName" class="text-[11px] text-slate-500 truncate">-</div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-3">
+          <div class="text-[10px] font-semibold uppercase text-slate-400">Total Invested</div>
+          <div id="kpiInvestedVal" class="text-sm font-bold text-teal-700 mt-0.5">₹0</div>
+          <div id="kpiInvestedPct" class="text-[11px] text-slate-500">0% of total</div>
+        </div>
+      </div>
+
+      <!-- Category Doughnut + Breakdown -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+        <h3 class="text-sm font-bold text-slate-800">Category Breakdown</h3>
+        <div class="relative h-52">
+          <canvas id="categoryDoughnutChart"></canvas>
+        </div>
+        <div id="categoryBreakdownList" class="space-y-2 pt-1"></div>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200 p-4">
@@ -129,11 +183,46 @@
         <div id="summaryMonthsList" class="space-y-2"></div>
       </div>
     </section>
+    <!-- Udhar (Loans Given / Taken) View -->
+    <section id="viewUdhar" class="hidden space-y-4">
+      <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 text-white p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">Pending Loans</span>
+          <span id="udharPendingBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0 Pending</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-3 pt-2">
+          <div>
+            <div class="text-xs text-emerald-300">To Receive (Given)</div>
+            <div id="udharGivenTotal" class="text-2xl font-bold text-emerald-300 mt-0.5">₹0</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-rose-300">To Pay (Taken)</div>
+            <div id="udharTakenTotal" class="text-2xl font-bold text-rose-300 mt-0.5">₹0</div>
+          </div>
+        </div>
+        <div id="udharNetTotal" class="text-xs text-slate-300 mt-3 pt-2 border-t border-white/15">Total Open: ₹0</div>
+      </div>
+
+      <div class="flex items-center justify-between gap-2">
+        <input id="inputUdharSearch" type="search" placeholder="Search person name..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        <button id="btnAddUdhar" type="button" class="shrink-0 px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Loan</button>
+      </div>
+
+      <div id="udharFilterChips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <button type="button" data-ufilter="pending" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white">Pending</button>
+        <button type="button" data-ufilter="all" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">All</button>
+        <button type="button" data-ufilter="GIVEN" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Given</button>
+        <button type="button" data-ufilter="TAKEN" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Taken</button>
+        <button type="button" data-ufilter="settled" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Settled</button>
+      </div>
+
+      <div id="udharList" class="space-y-2"></div>
+    </section>
   </main>
 
   <!-- Bottom Navigation -->
   <nav class="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-slate-200">
-    <div class="max-w-2xl mx-auto grid grid-cols-3 h-16">
+    <div class="max-w-2xl mx-auto grid grid-cols-4 h-16">
       <button id="navMonthly" type="button" class="flex flex-col items-center justify-center gap-0.5 text-teal-700 font-semibold text-xs">
         <span class="text-base">📋</span>
         <span>Monthly</span>
@@ -141,6 +230,10 @@
       <button id="navZan" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
         <span class="text-base">🏠</span>
         <span>Zan-Home</span>
+      </button>
+      <button id="navUdhar" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
+        <span class="text-base">🤝</span>
+        <span>Loans</span>
       </button>
       <button id="navSummary" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
         <span class="text-base">📊</span>
@@ -322,21 +415,88 @@
     </div>
   </div>
 
+  <!-- Udhar Editor Modal -->
+  <div id="udharModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="udharModalTitle" class="text-base font-bold text-slate-900">Add Loan / Borrowing</h3>
+        <button id="btnCloseUdharModal" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btnUdharGiven" type="button" class="py-2 rounded-lg text-xs font-semibold border">Given (Loaned)</button>
+        <button id="btnUdharTaken" type="button" class="py-2 rounded-lg text-xs font-semibold border">Taken (Borrowed)</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Person Name</label>
+          <input id="inputUdharPerson" type="text" placeholder="e.g. Vaibhav, Divyam" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
+          <input id="inputUdharAmount" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Given / Taken Date</label>
+          <input id="inputUdharDate" type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Mode</label>
+          <select id="selectUdharMode" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
+            <option value="GPay">GPay</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 items-end">
+        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer pb-2">
+          <input id="inputUdharSettled" type="checkbox" class="rounded text-teal-700 focus:ring-teal-600" />
+          <span>Returned / Settled</span>
+        </label>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Returned Date</label>
+          <input id="inputUdharReturnDate" type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Note (optional)</label>
+        <input id="inputUdharNote" type="text" placeholder="Reason or details" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnDeleteUdhar" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete</button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button id="btnCancelUdhar" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
+          <button id="btnSaveUdhar" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div id="toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg"></div>
 
   <script>
     const STORAGE_KEY = 'monthly_expenses_2026_v1';
+    const UDHAR_KEY = 'monthly_exp_udhar_v1';
     const SEED_MONTHS = [];
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
     let state = {
       months: [],
+      udhar: [],
+      udharFilter: 'pending',
+      editingUdharId: null,
+      selectedYear: null,
       selectedMonthId: null,
       activeTab: 'monthly',
-      editingEntry: null, // { type: 'investments'|'expenses', id: string|null }
+      pendingOnly: false,
+      editingEntry: null,
       editingZanId: null,
       chartInstance: null,
+      doughnutInstance: null,
       confirmResetPending: false
     };
 
@@ -360,12 +520,20 @@
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state.months));
+        localStorage.setItem(UDHAR_KEY, JSON.stringify(state.udhar));
       } catch (e) {
         // Fallback silently to in-memory if storage is restricted
       }
     }
 
     function loadState() {
+      try {
+        const uRaw = localStorage.getItem(UDHAR_KEY);
+        if (uRaw) {
+          const uParsed = JSON.parse(uRaw);
+          if (Array.isArray(uParsed)) state.udhar = uParsed;
+        }
+      } catch (e) {}
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
@@ -397,28 +565,69 @@
 
     function renderAll() {
       const m = getActiveMonth();
+      document.getElementById('viewMonthly').classList.toggle('hidden', state.activeTab !== 'monthly');
+      document.getElementById('viewZan').classList.toggle('hidden', state.activeTab !== 'zan');
+      document.getElementById('viewUdhar').classList.toggle('hidden', state.activeTab !== 'udhar');
+      document.getElementById('viewSummary').classList.toggle('hidden', state.activeTab !== 'summary');
+      const navMapInit = { monthly: 'navMonthly', zan: 'navZan', udhar: 'navUdhar', summary: 'navSummary' };
+      Object.entries(navMapInit).forEach(([tab, id]) => {
+        const el = document.getElementById(id);
+        if (el) el.className = state.activeTab === tab
+          ? 'flex flex-col items-center justify-center gap-0.5 text-teal-700 font-semibold text-xs'
+          : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs';
+      });
+      if (state.activeTab === 'udhar') {
+        document.getElementById('yearStripWrap').classList.add('hidden');
+        document.getElementById('monthStripWrap').classList.add('hidden');
+        document.getElementById('headerSubtitle').textContent = 'Loans & Borrowings • Stored locally';
+        renderUdhar();
+        return;
+      }
       if (!m) {
         document.getElementById('headerSubtitle').textContent = 'No data loaded • Tap Drive / Backup';
         document.getElementById('monthStripWrap').innerHTML = '';
         document.getElementById('heroGrandTotal').textContent = '₹0';
         document.getElementById('heroInvTotal').textContent = '₹0';
         document.getElementById('heroExpTotal').textContent = '₹0';
+        document.getElementById('heroPendingTotal').textContent = '₹0';
         document.getElementById('monthlyPaidBadge').textContent = '0/0 Paid';
-        document.getElementById('investmentsList').innerHTML = '<div class="text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-300 p-5 text-center space-y-2"><div>No data loaded yet. Tap <strong>Drive / Backup</strong> above to connect Google Drive and load your <code>.xlsx</code> file, or tap <strong>+ Month</strong> to start fresh.</div></div>';
+        document.getElementById('investmentsList').innerHTML = '<div class="text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-300 p-5 text-center space-y-2"><div>No data loaded yet. Tap <strong>Drive: Offline</strong> above to connect Google Drive and load your <code>.xlsx</code> file, or tap <strong>+ Month</strong> to start fresh.</div></div>';
         document.getElementById('expensesList').innerHTML = '';
         return;
       }
 
       document.getElementById('headerSubtitle').textContent = `${m.monthName} ${m.year} • Stored locally`;
 
-      // Render Month Strip
+      // Render Year & Month Strips
+      const yStrip = document.getElementById('yearStripWrap');
       const strip = document.getElementById('monthStripWrap');
+      yStrip.innerHTML = '';
       strip.innerHTML = '';
       if (state.activeTab === 'summary') {
+        yStrip.classList.add('hidden');
         strip.classList.add('hidden');
       } else {
+        const years = [...new Set(state.months.map(x => x.year))].sort((a, b) => b - a);
+        if (!state.selectedYear || !years.includes(state.selectedYear)) state.selectedYear = m.year;
+        yStrip.classList.toggle('hidden', years.length <= 1);
+        years.forEach(yr => {
+          const yb = document.createElement('button');
+          yb.type = 'button';
+          yb.className = yr === state.selectedYear
+            ? 'shrink-0 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-slate-800 text-white'
+            : 'shrink-0 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
+          yb.textContent = String(yr);
+          yb.addEventListener('click', () => {
+            state.selectedYear = yr;
+            const firstInYear = state.months.find(x => x.year === yr);
+            if (firstInYear) state.selectedMonthId = firstInYear.id;
+            renderAll();
+          });
+          yStrip.appendChild(yb);
+        });
+
         strip.classList.remove('hidden');
-        state.months.forEach(item => {
+        state.months.filter(item => item.year === state.selectedYear).forEach(item => {
           const btn = document.createElement('button');
           btn.type = 'button';
           const active = item.id === m.id;
@@ -434,19 +643,7 @@
         });
       }
 
-      // Switch views
-      document.getElementById('viewMonthly').classList.toggle('hidden', state.activeTab !== 'monthly');
-      document.getElementById('viewZan').classList.toggle('hidden', state.activeTab !== 'zan');
-      document.getElementById('viewSummary').classList.toggle('hidden', state.activeTab !== 'summary');
 
-      // Nav active styles
-      const navMap = { monthly: 'navMonthly', zan: 'navZan', summary: 'navSummary' };
-      Object.entries(navMap).forEach(([tab, id]) => {
-        const el = document.getElementById(id);
-        el.className = state.activeTab === tab
-          ? 'flex flex-col items-center justify-center gap-0.5 text-teal-700 font-semibold text-xs'
-          : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs';
-      });
 
       if (state.activeTab === 'monthly') renderMonthly(m);
       if (state.activeTab === 'zan') renderZan(m);
@@ -519,30 +716,44 @@
     }
 
     function renderMonthly(m) {
+      if (m.zanItems && m.zanItems.length > 0) {
+        const netZ = m.zanItems.reduce((a, z) => a + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
+        const zr = m.expenses.find(e => e.isZanLinked || e.title.toLowerCase().includes('zan'));
+        if (zr && netZ !== 0 && Number(zr.amount) === 0) zr.amount = netZ;
+      }
       const invSum = m.investments.reduce((s, x) => s + (Number(x.amount) || 0), 0);
       const expSum = m.expenses.reduce((s, x) => s + (Number(x.amount) || 0), 0);
       const allItems = [...m.investments, ...m.expenses];
       const paidCount = allItems.filter(x => x.isPaid).length;
+      const pendingSum = allItems.filter(x => !x.isPaid).reduce((s, x) => s + (Number(x.amount) || 0), 0);
 
       document.getElementById('heroGrandTotal').textContent = formatInr(invSum + expSum);
       document.getElementById('heroInvTotal').textContent = formatInr(invSum);
       document.getElementById('heroExpTotal').textContent = formatInr(expSum);
+      document.getElementById('heroPendingTotal').textContent = formatInr(pendingSum);
       document.getElementById('monthlyPaidBadge').textContent = `${paidCount}/${allItems.length} Paid`;
 
+      const fBtn = document.getElementById('btnPendingFilter');
+      fBtn.className = state.pendingOnly
+        ? 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 transition'
+        : 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
+
+      const invItems = state.pendingOnly ? m.investments.filter(x => !x.isPaid) : m.investments;
       const invList = document.getElementById('investmentsList');
       invList.innerHTML = '';
-      if (m.investments.length === 0) {
-        invList.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No investments yet. Tap + Add Investment.</div>';
+      if (invItems.length === 0) {
+        invList.innerHTML = `<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">${state.pendingOnly ? 'All investments paid!' : 'No investments yet. Tap + Add Investment.'}</div>`;
       } else {
-        m.investments.forEach(item => invList.appendChild(createItemCard(item, 'investments', m)));
+        invItems.forEach(item => invList.appendChild(createItemCard(item, 'investments', m)));
       }
 
+      const expItems = state.pendingOnly ? m.expenses.filter(x => !x.isPaid) : m.expenses;
       const expList = document.getElementById('expensesList');
       expList.innerHTML = '';
-      if (m.expenses.length === 0) {
-        expList.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No expenses yet. Tap + Add Expense.</div>';
+      if (expItems.length === 0) {
+        expList.innerHTML = `<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">${state.pendingOnly ? 'All expenses paid!' : 'No expenses yet. Tap + Add Expense.'}</div>`;
       } else {
-        m.expenses.forEach(item => expList.appendChild(createItemCard(item, 'expenses', m)));
+        expItems.forEach(item => expList.appendChild(createItemCard(item, 'expenses', m)));
       }
     }
 
@@ -624,8 +835,19 @@
         data: {
           labels,
           datasets: [
-            { label: 'Expenses', data: expSeries, backgroundColor: '#0f766e', borderRadius: 4 },
-            { label: 'Investments', data: invSeries, backgroundColor: '#99f6e4', borderRadius: 4 }
+            { label: 'Expenses', data: expSeries, backgroundColor: '#0f766e', borderRadius: 4, order: 2 },
+            { label: 'Investments', data: invSeries, backgroundColor: '#99f6e4', borderRadius: 4, order: 2 },
+            {
+              label: 'Avg',
+              data: labels.map(() => Math.round(avg)),
+              type: 'line',
+              borderColor: '#f59e0b',
+              borderWidth: 2,
+              borderDash: [5, 4],
+              pointRadius: 0,
+              fill: false,
+              order: 1
+            }
           ]
         },
         options: {
@@ -640,6 +862,78 @@
           },
           plugins: {
             legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+
+      // Category Breakdown across loaded months
+      const cats = { 'Credit Cards': 0, 'Zan-Home': 0, 'Shop Rent': 0, 'Investments': 0, 'Other Expenses': 0 };
+      chronological.forEach(m => {
+        m.investments.forEach(i => { cats['Investments'] += Number(i.amount) || 0; });
+        m.expenses.forEach(e => {
+          const t = (e.title || '').toLowerCase();
+          const amt = Number(e.amount) || 0;
+          if (t.includes('cc')) cats['Credit Cards'] += amt;
+          else if (t.includes('zan')) cats['Zan-Home'] += amt;
+          else if (t.includes('rent')) cats['Shop Rent'] += amt;
+          else cats['Other Expenses'] += amt;
+        });
+      });
+      const catEl = document.getElementById('categoryBreakdownList');
+      catEl.innerHTML = '';
+      Object.entries(cats).sort((a, b) => b[1] - a[1]).forEach(([label, val]) => {
+        const pct = totalAll > 0 ? Math.round((val / totalAll) * 100) : 0;
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+          <div class="flex justify-between text-xs font-medium">
+            <span class="text-slate-700">${label}</span>
+            <span class="font-bold text-slate-900">${formatInr(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+          </div>
+          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-teal-600 rounded-full" style="width:${pct}%"></div>
+          </div>
+        `;
+        catEl.appendChild(row);
+      });
+
+      // KPI Highlights
+      const monthTotals = chronological.map(m => ({
+        name: `${m.monthName.slice(0, 3)} '${String(m.year).slice(-2)}`,
+        total: m.investments.reduce((a, x) => a + (Number(x.amount) || 0), 0) + m.expenses.reduce((a, x) => a + (Number(x.amount) || 0), 0)
+      }));
+      if (monthTotals.length > 0) {
+        const hi = monthTotals.reduce((a, b) => b.total > a.total ? b : a);
+        const lo = monthTotals.reduce((a, b) => b.total < a.total ? b : a);
+        document.getElementById('kpiHighestVal').textContent = formatInr(hi.total);
+        document.getElementById('kpiHighestName').textContent = hi.name;
+        document.getElementById('kpiLowestVal').textContent = formatInr(lo.total);
+        document.getElementById('kpiLowestName').textContent = lo.name;
+      }
+      const invPct = totalAll > 0 ? Math.round((cats['Investments'] / totalAll) * 100) : 0;
+      document.getElementById('kpiInvestedVal').textContent = formatInr(cats['Investments']);
+      document.getElementById('kpiInvestedPct').textContent = `${invPct}% of total`;
+
+      // Category Doughnut Chart
+      const dCtx = document.getElementById('categoryDoughnutChart').getContext('2d');
+      if (state.doughnutInstance) state.doughnutInstance.destroy();
+      const sortedCats = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+      state.doughnutInstance = new Chart(dCtx, {
+        type: 'doughnut',
+        data: {
+          labels: sortedCats.map(c => c[0]),
+          datasets: [{
+            data: sortedCats.map(c => c[1]),
+            backgroundColor: ['#0f766e', '#14b8a6', '#f59e0b', '#6366f1', '#94a3b8'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } }
           }
         }
       });
@@ -990,14 +1284,50 @@
         const ws = XLSX.utils.aoa_to_sheet(rows);
         XLSX.utils.book_append_sheet(wb, ws, yearStr);
       });
+      // Separate Udhar sheet
+      const udharRows = [['Type', 'Person Name', 'Amount', 'Date', 'Mode', 'Status', 'Returned Date', 'Note']];
+      (state.udhar || []).forEach(u => {
+        udharRows.push([
+          u.type || 'GIVEN',
+          u.person || '',
+          Number(u.amount) || 0,
+          u.date || '',
+          u.mode || 'GPay',
+          u.isSettled ? 'Settled' : 'Pending',
+          u.returnDate || '',
+          u.note || ''
+        ]);
+      });
+      const uWs = XLSX.utils.aoa_to_sheet(udharRows);
+      XLSX.utils.book_append_sheet(wb, uWs, 'Loans');
       return wb;
     }
 
     function parseWorkbookToMonths(wb) {
       const parsed = [];
       const headerRe = /^\(([A-Za-z]+)\s+(\d{4})\)$/;
+      const parsedUdhar = [];
       wb.SheetNames.forEach(name => {
         const ws = wb.Sheets[name];
+        if (name.trim().toLowerCase() === 'loans' || name.trim().toLowerCase() === 'udhar') {
+          const uData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          for (let i = 1; i < uData.length; i++) {
+            const r = uData[i];
+            if (!r[1] && !r[2]) continue;
+            parsedUdhar.push({
+              id: `udhar-${i}-${Date.now()}`,
+              type: String(r[0] || 'GIVEN').toUpperCase().includes('TAKEN') ? 'TAKEN' : 'GIVEN',
+              person: String(r[1] || '').trim(),
+              amount: Number(r[2]) || 0,
+              date: String(r[3] || '').trim(),
+              mode: String(r[4] || 'GPay').trim(),
+              isSettled: String(r[5] || '').toLowerCase().includes('settled') || String(r[5] || '').toLowerCase().includes('paid'),
+              returnDate: String(r[6] || '').trim(),
+              note: String(r[7] || '').trim()
+            });
+          }
+          return;
+        }
         const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
         let cur = null, sec = null, inZan = false;
         data.forEach(row => {
@@ -1005,9 +1335,9 @@
           if (typeof c1 === 'string' && headerRe.test(c1.trim())) {
             if (cur) {
               if (cur.zanItems.length > 0) {
-                const netZan = cur.zanItems.reduce((acc, z) => acc + z.creditGiven - z.debitTaken, 0);
-                const zanRow = cur.expenses.find(e => e.isZanLinked);
-                if (zanRow) zanRow.amount = netZan;
+                const netZan = cur.zanItems.reduce((acc, z) => acc + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
+                const zanRow = cur.expenses.find(e => e.isZanLinked || e.title.toLowerCase().includes('zan'));
+                if (zanRow && netZan !== 0) zanRow.amount = netZan;
               }
               parsed.push(cur);
             }
@@ -1053,15 +1383,15 @@
         });
         if (cur) {
           if (cur.zanItems.length > 0) {
-            const netZan = cur.zanItems.reduce((acc, z) => acc + z.creditGiven - z.debitTaken, 0);
-            const zanRow = cur.expenses.find(e => e.isZanLinked);
-            if (zanRow) zanRow.amount = netZan;
+            const netZan = cur.zanItems.reduce((acc, z) => acc + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
+            const zanRow = cur.expenses.find(e => e.isZanLinked || e.title.toLowerCase().includes('zan'));
+            if (zanRow && netZan !== 0) zanRow.amount = netZan;
           }
           parsed.push(cur);
         }
       });
       parsed.sort((a, b) => (b.year - a.year) || (b.monthNumber - a.monthNumber));
-      return parsed;
+      return { months: parsed, udhar: parsedUdhar };
     }
 
     document.getElementById('btnExportXlsx').addEventListener('click', () => {
@@ -1078,10 +1408,10 @@
       reader.onload = (ev) => {
         try {
           const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
-          const parsed = parseWorkbookToMonths(wb);
-          if (!parsed.length) throw new Error('No months found');
-          state.months = parsed;
-          state.selectedMonthId = parsed[0].id;
+          const { months: parsed, udhar: parsedUdhar } = parseWorkbookToMonths(wb);
+          if (!parsed.length && !parsedUdhar.length) throw new Error('No data found');
+          if (parsed.length) { state.months = parsed; state.selectedMonthId = parsed[0].id; }
+          if (parsedUdhar.length) state.udhar = parsedUdhar;
           saveState();
           document.getElementById('backupModal').classList.add('hidden');
           renderAll();
@@ -1117,13 +1447,82 @@
       } catch (e) {}
     }
 
-    function updateDriveBadge(connected) {
+    function updateDriveBadge(connected, labelText) {
       const b = document.getElementById('driveAuthBadge');
+      const pill = document.getElementById('btnDrivePill');
       b.textContent = connected ? 'Connected' : 'Not Connected';
       b.className = connected
         ? 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800'
         : 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
+      if (pill) {
+        pill.textContent = labelText || (connected ? 'Drive: Synced' : 'Drive: Offline');
+        pill.className = connected
+          ? 'px-2.5 py-1.5 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold hover:bg-teal-100 transition'
+          : 'px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition';
+      }
     }
+
+    document.getElementById('btnPendingFilter').addEventListener('click', () => {
+      state.pendingOnly = !state.pendingOnly;
+      renderAll();
+    });
+
+    document.getElementById('btnDrivePill').addEventListener('click', () => {
+      const cid = document.getElementById('inputClientId').value.trim();
+      if (!driveToken && cid) {
+        document.getElementById('btnDriveConnect').click();
+      } else {
+        document.getElementById('btnBackup').click();
+      }
+    });
+
+    // Dark Mode
+    const THEME_KEY = 'monthly_exp_dark_v1';
+    function applyTheme(isDark) {
+      document.body.classList.toggle('dark', isDark);
+      document.getElementById('btnThemeToggle').textContent = isDark ? '☀️' : '🌙';
+    }
+    try { applyTheme(localStorage.getItem(THEME_KEY) === '1'); } catch (e) {}
+    document.getElementById('btnThemeToggle').addEventListener('click', () => {
+      const next = !document.body.classList.contains('dark');
+      applyTheme(next);
+      try { localStorage.setItem(THEME_KEY, next ? '1' : '0'); } catch (e) {}
+    });
+
+    // Summary Search
+    document.getElementById('inputSummarySearch').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const box = document.getElementById('summarySearchResults');
+      if (!q) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+      const hits = [];
+      state.months.forEach(m => {
+        [...m.investments, ...m.expenses].forEach(it => {
+          if ((it.title || '').toLowerCase().includes(q) || (it.statusNote || '').toLowerCase().includes(q)) {
+            hits.push({ m, it });
+          }
+        });
+      });
+      box.classList.remove('hidden');
+      box.innerHTML = hits.length ? '' : '<div class="text-xs text-slate-400 py-2 text-center">No matching items found</div>';
+      hits.slice(0, 30).forEach(({ m, it }) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50 cursor-pointer hover:bg-slate-100';
+        row.innerHTML = `
+          <div class="min-w-0 pr-2">
+            <div class="font-semibold text-slate-900 truncate">${it.title}</div>
+            <div class="text-[11px] text-slate-500 truncate">${m.monthName.slice(0,3)} ${m.year}${it.statusNote ? ' • ' + it.statusNote : ''}</div>
+          </div>
+          <div class="font-bold text-slate-900 shrink-0">${formatInr(it.amount)}</div>
+        `;
+        row.addEventListener('click', () => {
+          state.selectedYear = m.year;
+          state.selectedMonthId = m.id;
+          state.activeTab = 'monthly';
+          renderAll();
+        });
+        box.appendChild(row);
+      });
+    });
 
     async function saveXlsxToDrive() {
       const fileId = document.getElementById('inputDriveFileId').value.trim();
@@ -1142,7 +1541,7 @@
         if (!res.ok) throw new Error('Upload failed');
         showToast('Excel saved to Google Drive');
       } catch (err) {
-        showToast('Drive upload failed (check token/file ID)');
+        updateDriveBadge(false, 'Reconnect Drive'); showToast('Drive session expired — tap Reconnect Drive');
       }
     }
 
@@ -1159,10 +1558,10 @@
         if (!res.ok) throw new Error('Download failed');
         const buf = await res.arrayBuffer();
         const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
-        const parsed = parseWorkbookToMonths(wb);
-        if (!parsed.length) throw new Error('Empty workbook');
-        state.months = parsed;
-        state.selectedMonthId = parsed[0].id;
+        const { months: parsed, udhar: parsedUdhar } = parseWorkbookToMonths(wb);
+        if (!parsed.length && !parsedUdhar.length) throw new Error('Empty workbook');
+        if (parsed.length) { state.months = parsed; state.selectedMonthId = parsed[0].id; }
+        state.udhar = parsedUdhar;
         _origSaveState();
         renderAll();
         document.getElementById('backupModal').classList.add('hidden');
@@ -1211,6 +1610,164 @@
     };
 
     loadDriveConfig();
+
+    
+    // --- Udhar (Loans Given / Taken) ---
+    let udharModalType = 'GIVEN';
+    function updateUdharTypeButtons() {
+      const isG = udharModalType === 'GIVEN';
+      document.getElementById('btnUdharGiven').className = isG
+        ? 'py-2 rounded-lg text-xs font-semibold border border-teal-700 bg-teal-50 text-teal-800'
+        : 'py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600';
+      document.getElementById('btnUdharTaken').className = !isG
+        ? 'py-2 rounded-lg text-xs font-semibold border border-rose-600 bg-rose-50 text-rose-700'
+        : 'py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600';
+    }
+
+    function openUdharModal(item = null) {
+      state.editingUdharId = item ? item.id : null;
+      udharModalType = item ? item.type : 'GIVEN';
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('udharModalTitle').textContent = item ? 'Edit Loan / Borrowing' : 'Add Loan / Borrowing';
+      document.getElementById('inputUdharPerson').value = item ? item.person : '';
+      document.getElementById('inputUdharAmount').value = item ? item.amount : '';
+      document.getElementById('inputUdharDate').value = item ? (item.date || today) : today;
+      document.getElementById('selectUdharMode').value = item ? (item.mode || 'GPay') : 'GPay';
+      document.getElementById('inputUdharSettled').checked = item ? !!item.isSettled : false;
+      document.getElementById('inputUdharReturnDate').value = item ? (item.returnDate || '') : '';
+      document.getElementById('inputUdharNote').value = item ? (item.note || '') : '';
+      document.getElementById('btnDeleteUdhar').classList.toggle('hidden', !item);
+      updateUdharTypeButtons();
+      document.getElementById('udharModal').classList.remove('hidden');
+    }
+
+    function renderUdhar() {
+      const list = state.udhar || [];
+      const pendingList = list.filter(u => !u.isSettled);
+      const givenPending = pendingList.filter(u => u.type === 'GIVEN').reduce((a, u) => a + (Number(u.amount) || 0), 0);
+      const takenPending = pendingList.filter(u => u.type === 'TAKEN').reduce((a, u) => a + (Number(u.amount) || 0), 0);
+
+      document.getElementById('udharNetTotal').textContent = `Total Open: ${formatInr(givenPending + takenPending)}`;
+      document.getElementById('udharGivenTotal').textContent = formatInr(givenPending);
+      document.getElementById('udharTakenTotal').textContent = formatInr(takenPending);
+      document.getElementById('udharPendingBadge').textContent = `${pendingList.length} Pending`;
+
+      document.querySelectorAll('.u-chip').forEach(btn => {
+        const active = btn.getAttribute('data-ufilter') === state.udharFilter;
+        btn.className = active
+          ? 'u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white'
+          : 'u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700';
+      });
+
+      const q = (document.getElementById('inputUdharSearch').value || '').trim().toLowerCase();
+      const filtered = list.filter(u => {
+        if (state.udharFilter === 'pending' && u.isSettled) return false;
+        if (state.udharFilter === 'settled' && !u.isSettled) return false;
+        if ((state.udharFilter === 'GIVEN' || state.udharFilter === 'TAKEN') && u.type !== state.udharFilter) return false;
+        if (q && !(u.person || '').toLowerCase().includes(q) && !(u.note || '').toLowerCase().includes(q)) return false;
+        return true;
+      }).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      const container = document.getElementById('udharList');
+      container.innerHTML = '';
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No matching loan entries. Tap + Add Loan.</div>';
+        return;
+      }
+
+      filtered.forEach(u => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3 shadow-xs';
+
+        const chk = document.createElement('button');
+        chk.type = 'button';
+        chk.className = u.isSettled
+          ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
+          : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
+        chk.textContent = '✓';
+        chk.addEventListener('click', (e) => {
+          e.stopPropagation();
+          u.isSettled = !u.isSettled;
+          if (u.isSettled && !u.returnDate) u.returnDate = new Date().toISOString().slice(0, 10);
+          saveState();
+          renderUdhar();
+        });
+
+        const info = document.createElement('div');
+        info.className = 'flex-1 min-w-0 cursor-pointer';
+        const isG = u.type === 'GIVEN';
+        info.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm font-semibold text-slate-900 truncate">${u.person}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isG ? 'bg-teal-50 text-teal-700' : 'bg-rose-50 text-rose-700'}">${u.type}</span>
+            <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${u.mode || 'GPay'}</span>
+          </div>
+          <div class="text-xs text-slate-500 truncate mt-0.5">${u.date || ''}${u.returnDate ? ' • Returned: ' + u.returnDate : ''}${u.note ? ' • ' + u.note : ''}</div>
+        `;
+
+        const amt = document.createElement('div');
+        amt.className = `text-sm font-bold shrink-0 cursor-pointer ${isG ? 'text-teal-700' : 'text-rose-600'}`;
+        amt.textContent = (isG ? '+ ' : '- ') + formatInr(u.amount);
+
+        info.addEventListener('click', () => openUdharModal(u));
+        amt.addEventListener('click', () => openUdharModal(u));
+
+        card.appendChild(chk);
+        card.appendChild(info);
+        card.appendChild(amt);
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('navUdhar').addEventListener('click', () => { state.activeTab = 'udhar'; renderAll(); });
+    document.getElementById('btnAddUdhar').addEventListener('click', () => openUdharModal(null));
+    document.getElementById('btnUdharGiven').addEventListener('click', () => { udharModalType = 'GIVEN'; updateUdharTypeButtons(); });
+    document.getElementById('btnUdharTaken').addEventListener('click', () => { udharModalType = 'TAKEN'; updateUdharTypeButtons(); });
+    document.getElementById('btnCloseUdharModal').addEventListener('click', () => document.getElementById('udharModal').classList.add('hidden'));
+    document.getElementById('btnCancelUdhar').addEventListener('click', () => document.getElementById('udharModal').classList.add('hidden'));
+    document.getElementById('inputUdharSearch').addEventListener('input', () => renderUdhar());
+    document.querySelectorAll('.u-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.udharFilter = btn.getAttribute('data-ufilter');
+        renderUdhar();
+      });
+    });
+
+    document.getElementById('btnSaveUdhar').addEventListener('click', () => {
+      const person = document.getElementById('inputUdharPerson').value.trim();
+      const amount = parseFloat(document.getElementById('inputUdharAmount').value) || 0;
+      const date = document.getElementById('inputUdharDate').value;
+      const mode = document.getElementById('selectUdharMode').value;
+      const isSettled = document.getElementById('inputUdharSettled').checked;
+      let returnDate = document.getElementById('inputUdharReturnDate').value;
+      if (isSettled && !returnDate) returnDate = new Date().toISOString().slice(0, 10);
+      const note = document.getElementById('inputUdharNote').value.trim();
+      if (!person || amount <= 0) { showToast('Enter person name & amount'); return; }
+
+      if (state.editingUdharId) {
+        const idx = state.udhar.findIndex(u => u.id === state.editingUdharId);
+        if (idx !== -1) {
+          state.udhar[idx] = { ...state.udhar[idx], type: udharModalType, person, amount, date, mode, isSettled, returnDate, note };
+        }
+      } else {
+        state.udhar.push({ id: `udhar-${Date.now()}`, type: udharModalType, person, amount, date, mode, isSettled, returnDate, note });
+      }
+      document.getElementById('udharModal').classList.add('hidden');
+      saveState();
+      renderUdhar();
+      showToast('Loan entry saved');
+    });
+
+    document.getElementById('btnDeleteUdhar').addEventListener('click', () => {
+      if (!state.editingUdharId) return;
+      state.udhar = state.udhar.filter(u => u.id !== state.editingUdharId);
+      document.getElementById('udharModal').classList.add('hidden');
+      saveState();
+      renderUdhar();
+      showToast('Loan entry deleted');
+    });
+
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(() => {}); }
 
     // Init
     loadState();
