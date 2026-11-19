@@ -1035,22 +1035,40 @@
         }
       });
 
-      // Category Breakdown across loaded months
-      const cats = { 'Credit Cards': 0, 'Zan-Home': 0, 'Shop Rent': 0, 'Investments': 0, 'Other Expenses': 0 };
+      // Detailed Category Breakdown across filtered months
+      const cats = {
+        'Credit Cards': 0,
+        'Zan-Home': 0,
+        'Monthly Transfer': 0,
+        'Shop Rent': 0,
+        'Investments': 0,
+        'Bills & Utilities': 0,
+        'Vehicle & Fuel': 0,
+        'Education & Kids': 0,
+        'Travel & Trips': 0,
+        'Insurance & Tax': 0,
+        'Shopping & Misc': 0
+      };
       chronological.forEach(m => {
         m.investments.forEach(i => { cats['Investments'] += Number(i.amount) || 0; });
         m.expenses.forEach(e => {
           const t = (e.title || '').toLowerCase();
           const amt = Number(e.amount) || 0;
-          if (t.includes('cc') || t.includes('credit card')) cats['Credit Cards'] += amt;
+          if (/\b(cc|credit\s*card)\b/.test(t)) cats['Credit Cards'] += amt;
           else if (t.includes('zan')) cats['Zan-Home'] += amt;
+          else if (t === 'trans' || t.startsWith('trans ')) cats['Monthly Transfer'] += amt;
           else if (t.includes('rent')) cats['Shop Rent'] += amt;
-          else cats['Other Expenses'] += amt;
+          else if (/mediclaim|policy|insurance|it return/.test(t)) cats['Insurance & Tax'] += amt;
+          else if (/lakshya|school|bus|tution|tuition|books|coaching/.test(t)) cats['Education & Kids'] += amt;
+          else if (/car|activa|amaze|tyre|wheel|wash|petrol|service/.test(t)) cats['Vehicle & Fuel'] += amt;
+          else if (/safari|udaipur|morbi|abu|surat|daman|jaisalmer|travelling/.test(t)) cats['Travel & Trips'] += amt;
+          else if (/light|bill|newspaper|recharge|maintenance|ro amc|gas/.test(t)) cats['Bills & Utilities'] += amt;
+          else cats['Shopping & Misc'] += amt;
         });
       });
       const catEl = document.getElementById('categoryBreakdownList');
       catEl.innerHTML = '';
-      Object.entries(cats).sort((a, b) => b[1] - a[1]).forEach(([label, val]) => {
+      Object.entries(cats).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).forEach(([label, val]) => {
         const pct = totalAll > 0 ? Math.round((val / totalAll) * 100) : 0;
         const row = document.createElement('div');
         row.className = 'space-y-1';
@@ -1086,14 +1104,14 @@
       // Category Doughnut Chart
       const dCtx = document.getElementById('categoryDoughnutChart').getContext('2d');
       if (state.doughnutInstance) state.doughnutInstance.destroy();
-      const sortedCats = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+      const sortedCats = Object.entries(cats).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
       state.doughnutInstance = new Chart(dCtx, {
         type: 'doughnut',
         data: {
           labels: sortedCats.map(c => c[0]),
           datasets: [{
             data: sortedCats.map(c => c[1]),
-            backgroundColor: ['#0f766e', '#14b8a6', '#f59e0b', '#6366f1', '#94a3b8'],
+            backgroundColor: ['#0f766e', '#14b8a6', '#f59e0b', '#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316', '#3b82f6', '#94a3b8'],
             borderWidth: 0
           }]
         },
