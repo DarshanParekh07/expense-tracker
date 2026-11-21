@@ -2185,9 +2185,13 @@
       });
     });
 
-    async function saveXlsxToDrive() {
+    async function saveXlsxToDrive(forceManual = false) {
       const fileId = document.getElementById('inputDriveFileId').value.trim();
       if (!driveToken || !fileId || typeof XLSX === 'undefined') return;
+      if (!forceManual && (!state.months || state.months.length === 0)) {
+        showToast('Skipped Drive auto-save (no months loaded yet)');
+        return;
+      }
       try {
         const wb = buildWorkbookFromMonths(state.months);
         const bytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
@@ -2260,7 +2264,7 @@
     });
 
     document.getElementById('btnDriveLoad').addEventListener('click', () => { saveDriveConfig(); loadXlsxFromDrive(); });
-    document.getElementById('btnDriveSave').addEventListener('click', () => { saveDriveConfig(); saveXlsxToDrive(); });
+    document.getElementById('btnDriveSave').addEventListener('click', () => { saveDriveConfig(); if (!state.months.length) { showToast('Load data first before saving to Drive'); return; } saveXlsxToDrive(true); });
     document.getElementById('inputAutoSync').addEventListener('change', saveDriveConfig);
 
     const _origSaveState = saveState;
