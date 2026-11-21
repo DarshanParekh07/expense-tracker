@@ -30,8 +30,8 @@
     body.dark .text-slate-900, body.dark .text-slate-800 { color: #f8fafc !important; }
     body.dark .text-slate-700, body.dark .text-slate-600 { color: #cbd5e1 !important; }
     body.dark .text-slate-500, body.dark .text-slate-400 { color: #94a3b8 !important; }
-    body.dark .text-teal-800, body.dark .text-teal-700 { color: #5eead4 !important; }
-    body.dark .nav-active-pill { background-color: rgba(20, 184, 166, 0.22) !important; color: #5eead4 !important; }
+    body.dark .text-indigo-800, body.dark .text-indigo-700 { color: #a5b4fc !important; }
+    body.dark .nav-active-pill { background-color: rgba(99, 102, 241, 0.25) !important; color: #a5b4fc !important; }
     body.dark input, body.dark select { background-color: #0f172a !important; color: #f8fafc !important; border-color: #475569 !important; }
   </style>
 </head>
@@ -40,17 +40,17 @@
   <!-- Left Navigation Drawer -->
   <div id="drawerBackdrop" class="hidden fixed inset-0 z-50 bg-slate-900/50">
     <aside class="w-72 max-w-[82vw] h-full bg-white shadow-2xl flex flex-col overflow-y-auto">
-      <div class="p-4 bg-gradient-to-br from-teal-700 to-teal-900 text-white flex items-center justify-between">
+      <div class="p-4 bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 text-white flex items-center justify-between">
         <div>
           <div class="text-base font-bold">Trip Manager</div>
-          <div class="text-xs text-teal-100">Group Expense Splitter</div>
+          <div class="text-xs text-indigo-200">Group Expense Splitter</div>
         </div>
         <button id="btnDrawerClose" type="button" class="text-white/80 hover:text-white text-2xl leading-none">&times;</button>
       </div>
       <div class="p-3 space-y-4 flex-1 text-xs">
         <div class="space-y-1">
           <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Trip Actions</div>
-          <button id="btnDrawerNewTrip" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2.5"><span>➕</span><span>New Trip</span></button>
+          <button id="btnDrawerNewTrip" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-indigo-800 hover:bg-indigo-50 flex items-center gap-2.5"><span>➕</span><span>New Trip</span></button>
           <button id="btnDrawerEditTrip" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>✏️</span><span>Edit Trip &amp; Members</span></button>
           <button id="btnDrawerCopySummary" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📋</span><span>Copy WhatsApp Summary</span></button>
         </div>
@@ -85,7 +85,7 @@
     <!-- Trip Selector Strip -->
     <div class="max-w-2xl mx-auto px-4 pb-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
       <div id="tripStripWrap" class="flex items-center gap-1.5"></div>
-      <button id="btnNewTripChip" type="button" class="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 hover:bg-teal-100">+ New Trip</button>
+      <button id="btnNewTripChip" type="button" class="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-800 hover:bg-indigo-100">+ New Trip</button>
     </div>
   </header>
 
@@ -93,27 +93,27 @@
     <div id="emptyTripState" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-6 text-center space-y-3">
       <div class="text-sm font-semibold text-slate-700">No trips yet</div>
       <div class="text-xs text-slate-500">Create a trip with participants and a Trip Manager to start splitting expenses.</div>
-      <button id="btnEmptyCreateTrip" type="button" class="px-4 py-2 rounded-xl bg-teal-700 text-white text-xs font-semibold">+ Create First Trip</button>
+      <button id="btnEmptyCreateTrip" type="button" class="px-4 py-2 rounded-xl bg-indigo-700 text-white text-xs font-semibold">+ Create First Trip</button>
     </div>
 
     <!-- Tab 1: Expenses -->
     <section id="viewExpenses" class="hidden space-y-4">
-      <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
+      <div class="rounded-2xl bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 text-white p-4 shadow-sm">
         <div class="flex items-center justify-between gap-2">
-          <span id="heroTripName" class="text-xs font-bold uppercase tracking-wider text-teal-100 truncate">Trip</span>
+          <span id="heroTripName" class="text-xs font-bold uppercase tracking-wider text-indigo-200 truncate">Trip</span>
           <span id="heroManagerBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white shrink-0">Manager: -</span>
         </div>
         <div id="heroTripTotal" class="text-3xl font-bold mt-1">₹0</div>
         <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/15 text-xs">
-          <div><div class="text-teal-100">Pool Given</div><div id="heroPoolGiven" class="font-semibold">₹0</div></div>
-          <div class="text-center"><div class="text-teal-100">Members</div><div id="heroMemberCount" class="font-semibold">0</div></div>
+          <div><div class="text-indigo-200">Pool Given</div><div id="heroPoolGiven" class="font-semibold">₹0</div></div>
+          <div class="text-center"><div class="text-indigo-200">Members</div><div id="heroMemberCount" class="font-semibold">0</div></div>
           <div class="text-right"><div class="text-amber-200">Pool Left</div><div id="heroPoolLeft" class="font-semibold text-amber-200">₹0</div></div>
         </div>
       </div>
 
       <div class="flex items-center justify-between">
         <h2 class="text-xs font-bold uppercase tracking-wide text-slate-700">Trip Expenses</h2>
-        <button id="btnAddExpense" type="button" class="px-3 py-1.5 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Expense</button>
+        <button id="btnAddExpense" type="button" class="px-3 py-1.5 rounded-lg bg-indigo-700 text-white text-xs font-semibold hover:bg-indigo-800">+ Add Expense</button>
       </div>
       <div id="expensesList" class="space-y-2"></div>
     </section>
@@ -159,7 +159,7 @@
   <!-- Bottom Navigation (3 clean tabs) -->
   <nav class="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-slate-200">
     <div class="max-w-2xl mx-auto grid grid-cols-3 h-16">
-      <button id="navExpenses" type="button" class="nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-teal-50 text-teal-800 font-bold text-xs rounded-xl mx-1 my-1.5">
+      <button id="navExpenses" type="button" class="nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-indigo-50 text-indigo-800 font-bold text-xs rounded-xl mx-1 my-1.5">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <span>Expenses</span>
       </button>
@@ -199,7 +199,7 @@
         <button id="btnDeleteTrip" type="button" class="hidden text-xs font-semibold text-rose-600">Delete Trip</button>
         <div class="flex gap-2 ml-auto">
           <button id="btnCancelTrip" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
-          <button id="btnSaveTrip" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save Trip</button>
+          <button id="btnSaveTrip" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-700 text-white">Save Trip</button>
         </div>
       </div>
     </div>
@@ -244,7 +244,7 @@
       <div class="space-y-1.5">
         <div class="flex items-center justify-between">
           <label class="text-xs font-medium text-slate-600">Split Between (<span id="splitPreviewTxt">₹0 / person</span>)</label>
-          <button id="btnSelectAllSplit" type="button" class="text-xs font-semibold text-teal-700">Select All</button>
+          <button id="btnSelectAllSplit" type="button" class="text-xs font-semibold text-indigo-700">Select All</button>
         </div>
         <div id="splitCheckboxesWrap" class="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto p-2 rounded-xl bg-slate-50 border border-slate-200"></div>
       </div>
@@ -252,7 +252,7 @@
         <button id="btnDeleteExp" type="button" class="hidden text-xs font-semibold text-rose-600">Delete</button>
         <div class="flex gap-2 ml-auto">
           <button id="btnCancelExp" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
-          <button id="btnSaveExp" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
+          <button id="btnSaveExp" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-700 text-white">Save</button>
         </div>
       </div>
     </div>
@@ -271,7 +271,7 @@
       </div>
       <div class="flex justify-end gap-2 pt-2">
         <button id="btnCancelAdv" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
-        <button id="btnSaveAdv" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
+        <button id="btnSaveAdv" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-700 text-white">Save</button>
       </div>
     </div>
   </div>
@@ -297,13 +297,13 @@
           <input id="inpDriveFileId" type="text" placeholder="Paste Drive .xlsx File ID" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
         </div>
         <div class="grid grid-cols-3 gap-1.5 pt-1">
-          <button id="btnDriveConnect" type="button" class="py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold">Connect</button>
+          <button id="btnDriveConnect" type="button" class="py-2 rounded-lg bg-indigo-700 text-white text-xs font-semibold">Connect</button>
           <button id="btnDriveLoad" type="button" class="py-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold">Load .xlsx</button>
           <button id="btnDriveSave" type="button" class="py-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold">Save .xlsx</button>
         </div>
       </div>
       <div class="space-y-2">
-        <button id="btnExportXlsx" type="button" class="w-full py-2.5 rounded-xl bg-teal-700 text-white text-xs font-semibold">Download Trip Excel (.xlsx)</button>
+        <button id="btnExportXlsx" type="button" class="w-full py-2.5 rounded-xl bg-indigo-700 text-white text-xs font-semibold">Download Trip Excel (.xlsx)</button>
         <label class="block w-full py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold text-center cursor-pointer">
           Import Trip Excel (.xlsx)
           <input id="inpImportXlsx" type="file" accept=".xlsx" class="hidden" />
@@ -501,7 +501,7 @@
         const b = document.createElement('button');
         b.type = 'button';
         b.className = trip && t.id === trip.id
-          ? 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white'
+          ? 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-700 text-white'
           : 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700';
         b.textContent = t.name;
         b.addEventListener('click', () => { state.selectedTripId = t.id; renderAll(); });
@@ -517,7 +517,7 @@
       Object.entries(navMap).forEach(([k, id]) => {
         const el = document.getElementById(id);
         el.className = state.activeTab === k
-          ? 'nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-teal-50 text-teal-800 font-bold text-xs rounded-xl mx-1 my-1.5'
+          ? 'nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-indigo-50 text-indigo-800 font-bold text-xs rounded-xl mx-1 my-1.5'
           : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs mx-1 my-1.5 rounded-xl';
       });
 
@@ -549,16 +549,25 @@
         const payer = e.paidBy === 'POOL' ? 'Trip Pool' : ((trip.members.find(m => m.id === e.paidBy) || {}).name || 'Manager');
         const splitCnt = (e.splitIds && e.splitIds.length) ? e.splitIds.length : trip.members.length;
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-400';
+        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-indigo-400';
+        const catColors = {
+          Travel: 'bg-sky-50 text-sky-700 border border-sky-200',
+          Stay: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+          Food: 'bg-amber-50 text-amber-700 border border-amber-200',
+          Tickets: 'bg-purple-50 text-purple-700 border border-purple-200',
+          Shopping: 'bg-rose-50 text-rose-700 border border-rose-200',
+          Other: 'bg-slate-100 text-slate-700 border border-slate-200'
+        };
+        const catCls = catColors[e.category] || catColors.Other;
         card.innerHTML = `
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
               <span class="text-sm font-semibold text-slate-900 truncate">${e.title}</span>
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 shrink-0">${e.category || 'Other'}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md ${catCls} shrink-0">${e.category || 'Other'}</span>
             </div>
             <div class="text-xs text-slate-500 truncate mt-0.5">Paid by ${payer} • Split ${splitCnt}/${trip.members.length}${e.date ? ' • ' + e.date : ''}</div>
           </div>
-          <div class="text-sm font-bold text-slate-900 shrink-0">${fmt(e.amount)}</div>
+          <div class="text-sm font-bold text-slate-900 shrink-0" style="font-variant-numeric:tabular-nums">${fmt(e.amount)}</div>
         `;
         card.addEventListener('click', () => openExpModal(e));
         el.appendChild(card);
@@ -573,14 +582,14 @@
         const isMgr = mgr && st.member.id === mgr.id;
         const bal = Math.round(st.net);
         const balTxt = bal > 0 ? `Get Back ${fmt(bal)}` : (bal < 0 ? `Pay ${fmt(-bal)}` : 'Settled');
-        const balCls = bal > 0 ? 'text-teal-700' : (bal < 0 ? 'text-rose-600' : 'text-slate-500');
+        const balCls = bal > 0 ? 'text-indigo-700' : (bal < 0 ? 'text-rose-600' : 'text-slate-500');
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-400';
+        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-indigo-400';
         card.innerHTML = `
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
               <span class="text-sm font-bold text-slate-900 truncate">${st.member.name}</span>
-              ${isMgr ? '<span class="text-xs font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-800">MANAGER</span>' : ''}
+              ${isMgr ? '<span class="text-xs font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-800">MANAGER</span>' : ''}
             </div>
             <div class="text-xs text-slate-500 mt-0.5">Advance: ${fmt(st.advance)} • Direct: ${fmt(st.directPaid)} • Share: ${fmt(Math.round(st.share))}</div>
           </div>
@@ -607,10 +616,10 @@
           wrap.className = 'border-b border-slate-100 last:border-0 py-2';
           const r = document.createElement('div');
           r.className = 'flex items-center justify-between gap-2 text-xs cursor-pointer';
-          r.innerHTML = `<span class="font-semibold text-slate-800">${t.from} → ${t.to}</span><span class="font-bold text-teal-700 shrink-0">${fmt(t.amt)} ▾</span>`;
+          r.innerHTML = `<span class="font-semibold text-slate-800">${t.from} → ${t.to}</span><span class="font-bold text-indigo-700 shrink-0">${fmt(t.amt)} ▾</span>`;
           const act = document.createElement('div');
           act.className = 'hidden flex items-center justify-end gap-2 mt-2 pt-2 border-t border-slate-100';
-          act.innerHTML = `<button type="button" class="cancel-stl px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold">Cancel</button><button type="button" class="settle-btn px-3 py-1 rounded-lg bg-teal-700 text-white text-xs font-semibold">Mark Paid</button>`;
+          act.innerHTML = `<button type="button" class="cancel-stl px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold">Cancel</button><button type="button" class="settle-btn px-3 py-1 rounded-lg bg-indigo-700 text-white text-xs font-semibold">Mark Paid</button>`;
           r.addEventListener('click', () => act.classList.toggle('hidden'));
           act.querySelector('.cancel-stl').addEventListener('click', (e) => { e.stopPropagation(); act.classList.add('hidden'); });
           act.querySelector('.settle-btn').addEventListener('click', (e) => {
@@ -684,7 +693,7 @@
         row.className = 'flex items-center gap-2';
         row.innerHTML = `
           <input type="text" data-mid="${mId}" value="${val}" class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs" placeholder="Member ${i + 1}" />
-          <button type="button" data-idx="${i}" class="mgr-pill shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-semibold ${isMgr ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${isMgr ? '★ Manager' : 'Set Manager'}</button>
+          <button type="button" data-idx="${i}" class="mgr-pill shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-semibold ${isMgr ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${isMgr ? '★ Manager' : 'Set Manager'}</button>
         `;
         row.querySelector('.mgr-pill').addEventListener('click', () => {
           selectedMgrIdx = i;
@@ -789,7 +798,7 @@
       trip.members.forEach(m => {
         const lbl = document.createElement('label');
         lbl.className = 'flex items-center gap-1.5 text-xs text-slate-800 cursor-pointer';
-        lbl.innerHTML = `<input type="checkbox" value="${m.id}" ${activeIds.includes(m.id) ? 'checked' : ''} class="rounded text-teal-700" /> <span class="truncate">${m.name}</span>`;
+        lbl.innerHTML = `<input type="checkbox" value="${m.id}" ${activeIds.includes(m.id) ? 'checked' : ''} class="rounded text-indigo-700" /> <span class="truncate">${m.name}</span>`;
         lbl.querySelector('input').addEventListener('change', updateSplitPreview);
         wrap.appendChild(lbl);
       });
@@ -1041,7 +1050,7 @@
       const pill = document.getElementById('btnDrivePill');
       pill.textContent = lbl || (conn ? 'Drive: Synced' : 'Drive: Offline');
       pill.className = conn
-        ? 'px-2.5 py-1.5 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold'
+        ? 'px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-800 text-xs font-semibold'
         : 'px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold';
     }
 
