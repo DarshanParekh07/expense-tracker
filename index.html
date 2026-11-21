@@ -14,6 +14,7 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
+    html { font-size: 17.5px; }
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: #f8fafc;
@@ -44,22 +45,22 @@
       <div class="p-4 bg-gradient-to-br from-teal-700 to-teal-900 text-white flex items-center justify-between">
         <div>
           <div class="text-base font-bold">Monthly Expenses</div>
-          <div class="text-[11px] text-teal-100">Personal Finance &amp; Drive Sync</div>
+          <div class="text-xs text-teal-100">Personal Finance &amp; Drive Sync</div>
         </div>
         <button id="btnMenuClose" type="button" class="text-white/80 hover:text-white text-2xl leading-none">&times;</button>
       </div>
 
       <div class="p-3 space-y-4 flex-1 text-xs">
         <div class="space-y-1">
-          <div class="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Views</div>
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Views</div>
           <button type="button" data-dtab="monthly" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📋</span><span>Monthly Expenses</span></button>
-          <button type="button" data-dtab="zan" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🏠</span><span>Zan-Home</span></button>
-          <button type="button" data-dtab="udhar" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🤝</span><span>Loans</span></button>
+          <button type="button" data-dtab="udhar" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🤝</span><span>Dues</span></button>
+          <button type="button" data-dtab="projects" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🏗️</span><span>Projects</span></button>
           <button type="button" data-dtab="summary" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📊</span><span>Summary &amp; Charts</span></button>
         </div>
 
         <div class="space-y-1 border-t border-slate-200 pt-3">
-          <div class="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Quick Actions</div>
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Quick Actions</div>
           <button id="btnNewMonthTop" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2.5"><span>➕</span><span>New Month</span></button>
           <button id="btnNewYearTop" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2.5"><span>📅</span><span>New Year</span></button>
           <button id="btnDrawerPending" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⏳</span><span>Toggle Pending Only</span></button>
@@ -67,7 +68,7 @@
         </div>
 
         <div class="space-y-1 border-t border-slate-200 pt-3">
-          <div class="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Drive &amp; Excel</div>
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Drive &amp; Excel</div>
           <button id="btnDrawerLoad" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⬇️</span><span>Load .xlsx from Drive</span></button>
           <button id="btnDrawerSave" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⬆️</span><span>Save .xlsx to Drive</span></button>
           <button id="btnDrawerDownload" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📥</span><span>Download Excel (.xlsx)</span></button>
@@ -75,7 +76,7 @@
         </div>
 
         <div class="space-y-1 border-t border-slate-200 pt-3">
-          <div class="px-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Appearance</div>
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Appearance</div>
           <button id="btnThemeToggle" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🌙</span><span id="themeToggleLabel">Dark Mode</span></button>
         </div>
       </div>
@@ -109,23 +110,23 @@
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <span class="text-xs font-medium text-teal-100 uppercase tracking-wider">Total Outflow</span>
           <div class="flex items-center gap-1.5">
-            <button id="btnFinalizeMonth" type="button" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">🔒 Finalize</button>
-            <button id="btnPendingFilter" type="button" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">Pending Only</button>
+            <button id="btnFinalizeMonth" type="button" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">🔒 Finalize</button>
+            <button id="btnPendingFilter" type="button" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">Pending Only</button>
             <span id="monthlyPaidBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0/0 Paid</span>
           </div>
         </div>
         <div id="heroGrandTotal" class="text-3xl font-bold mt-1">₹0</div>
         <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/15">
           <div>
-            <div class="text-[11px] text-teal-100">Investments</div>
+            <div class="text-xs text-teal-100">Investments</div>
             <div id="heroInvTotal" class="text-sm font-semibold">₹0</div>
           </div>
           <div class="text-center">
-            <div class="text-[11px] text-teal-100">Expenses</div>
+            <div class="text-xs text-teal-100">Expenses</div>
             <div id="heroExpTotal" class="text-sm font-semibold">₹0</div>
           </div>
           <div class="text-right">
-            <div class="text-[11px] text-amber-200">Pending</div>
+            <div class="text-xs text-amber-200">Pending</div>
             <div id="heroPendingTotal" class="text-sm font-semibold text-amber-200">₹0</div>
           </div>
         </div>
@@ -150,44 +151,13 @@
       </div>
     </section>
 
-    <!-- Zan-Home View -->
-    <section id="viewZan" class="hidden space-y-4">
-      <div class="rounded-2xl bg-slate-800 text-white p-4 shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">Transfer to Send</span>
-          <span class="text-[11px] px-2 py-0.5 rounded-full bg-white/15 text-slate-200">Fix: ₹21,500 + ₹1,500</span>
-        </div>
-        <div id="zanTransferTotal" class="text-3xl font-bold text-teal-300 mt-1">₹0</div>
-        <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/15 text-xs">
-          <div>
-            <div class="text-[11px] text-slate-300">Deductions (-)</div>
-            <div id="zanDeductionTotal" class="font-semibold text-amber-300">₹0</div>
-          </div>
-          <div class="text-center">
-            <div class="text-[11px] text-slate-300">Extra (+)</div>
-            <div id="zanExtraTotal" class="font-semibold text-emerald-300">₹0</div>
-          </div>
-          <div class="text-right">
-            <div class="text-[11px] text-slate-300">Total Zan-Home</div>
-            <div id="zanNetTotal" class="font-semibold text-white">₹0</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Zan-Home Breakdown</h2>
-        <button id="btnAddZan" type="button" class="text-xs font-semibold text-teal-700 hover:text-teal-900">+ Add Line Item</button>
-      </div>
-      <div id="zanList" class="space-y-2"></div>
-    </section>
-
     <!-- Summary View -->
     <section id="viewSummary" class="hidden space-y-4">
       <div id="summaryYearStrip" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
-      <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
-        <div id="summaryCountLabel" class="text-xs font-medium text-teal-100 uppercase tracking-wider">Total</div>
+      <div class="rounded-2xl bg-gradient-to-br from-purple-900 to-slate-950 text-white p-4 shadow-sm">
+        <div id="summaryCountLabel" class="text-xs font-medium text-purple-200 uppercase tracking-wider">Total</div>
         <div id="summaryGrandTotal" class="text-3xl font-bold mt-1">₹0</div>
-        <div id="summaryAvgLabel" class="text-sm text-teal-100 mt-1">Monthly Avg: ₹0</div>
+        <div id="summaryAvgLabel" class="text-sm text-purple-200 mt-1">Monthly Avg: ₹0</div>
       </div>
 
       <!-- Search Across All Months -->
@@ -199,19 +169,19 @@
       <!-- KPI Highlights Strip -->
       <div class="grid grid-cols-3 gap-2">
         <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-[10px] font-semibold uppercase text-slate-400">Highest Month</div>
+          <div class="text-xs font-semibold uppercase text-slate-400">Highest Month</div>
           <div id="kpiHighestVal" class="text-sm font-bold text-slate-900 mt-0.5">₹0</div>
-          <div id="kpiHighestName" class="text-[11px] text-slate-500 truncate">-</div>
+          <div id="kpiHighestName" class="text-xs text-slate-500 truncate">-</div>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-[10px] font-semibold uppercase text-slate-400">Lowest Month</div>
+          <div class="text-xs font-semibold uppercase text-slate-400">Lowest Month</div>
           <div id="kpiLowestVal" class="text-sm font-bold text-slate-900 mt-0.5">₹0</div>
-          <div id="kpiLowestName" class="text-[11px] text-slate-500 truncate">-</div>
+          <div id="kpiLowestName" class="text-xs text-slate-500 truncate">-</div>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-[10px] font-semibold uppercase text-slate-400">Total Invested</div>
+          <div class="text-xs font-semibold uppercase text-slate-400">Total Invested</div>
           <div id="kpiInvestedVal" class="text-sm font-bold text-teal-700 mt-0.5">₹0</div>
-          <div id="kpiInvestedPct" class="text-[11px] text-slate-500">0% of total</div>
+          <div id="kpiInvestedPct" class="text-xs text-slate-500">0% of total</div>
         </div>
       </div>
 
@@ -240,7 +210,7 @@
     <section id="viewUdhar" class="hidden space-y-4">
       <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 text-white p-4 shadow-sm">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">Pending Loans</span>
+          <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">Pending Dues</span>
           <span id="udharPendingBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0 Pending</span>
         </div>
         <div class="grid grid-cols-2 gap-3 mt-3 pt-2">
@@ -258,7 +228,7 @@
 
       <div class="flex items-center justify-between gap-2">
         <input id="inputUdharSearch" type="search" placeholder="Search person name..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        <button id="btnAddUdhar" type="button" class="shrink-0 px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Loan</button>
+        <button id="btnAddUdhar" type="button" class="shrink-0 px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Due</button>
       </div>
 
       <div id="udharFilterChips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
@@ -271,6 +241,72 @@
 
       <div id="udharList" class="space-y-2"></div>
     </section>
+    <!-- Projects View (Isolated from Home Summary) -->
+    <section id="viewProjects" class="hidden space-y-4">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <div id="projectStripWrap" class="flex items-center gap-1.5"></div>
+        <button id="btnNewProject" type="button" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 hover:bg-teal-100">+ New Project</button>
+      </div>
+
+      <div id="projectEmptyState" class="hidden text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-300 p-6 text-center space-y-2">
+        <div>No projects yet. Create one for a renovation, wedding, vehicle, trip, or any multi-step goal.</div>
+      </div>
+
+      <div id="projectActiveWrap" class="hidden space-y-4">
+        <div class="rounded-2xl bg-gradient-to-br from-amber-700 to-stone-900 text-white p-4 shadow-sm">
+          <div class="flex items-center justify-between gap-2">
+            <span id="projHeroTitle" class="text-xs font-bold uppercase tracking-wider text-amber-200 truncate">Project</span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button id="btnProjLock" type="button" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25">Active</button>
+              <button id="btnProjEditMeta" type="button" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25">Edit</button>
+            </div>
+          </div>
+          <div id="projTotalSpent" class="text-3xl font-bold mt-1">₹0</div>
+          <div id="projBudgetBarWrap" class="mt-2.5 space-y-1">
+            <div class="flex justify-between text-xs text-teal-100">
+              <span id="projBudgetLabel">Budget: ₹0</span>
+              <span id="projRemainingLabel">Remaining: ₹0</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+              <div id="projBudgetBar" class="h-full bg-emerald-400 rounded-full transition-all" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-3 pt-2.5 border-t border-white/15 text-xs">
+            <div><span class="text-amber-100">Paid:</span> <span id="projPaidTotal" class="font-semibold">₹0</span></div>
+            <div class="text-right"><span class="text-amber-200">Pending:</span> <span id="projPendingTotal" class="font-semibold text-amber-200">₹0</span></div>
+          </div>
+        </div>
+
+        <!-- Sub-view Switcher: Entries vs Project Charts -->
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btnProjSubEntries" type="button" class="py-2 rounded-xl text-xs font-semibold bg-teal-700 text-white">Entries</button>
+          <button id="btnProjSubCharts" type="button" class="py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700">Project Charts</button>
+        </div>
+
+        <div id="projEntriesPane" class="space-y-3">
+          <div class="flex items-center gap-2">
+            <input id="inputProjSearch" type="search" placeholder="Search item, vendor, category..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
+            <button id="btnAddProjItem" type="button" class="shrink-0 px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add</button>
+          </div>
+          <div id="projItemsList" class="space-y-2"></div>
+        </div>
+
+        <div id="projChartsPane" class="hidden space-y-4">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Spend by Category</h3>
+            <div class="relative h-52"><canvas id="projDoughnutChart"></canvas></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Monthly Spend Trend</h3>
+            <div class="relative h-52"><canvas id="projBarChart"></canvas></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
+            <h3 class="text-sm font-bold text-slate-800">Top Vendors / Payees</h3>
+            <div id="projVendorsList" class="space-y-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Bottom Navigation -->
@@ -280,13 +316,13 @@
         <span class="text-base">📋</span>
         <span>Monthly</span>
       </button>
-      <button id="navZan" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
-        <span class="text-base">🏠</span>
-        <span>Zan-Home</span>
-      </button>
       <button id="navUdhar" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
         <span class="text-base">🤝</span>
-        <span>Loans</span>
+        <span>Dues</span>
+      </button>
+      <button id="navProjects" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
+        <span class="text-base">🏗️</span>
+        <span>Projects</span>
       </button>
       <button id="navSummary" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
         <span class="text-base">📊</span>
@@ -322,6 +358,10 @@
         <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
           <input id="inputEntryPaid" type="checkbox" class="rounded text-teal-700 focus:ring-teal-600" />
           <span>Marked Paid</span>
+        </label>
+        <label id="wrapEntryHousehold" class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+          <input id="inputEntryHousehold" type="checkbox" class="rounded text-teal-700 focus:ring-teal-600" />
+          <span>Make this an Expandable Household Card</span>
         </label>
       </div>
       <div class="flex items-center justify-between pt-2">
@@ -428,14 +468,14 @@
       <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">Google Drive (.xlsx)</span>
-          <span id="driveAuthBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Connected</span>
+          <span id="driveAuthBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Connected</span>
         </div>
         <div>
-          <label class="block text-[11px] font-medium text-slate-600 mb-1">Google Cloud OAuth Client ID (requires https:// host)</label>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Google Cloud OAuth Client ID (requires https:// host)</label>
           <input id="inputClientId" type="text" placeholder="1234567890-abc.apps.googleusercontent.com" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
         </div>
         <div>
-          <label class="block text-[11px] font-medium text-slate-600 mb-1">Drive Excel File ID</label>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Drive Excel File ID</label>
           <input id="inputDriveFileId" type="text" value="" placeholder="Paste Drive Excel File ID" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
         </div>
         <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
@@ -443,9 +483,9 @@
           <span>Auto-save to Drive after edits when connected</span>
         </label>
         <div class="grid grid-cols-3 gap-1.5 pt-1">
-          <button id="btnDriveConnect" type="button" class="py-2 px-2 rounded-lg bg-teal-700 text-white text-[11px] font-semibold hover:bg-teal-800">Connect</button>
-          <button id="btnDriveLoad" type="button" class="py-2 px-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-[11px] font-semibold hover:bg-slate-100">Load .xlsx</button>
-          <button id="btnDriveSave" type="button" class="py-2 px-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-[11px] font-semibold hover:bg-slate-100">Save .xlsx</button>
+          <button id="btnDriveConnect" type="button" class="py-2 px-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">Connect</button>
+          <button id="btnDriveLoad" type="button" class="py-2 px-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold hover:bg-slate-100">Load .xlsx</button>
+          <button id="btnDriveSave" type="button" class="py-2 px-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold hover:bg-slate-100">Save .xlsx</button>
         </div>
       </div>
 
@@ -475,7 +515,7 @@
   <div id="udharModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between">
-        <h3 id="udharModalTitle" class="text-base font-bold text-slate-900">Add Loan / Borrowing</h3>
+        <h3 id="udharModalTitle" class="text-base font-bold text-slate-900">Add Due</h3>
         <button id="btnCloseUdharModal" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
       </div>
       <div class="grid grid-cols-2 gap-2">
@@ -556,18 +596,144 @@
     </div>
   </div>
 
+  <!-- New / Edit Project Modal -->
+  <div id="projectMetaModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 id="projMetaModalTitle" class="text-base font-bold text-slate-900">New Project</h3>
+        <button id="btnCloseProjMeta" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Project Name</label>
+        <input id="inputProjName" type="text" placeholder="e.g. Home Renovation, Wedding, Car" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Target Budget (₹, optional)</label>
+        <input id="inputProjBudget" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnDeleteProject" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete Project</button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button id="btnCancelProjMeta" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
+          <button id="btnSaveProjMeta" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Expense Item Modal -->
+  <div id="projectItemModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="projItemModalTitle" class="text-base font-bold text-slate-900">Add Project Expense</h3>
+        <button id="btnCloseProjItem" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Item / Description</label>
+        <input id="inputProjItemTitle" type="text" placeholder="e.g. Tiles, Advance Booking, Labor" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Category (pick or type)</label>
+          <input id="inputProjItemCat" list="projCategoryPresets" placeholder="Goods / Material" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+          <datalist id="projCategoryPresets">
+            <option value="Goods / Material"></option>
+            <option value="Service / Labor"></option>
+            <option value="Booking / Advance"></option>
+            <option value="Travel / Transport"></option>
+            <option value="Fees / Taxes"></option>
+            <option value="Shopping / Gifts"></option>
+            <option value="Other"></option>
+          </datalist>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Vendor / Paid To</label>
+          <input id="inputProjItemVendor" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
+          <input id="inputProjItemAmt" type="number" inputmode="numeric" placeholder="0" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Date</label>
+          <input id="inputProjItemDate" type="date" class="w-full px-2 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Mode</label>
+          <select id="selectProjItemMode" class="w-full px-2 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
+            <option value="GPay">GPay</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Card">Card</option>
+          </select>
+        </div>
+      </div>
+      <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+        <input id="inputProjItemPaid" type="checkbox" checked class="rounded text-teal-700 focus:ring-teal-600" />
+        <span>Marked Paid</span>
+      </label>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Note</label>
+        <input id="inputProjItemNote" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnDeleteProjItem" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete</button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button id="btnCancelProjItem" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
+          <button id="btnSaveProjItem" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Household Base Fix / Delete Card Modal -->
+  <div id="hhFixModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">Household Settings</h3>
+        <button id="btnCloseHhFix" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Card Title</label>
+        <input id="inputHhTitle" type="text" placeholder="Household" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Monthly Base Fix (₹)</label>
+        <input id="inputHhBaseFix" type="number" inputmode="numeric" value="23000" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+      </div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnDeleteHhCard" type="button" class="text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete Card</button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button id="btnCancelHhFix" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
+          <button id="btnSaveHhFix" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div id="toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg"></div>
 
   <script>
     const STORAGE_KEY = 'monthly_expenses_2026_v1';
     const UDHAR_KEY = 'monthly_exp_udhar_v1';
+    const PROJECTS_KEY = 'monthly_exp_projects_v1';
     const SEED_MONTHS = [];
     const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
     let state = {
       months: [],
       udhar: [],
+      projects: [],
+      selectedProjectId: null,
+      projSubView: 'entries',
+      editingProjMetaId: null,
+      editingProjItemId: null,
+      projDoughnutInstance: null,
+      projBarInstance: null,
       udharFilter: 'pending',
       editingUdharId: null,
       selectedYear: null,
@@ -575,6 +741,7 @@
       selectedMonthId: null,
       activeTab: 'monthly',
       pendingOnly: false,
+      householdExpanded: false,
       editingEntry: null,
       editingZanId: null,
       chartInstance: null,
@@ -603,6 +770,7 @@
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state.months));
         localStorage.setItem(UDHAR_KEY, JSON.stringify(state.udhar));
+        localStorage.setItem(PROJECTS_KEY, JSON.stringify(state.projects));
       } catch (e) {
         // Fallback silently to in-memory if storage is restricted
       }
@@ -610,6 +778,14 @@
 
     function loadState() {
       try {
+        const pRaw = localStorage.getItem(PROJECTS_KEY);
+        if (pRaw) {
+          const pParsed = JSON.parse(pRaw);
+          if (Array.isArray(pParsed)) {
+            state.projects = pParsed;
+            state.selectedProjectId = pParsed[0] ? pParsed[0].id : null;
+          }
+        }
         const uRaw = localStorage.getItem(UDHAR_KEY);
         if (uRaw) {
           const uParsed = JSON.parse(uRaw);
@@ -669,7 +845,9 @@
         else if (k === 'EXTRA') extra += c;
         else if (k === 'SODEXO') sodexo += c;
       });
-      const transfer = 21500 + 1500 - deductions - debit;
+      const zanRow = (month.expenses || []).find(e => e.isZanLinked || ['zan-home', 'household'].includes((e.title || '').toLowerCase()));
+      const baseFix = (zanRow && Number(zanRow.baseFix)) ? Number(zanRow.baseFix) : 23000;
+      const transfer = baseFix - deductions - debit;
       const transferItem = items.find(z => classifyZanItem(z) === 'TRANSFER');
       if (transferItem) transferItem.creditGiven = transfer;
       const transferToSend = transfer + extra;
@@ -689,10 +867,10 @@
     function renderAll() {
       const m = getActiveMonth();
       document.getElementById('viewMonthly').classList.toggle('hidden', state.activeTab !== 'monthly');
-      document.getElementById('viewZan').classList.toggle('hidden', state.activeTab !== 'zan');
       document.getElementById('viewUdhar').classList.toggle('hidden', state.activeTab !== 'udhar');
+      document.getElementById('viewProjects').classList.toggle('hidden', state.activeTab !== 'projects');
       document.getElementById('viewSummary').classList.toggle('hidden', state.activeTab !== 'summary');
-      const navMapInit = { monthly: 'navMonthly', zan: 'navZan', udhar: 'navUdhar', summary: 'navSummary' };
+      const navMapInit = { monthly: 'navMonthly', udhar: 'navUdhar', projects: 'navProjects', summary: 'navSummary' };
       Object.entries(navMapInit).forEach(([tab, id]) => {
         const el = document.getElementById(id);
         if (el) el.className = state.activeTab === tab
@@ -702,8 +880,15 @@
       if (state.activeTab === 'udhar') {
         document.getElementById('yearStripWrap').classList.add('hidden');
         document.getElementById('monthStripWrap').classList.add('hidden');
-        document.getElementById('headerSubtitle').textContent = 'Loans & Borrowings • Stored locally';
+        document.getElementById('headerSubtitle').textContent = 'Dues • Stored locally';
         renderUdhar();
+        return;
+      }
+      if (state.activeTab === 'projects') {
+        document.getElementById('yearStripWrap').classList.add('hidden');
+        document.getElementById('monthStripWrap').classList.add('hidden');
+        document.getElementById('headerSubtitle').textContent = 'Projects • Stored locally';
+        renderProjects();
         return;
       }
       if (!m) {
@@ -737,8 +922,8 @@
           const yb = document.createElement('button');
           yb.type = 'button';
           yb.className = yr === state.selectedYear
-            ? 'shrink-0 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-slate-800 text-white'
-            : 'shrink-0 px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
+            ? 'shrink-0 px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-800 text-white'
+            : 'shrink-0 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
           yb.textContent = String(yr);
           yb.addEventListener('click', () => {
             state.selectedYear = yr;
@@ -769,13 +954,87 @@
 
 
       if (state.activeTab === 'monthly') renderMonthly(m);
-      if (state.activeTab === 'zan') renderZan(m);
       if (state.activeTab === 'summary') renderSummary();
     }
 
     function createItemCard(item, sectionKey, month) {
+      const isHh = !!item.isZanLinked || ['zan-home', 'household'].includes((item.title || '').toLowerCase());
+      if (!isHh) {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3 shadow-xs';
+
+        const checkBtn = document.createElement('button');
+        checkBtn.type = 'button';
+        checkBtn.className = item.isPaid
+          ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
+          : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
+        checkBtn.textContent = '✓';
+        checkBtn.title = 'Toggle Paid';
+        checkBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (isMonthReadOnly(getActiveMonth())) { showToast('Month is finalized (read-only)'); return; }
+          item.isPaid = !item.isPaid;
+          const note = (item.statusNote || '').trim();
+          if (item.isPaid) {
+            if (!note || note.toLowerCase() === 'pending') item.statusNote = 'Paid';
+            else if (/^pending\b/i.test(note)) item.statusNote = note.replace(/^pending/i, 'Paid');
+          } else {
+            if (!note || note.toLowerCase() === 'paid') item.statusNote = 'Pending';
+            else if (/^paid\b/i.test(note)) item.statusNote = note.replace(/^paid/i, 'Pending');
+          }
+          saveState();
+          renderAll();
+        });
+
+        const info = document.createElement('div');
+        info.className = 'flex-1 min-w-0 cursor-pointer';
+        const titleRow = document.createElement('div');
+        titleRow.className = 'flex items-center gap-1.5';
+        const titleEl = document.createElement('span');
+        titleEl.className = 'text-sm font-semibold text-slate-900 truncate';
+        titleEl.textContent = item.title;
+        titleRow.appendChild(titleEl);
+        info.appendChild(titleRow);
+
+        if (item.statusNote) {
+          const noteEl = document.createElement('div');
+          noteEl.className = 'text-xs text-slate-500 truncate mt-0.5';
+          noteEl.textContent = item.statusNote;
+          info.appendChild(noteEl);
+        }
+
+        const amtEl = document.createElement('div');
+        amtEl.className = 'text-sm font-bold text-slate-900 shrink-0 cursor-pointer';
+        amtEl.textContent = formatInr(item.amount);
+
+        const openTarget = () => {
+          if (isMonthReadOnly(getActiveMonth())) {
+            showToast('Month is finalized — tap Unlock to edit');
+          } else {
+            openEntryModal(sectionKey, item);
+          }
+        };
+        info.addEventListener('click', openTarget);
+        amtEl.addEventListener('click', openTarget);
+
+        card.appendChild(checkBtn);
+        card.appendChild(info);
+        card.appendChild(amtEl);
+        return card;
+      }
+
+      // Inline Expandable Household Card (collapsed by default)
+      item.isZanLinked = true;
+      const ro = isMonthReadOnly(month);
+      const { transfer, transferToSend, totalZanHome } = computeZanSummary(month);
+      if ((month.zanItems || []).length > 0) item.amount = totalZanHome;
+      const displayTitle = (item.title || '').toLowerCase() === 'zan-home' ? 'Household' : item.title;
+
       const card = document.createElement('div');
-      card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3 shadow-xs';
+      card.className = 'bg-white rounded-2xl border-2 border-teal-600/40 shadow-sm overflow-hidden';
+
+      const hdr = document.createElement('div');
+      hdr.className = 'px-3.5 py-3 flex items-center gap-3 cursor-pointer hover:bg-teal-50/40';
 
       const checkBtn = document.createElement('button');
       checkBtn.type = 'button';
@@ -783,67 +1042,112 @@
         ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
         : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
       checkBtn.textContent = '✓';
-      checkBtn.title = 'Toggle Paid';
       checkBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (isMonthReadOnly(getActiveMonth())) { showToast('Month is finalized (read-only)'); return; }
+        if (ro) { showToast('Month is finalized (read-only)'); return; }
         item.isPaid = !item.isPaid;
         const note = (item.statusNote || '').trim();
         if (item.isPaid) {
           if (!note || note.toLowerCase() === 'pending') item.statusNote = 'Paid';
-          else if (/^pending/i.test(note)) item.statusNote = note.replace(/^pending/i, 'Paid');
+          else if (/^pending\b/i.test(note)) item.statusNote = note.replace(/^pending/i, 'Paid');
         } else {
           if (!note || note.toLowerCase() === 'paid') item.statusNote = 'Pending';
-          else if (/^paid/i.test(note)) item.statusNote = note.replace(/^paid/i, 'Pending');
+          else if (/^paid\b/i.test(note)) item.statusNote = note.replace(/^paid/i, 'Pending');
         }
         saveState();
         renderAll();
       });
 
       const info = document.createElement('div');
-      info.className = 'flex-1 min-w-0 cursor-pointer';
-      const titleRow = document.createElement('div');
-      titleRow.className = 'flex items-center gap-1.5';
-      const titleEl = document.createElement('span');
-      titleEl.className = 'text-sm font-semibold text-slate-900 truncate';
-      titleEl.textContent = item.title;
-      titleRow.appendChild(titleEl);
+      info.className = 'flex-1 min-w-0';
+      info.innerHTML = `
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-sm font-bold text-slate-900 truncate">${displayTitle}</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800">Send: ${formatInr(transferToSend)}</span>
+        </div>
+        <div class="text-xs text-slate-500 mt-0.5">${item.statusNote || 'Tap to ' + (state.householdExpanded ? 'collapse' : 'expand')}</div>
+      `;
 
-      if (item.isZanLinked) {
-        const badge = document.createElement('span');
-        badge.className = 'shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-700';
-        badge.textContent = 'ZAN LINKED';
-        titleRow.appendChild(badge);
-      }
-      info.appendChild(titleRow);
+      const right = document.createElement('div');
+      right.className = 'text-right shrink-0';
+      right.innerHTML = `
+        <div class="text-sm font-bold text-slate-900">${formatInr(item.amount)}</div>
+        <div class="text-xs text-teal-700 font-semibold">${state.householdExpanded ? '▲ Hide' : '▼ Expand'}</div>
+      `;
 
-      if (item.statusNote) {
-        const noteEl = document.createElement('div');
-        noteEl.className = 'text-xs text-slate-500 truncate mt-0.5';
-        noteEl.textContent = item.statusNote;
-        info.appendChild(noteEl);
-      }
+      hdr.addEventListener('click', () => {
+        state.householdExpanded = !state.householdExpanded;
+        renderAll();
+      });
+      hdr.appendChild(checkBtn);
+      hdr.appendChild(info);
+      hdr.appendChild(right);
+      card.appendChild(hdr);
 
-      const amtEl = document.createElement('div');
-      amtEl.className = 'text-sm font-bold text-slate-900 shrink-0 cursor-pointer';
-      amtEl.textContent = formatInr(item.amount);
+      if (state.householdExpanded) {
+        const panel = document.createElement('div');
+        panel.className = 'border-t border-slate-200 bg-slate-50 p-3.5 space-y-3';
+        const baseFix = Number(item.baseFix) || 23000;
+        panel.innerHTML = `
+          <div class="rounded-xl bg-slate-800 text-white p-3 flex items-center justify-between gap-2">
+            <div>
+              <div class="text-xs text-slate-300">Transfer to Send (Fix ${formatInr(baseFix)} − Ded + Extra)</div>
+              <div class="text-2xl font-bold text-teal-300 mt-0.5">${formatInr(transferToSend)}</div>
+            </div>
+            <button type="button" class="hh-copy px-3 py-2 rounded-lg bg-teal-600 text-white text-xs font-semibold hover:bg-teal-500 shrink-0">Copy ₹</button>
+          </div>
+          ${ro ? '' : `
+          <div class="flex items-center justify-between gap-2">
+            <button type="button" class="hh-add px-2.5 py-1.5 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Item</button>
+            <button type="button" class="hh-edit px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100">Edit Fix / Delete Card</button>
+          </div>`}
+          <div class="hh-sublist space-y-1.5"></div>
+        `;
 
-      const openTarget = () => {
-        if (item.isZanLinked) {
-          state.activeTab = 'zan';
-          renderAll();
-        } else if (isMonthReadOnly(getActiveMonth())) {
-          showToast('Month is finalized — tap Unlock to edit');
-        } else {
-          openEntryModal(sectionKey, item);
+        panel.querySelector('.hh-copy').addEventListener('click', () => {
+          if (navigator.clipboard) navigator.clipboard.writeText(String(transferToSend)).catch(() => {});
+          showToast(`Copied ₹${transferToSend}`);
+        });
+        if (!ro) {
+          panel.querySelector('.hh-add').addEventListener('click', () => openZanModal(null));
+          panel.querySelector('.hh-edit').addEventListener('click', () => {
+            document.getElementById('inputHhTitle').value = displayTitle;
+            document.getElementById('inputHhBaseFix').value = baseFix;
+            document.getElementById('hhFixModal').classList.remove('hidden');
+          });
         }
-      };
-      info.addEventListener('click', openTarget);
-      amtEl.addEventListener('click', openTarget);
 
-      card.appendChild(checkBtn);
-      card.appendChild(info);
-      card.appendChild(amtEl);
+        const subList = panel.querySelector('.hh-sublist');
+        const trRow = document.createElement('div');
+        trRow.className = 'bg-white rounded-lg border border-slate-200 px-3 py-2 flex items-center justify-between text-xs';
+        trRow.innerHTML = `<div><span class="font-semibold text-slate-900">Transfer</span> <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">AUTO</span></div><span class="font-bold text-teal-700">${formatInr(transfer)}</span>`;
+        subList.appendChild(trRow);
+
+        (month.zanItems || []).forEach(z => {
+          const k = classifyZanItem(z);
+          if (k === 'TRANSFER') return;
+          const r = document.createElement('div');
+          r.className = 'bg-white rounded-lg border border-slate-200 px-3 py-2 flex items-center justify-between gap-2 text-xs cursor-pointer hover:border-teal-400';
+          const tag = k === 'EXTRA' ? '+ EXTRA' : (k === 'SODEXO' ? 'SODEXO' : (k === 'DEBIT' ? 'DEBIT' : '- TRANSFER'));
+          const tagCls = k === 'EXTRA' ? 'bg-emerald-50 text-emerald-700' : ((k === 'DEDUCTION' || k === 'DEBIT') ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600');
+          const amtVal = k === 'DEBIT' ? z.debitTaken : z.creditGiven;
+          const amtCls = (k === 'DEDUCTION' || k === 'DEBIT') ? 'text-rose-600' : 'text-teal-700';
+          r.innerHTML = `
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5"><span class="font-semibold text-slate-900 truncate">${z.label}</span><span class="px-1.5 py-0.5 rounded font-bold ${tagCls}">${tag}</span></div>
+              ${z.note ? `<div class="text-xs text-slate-500 truncate mt-0.5">${z.note}</div>` : ''}
+            </div>
+            <span class="font-bold shrink-0 ${amtCls}">${k === 'DEBIT' ? '- ' : ''}${formatInr(amtVal)}</span>
+          `;
+          r.addEventListener('click', () => {
+            if (ro) showToast('Month is finalized (read-only)');
+            else openZanModal(z);
+          });
+          subList.appendChild(r);
+        });
+
+        card.appendChild(panel);
+      }
       return card;
     }
 
@@ -869,15 +1173,15 @@
       const finBtn = document.getElementById('btnFinalizeMonth');
       finBtn.textContent = ro ? '🔒 Finalized (Tap to Unlock)' : '✓ Active (Finalize)';
       finBtn.className = ro
-        ? 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/80 text-white hover:bg-rose-500 transition'
-        : 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
+        ? 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/80 text-white hover:bg-rose-500 transition'
+        : 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
       document.getElementById('btnAddInv').classList.toggle('hidden', ro);
       document.getElementById('btnAddExp').classList.toggle('hidden', ro);
 
       const fBtn = document.getElementById('btnPendingFilter');
       fBtn.className = state.pendingOnly
-        ? 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 transition'
-        : 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
+        ? 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 transition'
+        : 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
 
       const invItems = state.pendingOnly ? m.investments.filter(x => !x.isPaid) : m.investments;
       const invList = document.getElementById('investmentsList');
@@ -896,63 +1200,6 @@
       } else {
         expItems.forEach(item => expList.appendChild(createItemCard(item, 'expenses', m)));
       }
-    }
-
-    function renderZan(m) {
-      const ro = isMonthReadOnly(m);
-      document.getElementById('btnAddZan').classList.toggle('hidden', ro);
-      const { transferToSend, deductions, extra, totalZanHome } = computeZanSummary(m);
-      document.getElementById('zanTransferTotal').textContent = formatInr(transferToSend);
-      document.getElementById('zanDeductionTotal').textContent = formatInr(deductions);
-      document.getElementById('zanExtraTotal').textContent = formatInr(extra);
-      document.getElementById('zanNetTotal').textContent = formatInr(totalZanHome);
-
-      const list = document.getElementById('zanList');
-      list.innerHTML = '';
-      if (m.zanItems.length === 0) {
-        list.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No Zan-Home items yet.</div>';
-        return;
-      }
-      m.zanItems.forEach(z => {
-        const k = classifyZanItem(z);
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-300';
-        const left = document.createElement('div');
-        left.className = 'min-w-0';
-        const tag = k === 'TRANSFER' ? 'AUTO' : (k === 'EXTRA' ? '+ EXTRA' : (k === 'SODEXO' ? 'SODEXO' : (k === 'DEBIT' ? 'DEBIT' : '- TRANSFER')));
-        const tagCls = k === 'EXTRA' ? 'bg-emerald-50 text-emerald-700' : ((k === 'DEDUCTION' || k === 'DEBIT') ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600');
-        left.innerHTML = `<div class="flex items-center gap-1.5"><span class="text-sm font-semibold text-slate-900 truncate"></span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${tagCls}">${tag}</span></div>${z.note ? '<div class="text-xs text-slate-500 truncate mt-0.5"></div>' : ''}`;
-        left.querySelector('span').textContent = z.label;
-        if (z.note) left.children[1].textContent = z.note;
-
-        const right = document.createElement('div');
-        right.className = 'text-right shrink-0 text-xs font-bold space-y-0.5';
-        if (z.creditGiven > 0) {
-          const c = document.createElement('div');
-          c.className = (k === 'DEDUCTION') ? 'text-rose-600' : 'text-teal-700';
-          c.textContent = formatInr(z.creditGiven);
-          right.appendChild(c);
-        }
-        if (z.debitTaken > 0) {
-          const d = document.createElement('div');
-          d.className = 'text-rose-600';
-          d.textContent = `- ${formatInr(z.debitTaken)}`;
-          right.appendChild(d);
-        }
-        if (!z.creditGiven && !z.debitTaken) {
-          const zero = document.createElement('div');
-          zero.className = 'text-slate-400';
-          zero.textContent = '₹0';
-          right.appendChild(zero);
-        }
-
-        if (k !== 'TRANSFER') {
-          card.addEventListener('click', () => { if (isMonthReadOnly(m)) showToast('Month is finalized (read-only)'); else openZanModal(z); });
-        }
-        card.appendChild(left);
-        card.appendChild(right);
-        list.appendChild(card);
-      });
     }
 
     function renderSummary() {
@@ -1168,6 +1415,7 @@
       document.getElementById('inputEntryAmount').value = item ? item.amount : '';
       document.getElementById('inputEntryNote').value = item ? item.statusNote : 'Paid';
       document.getElementById('inputEntryPaid').checked = item ? item.isPaid : true;
+      document.getElementById('inputEntryHousehold').checked = item ? !!item.isZanLinked : false;
       document.getElementById('btnDeleteEntry').classList.toggle('hidden', !item);
       updateTypeButtons();
       document.getElementById('entryModal').classList.remove('hidden');
@@ -1182,7 +1430,7 @@
       state.editingZanId = item ? item.id : null;
       const kind = item ? classifyZanItem(item) : 'DEDUCTION';
       const amt = item ? (kind === 'DEBIT' ? (Number(item.debitTaken) || 0) : (Number(item.creditGiven) || 0)) : '';
-      document.getElementById('zanModalTitle').textContent = item ? 'Edit Zan-Home Item' : 'Add Zan-Home Item';
+      document.getElementById('zanModalTitle').textContent = item ? 'Edit Household Item' : 'Add Household Item';
       document.getElementById('selectZanKind').value = kind;
       document.getElementById('inputZanLabel').value = item ? item.label : '';
       document.getElementById('inputZanAmount').value = amt;
@@ -1197,12 +1445,10 @@
 
     // Wire up events
     document.getElementById('navMonthly').addEventListener('click', () => { state.activeTab = 'monthly'; renderAll(); });
-    document.getElementById('navZan').addEventListener('click', () => { state.activeTab = 'zan'; renderAll(); });
     document.getElementById('navSummary').addEventListener('click', () => { state.activeTab = 'summary'; renderAll(); });
 
     document.getElementById('btnAddInv').addEventListener('click', () => openEntryModal('investments', null));
     document.getElementById('btnAddExp').addEventListener('click', () => openEntryModal('expenses', null));
-    document.getElementById('btnAddZan').addEventListener('click', () => openZanModal(null));
 
     document.getElementById('btnTypeExpense').addEventListener('click', () => { modalSection = 'expenses'; updateTypeButtons(); });
     document.getElementById('btnTypeInvestment').addEventListener('click', () => { modalSection = 'investments'; updateTypeButtons(); });
@@ -1238,7 +1484,7 @@
         const origKey = state.editingEntry.sectionKey;
         const idx = m[origKey].findIndex(x => x.id === state.editingEntry.id);
         if (idx !== -1) {
-          const updated = { ...m[origKey][idx], title, amount, statusNote: note, isPaid, isZanLinked: title.toLowerCase() === 'zan-home' };
+          const updated = { ...m[origKey][idx], title, amount, statusNote: note, isPaid, isZanLinked: document.getElementById('inputEntryHousehold').checked || ['zan-home', 'household'].includes(title.toLowerCase()) };
           if (origKey === modalSection) {
             m[origKey][idx] = updated;
           } else {
@@ -1253,7 +1499,7 @@
           amount,
           statusNote: note,
           isPaid,
-          isZanLinked: title.toLowerCase() === 'zan-home'
+          isZanLinked: document.getElementById('inputEntryHousehold').checked || ['zan-home', 'household'].includes(title.toLowerCase())
         });
       }
       saveState();
@@ -1619,7 +1865,33 @@
         ]);
       });
       const uWs = XLSX.utils.aoa_to_sheet(udharRows);
-      XLSX.utils.book_append_sheet(wb, uWs, 'Loans');
+      XLSX.utils.book_append_sheet(wb, uWs, 'Dues');
+      // Separate Projects sheet
+      const projRows = [['Project Name', 'Budget', 'Project Status', 'Date', 'Category', 'Item', 'Vendor', 'Amount', 'Mode', 'Status', 'Note']];
+      (state.projects || []).forEach(pr => {
+        const pStatus = pr.isCompleted ? 'Completed' : 'Active';
+        if (!pr.items || pr.items.length === 0) {
+          projRows.push([pr.name, Number(pr.budget) || 0, pStatus, '', '', '', '', 0, '', '', '']);
+        } else {
+          pr.items.forEach(it => {
+            projRows.push([
+              pr.name,
+              Number(pr.budget) || 0,
+              pStatus,
+              it.date || '',
+              it.category || 'Other',
+              it.title || '',
+              it.vendor || '',
+              Number(it.amount) || 0,
+              it.mode || 'GPay',
+              it.isPaid ? 'Paid' : 'Pending',
+              it.note || ''
+            ]);
+          });
+        }
+      });
+      const pWs = XLSX.utils.aoa_to_sheet(projRows);
+      XLSX.utils.book_append_sheet(wb, pWs, 'Projects');
       return wb;
     }
 
@@ -1627,9 +1899,10 @@
       const parsed = [];
       const headerRe = /^\(([A-Za-z]+)\s+(\d{4})\)$/;
       const parsedUdhar = [];
+      const parsedProjectsMap = {};
       wb.SheetNames.forEach(name => {
         const ws = wb.Sheets[name];
-        if (name.trim().toLowerCase() === 'loans' || name.trim().toLowerCase() === 'udhar') {
+        if (['dues', 'loans', 'udhar'].includes(name.trim().toLowerCase())) {
           const uData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
           for (let i = 1; i < uData.length; i++) {
             const r = uData[i];
@@ -1645,6 +1918,37 @@
               returnDate: String(r[6] || '').trim(),
               note: String(r[7] || '').trim()
             });
+          }
+          return;
+        }
+        if (name.trim().toLowerCase() === 'projects') {
+          const pData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          for (let i = 1; i < pData.length; i++) {
+            const r = pData[i];
+            const pName = String(r[0] || '').trim();
+            if (!pName) continue;
+            if (!parsedProjectsMap[pName]) {
+              parsedProjectsMap[pName] = {
+                id: `proj-${Object.keys(parsedProjectsMap).length}-${Date.now()}`,
+                name: pName,
+                budget: Number(r[1]) || 0,
+                isCompleted: String(r[2] || '').toLowerCase().includes('complete'),
+                items: []
+              };
+            }
+            if (String(r[5] || '').trim() || Number(r[7])) {
+              parsedProjectsMap[pName].items.push({
+                id: `pi-${i}-${Date.now()}`,
+                date: String(r[3] || '').trim(),
+                category: String(r[4] || 'Other').trim(),
+                title: String(r[5] || '').trim(),
+                vendor: String(r[6] || '').trim(),
+                amount: Number(r[7]) || 0,
+                mode: String(r[8] || 'GPay').trim(),
+                isPaid: String(r[9] || '').toLowerCase().includes('paid'),
+                note: String(r[10] || '').trim()
+              });
+            }
           }
           return;
         }
@@ -1697,7 +2001,7 @@
               amount: Number(c1) || 0,
               statusNote,
               isPaid: statusNote.toLowerCase().includes('paid'),
-              isZanLinked: title.toLowerCase() === 'zan-home'
+              isZanLinked: document.getElementById('inputEntryHousehold').checked || ['zan-home', 'household'].includes(title.toLowerCase())
             };
             if (sec === 'INVESTMENT') cur.investments.push(item);
             else cur.expenses.push(item);
@@ -1713,7 +2017,7 @@
         }
       });
       parsed.sort((a, b) => (b.year - a.year) || (b.monthNumber - a.monthNumber));
-      return { months: parsed, udhar: parsedUdhar };
+      return { months: parsed, udhar: parsedUdhar, projects: Object.values(parsedProjectsMap) };
     }
 
     document.getElementById('btnExportXlsx').addEventListener('click', () => {
@@ -1730,10 +2034,11 @@
       reader.onload = (ev) => {
         try {
           const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
-          const { months: parsed, udhar: parsedUdhar } = parseWorkbookToMonths(wb);
-          if (!parsed.length && !parsedUdhar.length) throw new Error('No data found');
+          const { months: parsed, udhar: parsedUdhar, projects: parsedProjects } = parseWorkbookToMonths(wb);
+          if (!parsed.length && !parsedUdhar.length && !parsedProjects.length) throw new Error('No data found');
           if (parsed.length) { state.months = parsed; state.selectedMonthId = parsed[0].id; }
           if (parsedUdhar.length) state.udhar = parsedUdhar;
+          if (parsedProjects.length) { state.projects = parsedProjects; state.selectedProjectId = parsedProjects[0].id; }
           saveState();
           document.getElementById('backupModal').classList.add('hidden');
           renderAll();
@@ -1795,8 +2100,8 @@
       const pill = document.getElementById('btnDrivePill');
       b.textContent = connected ? 'Connected' : 'Not Connected';
       b.className = connected
-        ? 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800'
-        : 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
+        ? 'text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800'
+        : 'text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
       if (pill) {
         pill.textContent = labelText || (connected ? 'Drive: Synced' : 'Drive: Offline');
         pill.className = connected
@@ -1865,7 +2170,7 @@
         row.innerHTML = `
           <div class="min-w-0 pr-2">
             <div class="font-semibold text-slate-900 truncate">${it.title}</div>
-            <div class="text-[11px] text-slate-500 truncate">${m.monthName.slice(0,3)} ${m.year}${it.statusNote ? ' • ' + it.statusNote : ''}</div>
+            <div class="text-xs text-slate-500 truncate">${m.monthName.slice(0,3)} ${m.year}${it.statusNote ? ' • ' + it.statusNote : ''}</div>
           </div>
           <div class="font-bold text-slate-900 shrink-0">${formatInr(it.amount)}</div>
         `;
@@ -1913,10 +2218,12 @@
         if (!res.ok) throw new Error('Download failed');
         const buf = await res.arrayBuffer();
         const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
-        const { months: parsed, udhar: parsedUdhar } = parseWorkbookToMonths(wb);
-        if (!parsed.length && !parsedUdhar.length) throw new Error('Empty workbook');
+        const { months: parsed, udhar: parsedUdhar, projects: parsedProjects } = parseWorkbookToMonths(wb);
+        if (!parsed.length && !parsedUdhar.length && !parsedProjects.length) throw new Error('Empty workbook');
         if (parsed.length) { state.months = parsed; state.selectedMonthId = parsed[0].id; }
         state.udhar = parsedUdhar;
+        state.projects = parsedProjects;
+        state.selectedProjectId = parsedProjects[0] ? parsedProjects[0].id : null;
         _origSaveState();
         renderAll();
         document.getElementById('backupModal').classList.add('hidden');
@@ -2005,7 +2312,7 @@
       state.editingUdharId = item ? item.id : null;
       udharModalType = item ? item.type : 'GIVEN';
       const today = new Date().toISOString().slice(0, 10);
-      document.getElementById('udharModalTitle').textContent = item ? 'Edit Loan / Borrowing' : 'Add Loan / Borrowing';
+      document.getElementById('udharModalTitle').textContent = item ? 'Edit Due' : 'Add Due';
       document.getElementById('inputUdharPerson').value = item ? item.person : '';
       document.getElementById('inputUdharAmount').value = item ? item.amount : '';
       document.getElementById('inputUdharDate').value = item ? (item.date || today) : today;
@@ -2048,7 +2355,7 @@
       const container = document.getElementById('udharList');
       container.innerHTML = '';
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No matching loan entries. Tap + Add Loan.</div>';
+        container.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No matching dues. Tap + Add Due.</div>';
         return;
       }
 
@@ -2076,8 +2383,8 @@
         info.innerHTML = `
           <div class="flex items-center gap-1.5">
             <span class="text-sm font-semibold text-slate-900 truncate">${u.person}</span>
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isG ? 'bg-teal-50 text-teal-700' : 'bg-rose-50 text-rose-700'}">${u.type}</span>
-            <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${u.mode || 'GPay'}</span>
+            <span class="text-xs font-bold px-1.5 py-0.5 rounded ${isG ? 'bg-teal-50 text-teal-700' : 'bg-rose-50 text-rose-700'}">${u.type}</span>
+            <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${u.mode || 'GPay'}</span>
           </div>
           <div class="text-xs text-slate-500 truncate mt-0.5">${u.date || ''}${u.returnDate ? ' • Returned: ' + u.returnDate : ''}${u.note ? ' • ' + u.note : ''}</div>
         `;
@@ -2132,7 +2439,7 @@
       document.getElementById('udharModal').classList.add('hidden');
       saveState();
       renderUdhar();
-      showToast('Loan entry saved');
+      showToast('Due saved');
     });
 
     document.getElementById('btnDeleteUdhar').addEventListener('click', () => {
@@ -2141,7 +2448,7 @@
       document.getElementById('udharModal').classList.add('hidden');
       saveState();
       renderUdhar();
-      showToast('Loan entry deleted');
+      showToast('Due deleted');
     });
 
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(() => {}); }
@@ -2206,6 +2513,327 @@
       saveState();
       renderAll();
       showToast(`Deleted ${deletedLabel}`);
+    });
+
+    
+    // --- Projects (Isolated from Home Summary) ---
+    function getActiveProject() {
+      return (state.projects || []).find(p => p.id === state.selectedProjectId) || (state.projects || [])[0] || null;
+    }
+
+    function renderProjects() {
+      const list = state.projects || [];
+      const strip = document.getElementById('projectStripWrap');
+      strip.innerHTML = '';
+      list.forEach(pr => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        const active = pr.id === (getActiveProject() && getActiveProject().id);
+        b.className = active
+          ? 'shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-teal-700 text-white'
+          : 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200';
+        b.textContent = pr.name;
+        b.addEventListener('click', () => { state.selectedProjectId = pr.id; renderProjects(); });
+        strip.appendChild(b);
+      });
+
+      const pr = getActiveProject();
+      document.getElementById('projectEmptyState').classList.toggle('hidden', !!pr);
+      document.getElementById('projectActiveWrap').classList.toggle('hidden', !pr);
+      if (!pr) return;
+
+      const items = pr.items || [];
+      const total = items.reduce((a, x) => a + (Number(x.amount) || 0), 0);
+      const paid = items.filter(x => x.isPaid).reduce((a, x) => a + (Number(x.amount) || 0), 0);
+      const pending = total - paid;
+      const budget = Number(pr.budget) || 0;
+
+      document.getElementById('projHeroTitle').textContent = pr.name;
+      document.getElementById('projTotalSpent').textContent = formatInr(total);
+      document.getElementById('projPaidTotal').textContent = formatInr(paid);
+      document.getElementById('projPendingTotal').textContent = formatInr(pending);
+
+      const lockBtn = document.getElementById('btnProjLock');
+      lockBtn.textContent = pr.isCompleted ? '🔒 Completed' : '✓ Active';
+      lockBtn.className = pr.isCompleted
+        ? 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/80 text-white'
+        : 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25';
+
+      const bWrap = document.getElementById('projBudgetBarWrap');
+      if (budget > 0) {
+        bWrap.classList.remove('hidden');
+        const rem = budget - total;
+        const pct = Math.min(100, Math.round((total / budget) * 100));
+        document.getElementById('projBudgetLabel').textContent = `Budget: ${formatInr(budget)} (${pct}%)`;
+        document.getElementById('projRemainingLabel').textContent = rem >= 0 ? `Left: ${formatInr(rem)}` : `Over by ${formatInr(-rem)}`;
+        const bar = document.getElementById('projBudgetBar');
+        bar.style.width = `${pct}%`;
+        bar.className = `h-full rounded-full transition-all ${rem < 0 ? 'bg-rose-400' : (pct > 85 ? 'bg-amber-400' : 'bg-emerald-400')}`;
+      } else {
+        bWrap.classList.add('hidden');
+      }
+
+      document.getElementById('btnAddProjItem').classList.toggle('hidden', !!pr.isCompleted);
+      const isEntries = state.projSubView === 'entries';
+      document.getElementById('projEntriesPane').classList.toggle('hidden', !isEntries);
+      document.getElementById('projChartsPane').classList.toggle('hidden', isEntries);
+      document.getElementById('btnProjSubEntries').className = isEntries
+        ? 'py-2 rounded-xl text-xs font-semibold bg-teal-700 text-white'
+        : 'py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700';
+      document.getElementById('btnProjSubCharts').className = !isEntries
+        ? 'py-2 rounded-xl text-xs font-semibold bg-teal-700 text-white'
+        : 'py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700';
+
+      if (isEntries) {
+        const q = (document.getElementById('inputProjSearch').value || '').trim().toLowerCase();
+        const filtered = items.filter(it => {
+          if (!q) return true;
+          return (it.title || '').toLowerCase().includes(q) || (it.vendor || '').toLowerCase().includes(q) || (it.category || '').toLowerCase().includes(q);
+        }).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+        const el = document.getElementById('projItemsList');
+        el.innerHTML = '';
+        if (!filtered.length) {
+          el.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No project expenses yet. Tap + Add.</div>';
+          return;
+        }
+        filtered.forEach(it => {
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3';
+          const chk = document.createElement('button');
+          chk.type = 'button';
+          chk.className = it.isPaid
+            ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
+            : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
+          chk.textContent = '✓';
+          chk.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (pr.isCompleted) { showToast('Project is completed (read-only)'); return; }
+            it.isPaid = !it.isPaid;
+            saveState();
+            renderProjects();
+          });
+          const body = document.createElement('div');
+          body.className = 'flex-1 min-w-0 cursor-pointer';
+          body.innerHTML = `
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-semibold text-slate-900 truncate">${it.title}</span>
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 shrink-0">${it.category || 'Other'}</span>
+            </div>
+            <div class="text-xs text-slate-500 truncate mt-0.5">${it.date || ''}${it.vendor ? ' • ' + it.vendor : ''} • ${it.mode || 'GPay'}${it.note ? ' • ' + it.note : ''}</div>
+          `;
+          const amt = document.createElement('div');
+          amt.className = 'text-sm font-bold text-slate-900 shrink-0 cursor-pointer';
+          amt.textContent = formatInr(it.amount);
+          const editFn = () => {
+            if (pr.isCompleted) { showToast('Project is completed — tap Completed to reopen'); return; }
+            openProjItemModal(it);
+          };
+          body.addEventListener('click', editFn);
+          amt.addEventListener('click', editFn);
+          card.appendChild(chk);
+          card.appendChild(body);
+          card.appendChild(amt);
+          el.appendChild(card);
+        });
+      } else {
+        renderProjectCharts(pr);
+      }
+    }
+
+    function renderProjectCharts(pr) {
+      const items = pr.items || [];
+      const catTotals = {};
+      const monthTotals = {};
+      const vendorTotals = {};
+
+      items.forEach(it => {
+        const amt = Number(it.amount) || 0;
+        const cat = it.category || 'Other';
+        catTotals[cat] = (catTotals[cat] || 0) + amt;
+        const ym = (it.date || '').slice(0, 7) || 'Undated';
+        monthTotals[ym] = (monthTotals[ym] || 0) + amt;
+        const ven = (it.vendor || '').trim() || 'Unspecified';
+        vendorTotals[ven] = (vendorTotals[ven] || 0) + amt;
+      });
+
+      const dCtx = document.getElementById('projDoughnutChart').getContext('2d');
+      if (state.projDoughnutInstance) state.projDoughnutInstance.destroy();
+      const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+      state.projDoughnutInstance = new Chart(dCtx, {
+        type: 'doughnut',
+        data: {
+          labels: sortedCats.map(c => c[0]),
+          datasets: [{ data: sortedCats.map(c => c[1]), backgroundColor: ['#0f766e', '#0f766e', '#f59e0b', '#ec4899', '#06b6d4', '#84cc16', '#94a3b8'], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
+      });
+
+      const bCtx = document.getElementById('projBarChart').getContext('2d');
+      if (state.projBarInstance) state.projBarInstance.destroy();
+      const sortedMonths = Object.entries(monthTotals).sort((a, b) => a[0].localeCompare(b[0]));
+      state.projBarInstance = new Chart(bCtx, {
+        type: 'bar',
+        data: {
+          labels: sortedMonths.map(m => m[0]),
+          datasets: [{ label: 'Spent', data: sortedMonths.map(m => m[1]), backgroundColor: '#0f766e', borderRadius: 4 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => '₹' + Math.round(v / 1000) + 'k' } } },
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      const vEl = document.getElementById('projVendorsList');
+      vEl.innerHTML = '';
+      const sortedVendors = Object.entries(vendorTotals).sort((a, b) => b[1] - a[1]);
+      if (!sortedVendors.length) {
+        vEl.innerHTML = '<div class="text-xs text-slate-400">No entries yet</div>';
+      } else {
+        sortedVendors.slice(0, 8).forEach(([vName, vAmt]) => {
+          const r = document.createElement('div');
+          r.className = 'flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0';
+          r.innerHTML = `<span class="font-medium text-slate-700 truncate pr-2">${vName}</span><span class="font-bold text-slate-900 shrink-0">${formatInr(vAmt)}</span>`;
+          vEl.appendChild(r);
+        });
+      }
+    }
+
+    function openProjMetaModal(pr = null) {
+      state.editingProjMetaId = pr ? pr.id : null;
+      document.getElementById('projMetaModalTitle').textContent = pr ? 'Edit Project' : 'New Project';
+      document.getElementById('inputProjName').value = pr ? pr.name : '';
+      document.getElementById('inputProjBudget').value = pr ? (pr.budget || '') : '';
+      document.getElementById('btnDeleteProject').classList.toggle('hidden', !pr);
+      document.getElementById('projectMetaModal').classList.remove('hidden');
+    }
+
+    function openProjItemModal(it = null) {
+      state.editingProjItemId = it ? it.id : null;
+      const today = new Date().toISOString().slice(0, 10);
+      document.getElementById('projItemModalTitle').textContent = it ? 'Edit Project Expense' : 'Add Project Expense';
+      document.getElementById('inputProjItemTitle').value = it ? it.title : '';
+      document.getElementById('inputProjItemCat').value = it ? (it.category || '') : '';
+      document.getElementById('inputProjItemVendor').value = it ? (it.vendor || '') : '';
+      document.getElementById('inputProjItemAmt').value = it ? it.amount : '';
+      document.getElementById('inputProjItemDate').value = it ? (it.date || today) : today;
+      document.getElementById('selectProjItemMode').value = it ? (it.mode || 'GPay') : 'GPay';
+      document.getElementById('inputProjItemPaid').checked = it ? !!it.isPaid : true;
+      document.getElementById('inputProjItemNote').value = it ? (it.note || '') : '';
+      document.getElementById('btnDeleteProjItem').classList.toggle('hidden', !it);
+      document.getElementById('projectItemModal').classList.remove('hidden');
+    }
+
+    document.getElementById('navProjects').addEventListener('click', () => { state.activeTab = 'projects'; renderAll(); });
+    document.getElementById('btnNewProject').addEventListener('click', () => openProjMetaModal(null));
+    document.getElementById('btnProjEditMeta').addEventListener('click', () => { const pr = getActiveProject(); if (pr) openProjMetaModal(pr); });
+    document.getElementById('btnCloseProjMeta').addEventListener('click', () => document.getElementById('projectMetaModal').classList.add('hidden'));
+    document.getElementById('btnCancelProjMeta').addEventListener('click', () => document.getElementById('projectMetaModal').classList.add('hidden'));
+    document.getElementById('btnProjSubEntries').addEventListener('click', () => { state.projSubView = 'entries'; renderProjects(); });
+    document.getElementById('btnProjSubCharts').addEventListener('click', () => { state.projSubView = 'charts'; renderProjects(); });
+    document.getElementById('inputProjSearch').addEventListener('input', () => renderProjects());
+    document.getElementById('btnAddProjItem').addEventListener('click', () => openProjItemModal(null));
+    document.getElementById('btnCloseProjItem').addEventListener('click', () => document.getElementById('projectItemModal').classList.add('hidden'));
+    document.getElementById('btnCancelProjItem').addEventListener('click', () => document.getElementById('projectItemModal').classList.add('hidden'));
+
+    document.getElementById('btnProjLock').addEventListener('click', () => {
+      const pr = getActiveProject();
+      if (!pr) return;
+      pr.isCompleted = !pr.isCompleted;
+      saveState();
+      renderProjects();
+      showToast(pr.isCompleted ? `${pr.name} marked Completed` : `${pr.name} reopened`);
+    });
+
+    document.getElementById('btnSaveProjMeta').addEventListener('click', () => {
+      const name = document.getElementById('inputProjName').value.trim();
+      const budget = parseFloat(document.getElementById('inputProjBudget').value) || 0;
+      if (!name) { showToast('Enter project name'); return; }
+      if (state.editingProjMetaId) {
+        const pr = state.projects.find(p => p.id === state.editingProjMetaId);
+        if (pr) { pr.name = name; pr.budget = budget; }
+      } else {
+        const id = `proj-${Date.now()}`;
+        state.projects.unshift({ id, name, budget, isCompleted: false, items: [] });
+        state.selectedProjectId = id;
+      }
+      document.getElementById('projectMetaModal').classList.add('hidden');
+      saveState();
+      renderProjects();
+      showToast('Project saved');
+    });
+
+    document.getElementById('btnDeleteProject').addEventListener('click', () => {
+      if (!state.editingProjMetaId) return;
+      state.projects = state.projects.filter(p => p.id !== state.editingProjMetaId);
+      state.selectedProjectId = state.projects[0] ? state.projects[0].id : null;
+      document.getElementById('projectMetaModal').classList.add('hidden');
+      saveState();
+      renderProjects();
+      showToast('Project deleted');
+    });
+
+    document.getElementById('btnSaveProjItem').addEventListener('click', () => {
+      const pr = getActiveProject();
+      if (!pr) return;
+      const title = document.getElementById('inputProjItemTitle').value.trim();
+      const category = document.getElementById('inputProjItemCat').value.trim() || 'Other';
+      const vendor = document.getElementById('inputProjItemVendor').value.trim();
+      const amount = parseFloat(document.getElementById('inputProjItemAmt').value) || 0;
+      const date = document.getElementById('inputProjItemDate').value;
+      const mode = document.getElementById('selectProjItemMode').value;
+      const isPaid = document.getElementById('inputProjItemPaid').checked;
+      const note = document.getElementById('inputProjItemNote').value.trim();
+      if (!title || amount <= 0) { showToast('Enter item & amount'); return; }
+
+      if (state.editingProjItemId) {
+        const idx = pr.items.findIndex(x => x.id === state.editingProjItemId);
+        if (idx !== -1) pr.items[idx] = { ...pr.items[idx], title, category, vendor, amount, date, mode, isPaid, note };
+      } else {
+        pr.items.push({ id: `pi-${Date.now()}`, title, category, vendor, amount, date, mode, isPaid, note });
+      }
+      document.getElementById('projectItemModal').classList.add('hidden');
+      saveState();
+      renderProjects();
+      showToast('Saved');
+    });
+
+    document.getElementById('btnDeleteProjItem').addEventListener('click', () => {
+      const pr = getActiveProject();
+      if (!pr || !state.editingProjItemId) return;
+      pr.items = pr.items.filter(x => x.id !== state.editingProjItemId);
+      document.getElementById('projectItemModal').classList.add('hidden');
+      saveState();
+      renderProjects();
+      showToast('Deleted');
+    });
+
+    
+    document.getElementById('btnCloseHhFix').addEventListener('click', () => document.getElementById('hhFixModal').classList.add('hidden'));
+    document.getElementById('btnCancelHhFix').addEventListener('click', () => document.getElementById('hhFixModal').classList.add('hidden'));
+    document.getElementById('btnSaveHhFix').addEventListener('click', () => {
+      const m = getActiveMonth();
+      if (!m) return;
+      const zr = m.expenses.find(e => e.isZanLinked || ['zan-home', 'household'].includes((e.title || '').toLowerCase()));
+      if (zr) {
+        zr.title = document.getElementById('inputHhTitle').value.trim() || 'Household';
+        zr.baseFix = parseFloat(document.getElementById('inputHhBaseFix').value) || 23000;
+        syncZanHomeTotal(m);
+      }
+      document.getElementById('hhFixModal').classList.add('hidden');
+      saveState();
+      renderAll();
+      showToast('Household settings updated');
+    });
+    document.getElementById('btnDeleteHhCard').addEventListener('click', () => {
+      const m = getActiveMonth();
+      if (!m) return;
+      m.expenses = m.expenses.filter(e => !(e.isZanLinked || ['zan-home', 'household'].includes((e.title || '').toLowerCase())));
+      document.getElementById('hhFixModal').classList.add('hidden');
+      saveState();
+      renderAll();
+      showToast('Household card deleted');
     });
 
     // Init
