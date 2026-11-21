@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json?v=2" />
+  <title>Trip Expense Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    html { font-size: 17.5px; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-tap-highlight-color: transparent; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body.dark { background-color: #0f172a; color: #f1f5f9; }
+    body.dark header, body.dark nav { background-color: #1e293b; border-color: #334155; }
+    body.dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; color: #f1f5f9 !important; }
+    body.dark .bg-slate-50 { background-color: #0f172a !important; border-color: #334155 !important; }
+    body.dark .bg-slate-100 { background-color: #334155 !important; color: #e2e8f0 !important; }
+    body.dark .text-slate-900, body.dark .text-slate-800 { color: #f8fafc !important; }
+    body.dark .text-slate-700, body.dark .text-slate-600 { color: #cbd5e1 !important; }
+    body.dark .text-slate-500, body.dark .text-slate-400 { color: #94a3b8 !important; }
+    body.dark .text-teal-800, body.dark .text-teal-700 { color: #5eead4 !important; }
+    body.dark .nav-active-pill { background-color: rgba(20, 184, 166, 0.22) !important; color: #5eead4 !important; }
+    body.dark input, body.dark select { background-color: #0f172a !important; color: #f8fafc !important; border-color: #475569 !important; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-20">
+
+  <!-- Left Navigation Drawer -->
+  <div id="drawerBackdrop" class="hidden fixed inset-0 z-50 bg-slate-900/50">
+    <aside class="w-72 max-w-[82vw] h-full bg-white shadow-2xl flex flex-col overflow-y-auto">
+      <div class="p-4 bg-gradient-to-br from-teal-700 to-teal-900 text-white flex items-center justify-between">
+        <div>
+          <div class="text-base font-bold">Trip Manager</div>
+          <div class="text-xs text-teal-100">Group Expense Splitter</div>
+        </div>
+        <button id="btnDrawerClose" type="button" class="text-white/80 hover:text-white text-2xl leading-none">&times;</button>
+      </div>
+      <div class="p-3 space-y-4 flex-1 text-xs">
+        <div class="space-y-1">
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Trip Actions</div>
+          <button id="btnDrawerNewTrip" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2.5"><span>➕</span><span>New Trip</span></button>
+          <button id="btnDrawerEditTrip" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>✏️</span><span>Edit Trip &amp; Members</span></button>
+          <button id="btnDrawerCopySummary" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📋</span><span>Copy WhatsApp Summary</span></button>
+        </div>
+        <div class="space-y-1 border-t border-slate-200 pt-3">
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Excel &amp; Drive</div>
+          <button id="btnDrawerExportPdf" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📄</span><span>Export Trip PDF</span></button>
+          <button id="btnDrawerExportXlsx" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📥</span><span>Download Trip Excel (.xlsx)</span></button>
+          <button id="btnDrawerDriveSettings" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⚙️</span><span>Drive Settings &amp; Backups</span></button>
+        </div>
+        <div class="space-y-1 border-t border-slate-200 pt-3">
+          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Appearance</div>
+          <button id="btnThemeToggle" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🌙</span><span id="themeLabel">Dark Mode</span></button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 bg-white border-b border-slate-200">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <button id="btnDrawerOpen" type="button" aria-label="Menu" class="w-9 h-9 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-lg font-bold hover:bg-slate-200 shrink-0">☰</button>
+        <div class="min-w-0">
+          <h1 class="text-lg font-bold text-slate-900 truncate">Trip Manager</h1>
+          <p id="headerSub" class="text-xs text-slate-500 truncate">Stored locally</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btnDrivePill" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">Drive: Offline</button>
+      </div>
+    </div>
+    <!-- Trip Selector Strip -->
+    <div class="max-w-2xl mx-auto px-4 pb-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+      <div id="tripStripWrap" class="flex items-center gap-1.5"></div>
+      <button id="btnNewTripChip" type="button" class="shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 hover:bg-teal-100">+ New Trip</button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-4 space-y-4">
+    <div id="emptyTripState" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-6 text-center space-y-3">
+      <div class="text-sm font-semibold text-slate-700">No trips yet</div>
+      <div class="text-xs text-slate-500">Create a trip with participants and a Trip Manager to start splitting expenses.</div>
+      <button id="btnEmptyCreateTrip" type="button" class="px-4 py-2 rounded-xl bg-teal-700 text-white text-xs font-semibold">+ Create First Trip</button>
+    </div>
+
+    <!-- Tab 1: Expenses -->
+    <section id="viewExpenses" class="hidden space-y-4">
+      <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
+        <div class="flex items-center justify-between gap-2">
+          <span id="heroTripName" class="text-xs font-bold uppercase tracking-wider text-teal-100 truncate">Trip</span>
+          <span id="heroManagerBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white shrink-0">Manager: -</span>
+        </div>
+        <div id="heroTripTotal" class="text-3xl font-bold mt-1">₹0</div>
+        <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/15 text-xs">
+          <div><div class="text-teal-100">Pool Given</div><div id="heroPoolGiven" class="font-semibold">₹0</div></div>
+          <div class="text-center"><div class="text-teal-100">Members</div><div id="heroMemberCount" class="font-semibold">0</div></div>
+          <div class="text-right"><div class="text-amber-200">Pool Left</div><div id="heroPoolLeft" class="font-semibold text-amber-200">₹0</div></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <h2 class="text-xs font-bold uppercase tracking-wide text-slate-700">Trip Expenses</h2>
+        <button id="btnAddExpense" type="button" class="px-3 py-1.5 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Expense</button>
+      </div>
+      <div id="expensesList" class="space-y-2"></div>
+    </section>
+
+    <!-- Tab 2: Members -->
+    <section id="viewMembers" class="hidden space-y-4">
+      <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 text-white p-4 shadow-sm">
+        <div class="text-xs font-medium text-slate-300 uppercase tracking-wider">Member Pool &amp; Balances</div>
+        <div id="membersPoolTotal" class="text-2xl font-bold mt-1">Advance Pool: ₹0</div>
+        <div class="text-xs text-slate-300 mt-1">Tap any member to update their Advance Given to the Trip Manager.</div>
+      </div>
+      <div id="membersList" class="space-y-2"></div>
+    </section>
+
+    <!-- Tab 3: Summary & Settle -->
+    <section id="viewSummary" class="hidden space-y-4">
+      <div class="rounded-2xl bg-gradient-to-br from-purple-900 to-slate-950 text-white p-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium text-purple-200 uppercase tracking-wider">Settlement Plan</span>
+          <div class="flex gap-1.5"><button id="btnExportPdf" type="button" class="text-xs px-2.5 py-1 rounded-lg bg-white/15 text-white hover:bg-white/25 font-semibold">PDF</button><button id="btnCopySummary" type="button" class="text-xs px-2.5 py-1 rounded-lg bg-white/15 text-white hover:bg-white/25 font-semibold">Copy</button></div>
+        </div>
+        <div id="summaryTotalSpend" class="text-3xl font-bold mt-1">₹0</div>
+        <div id="summaryPerPerson" class="text-xs text-purple-200 mt-1">Avg / person: ₹0</div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2.5">
+        <h3 class="text-sm font-bold text-slate-800">Who Pays Whom</h3>
+        <div id="settlementList" class="space-y-2"></div>
+      </div>
+
+      <div id="settledHistoryCard" class="hidden bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
+        <h3 class="text-sm font-bold text-slate-800">Settled Payments</h3>
+        <div id="settledHistoryList" class="space-y-1.5"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+        <h3 class="text-sm font-bold text-slate-800">Spend by Category</h3>
+        <div class="relative h-52"><canvas id="tripCatChart"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation (3 clean tabs) -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-slate-200">
+    <div class="max-w-2xl mx-auto grid grid-cols-3 h-16">
+      <button id="navExpenses" type="button" class="nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-teal-50 text-teal-800 font-bold text-xs rounded-xl mx-1 my-1.5">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <span>Expenses</span>
+      </button>
+      <button id="navMembers" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs mx-1 my-1.5 rounded-xl">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Members</span>
+      </button>
+      <button id="navSummary" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs mx-1 my-1.5 rounded-xl">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+        <span>Summary</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Create / Edit Trip Modal -->
+  <div id="tripModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="tripModalTitle" class="text-base font-bold text-slate-900">New Trip</h3>
+        <button id="btnCloseTripModal" type="button" class="text-slate-400 text-2xl leading-none">&times;</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Trip Name</label>
+          <input id="inpTripName" type="text" placeholder="e.g. Udaipur Trip" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">No. of Participants</label>
+          <input id="inpMemberCount" type="number" min="2" max="30" value="4" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Participant Names &amp; Trip Manager</label>
+        <div id="memberInputsWrap" class="space-y-2 max-h-52 overflow-y-auto"></div>
+      </div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnDeleteTrip" type="button" class="hidden text-xs font-semibold text-rose-600">Delete Trip</button>
+        <div class="flex gap-2 ml-auto">
+          <button id="btnCancelTrip" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+          <button id="btnSaveTrip" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save Trip</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Expense Modal -->
+  <div id="expModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 id="expModalTitle" class="text-base font-bold text-slate-900">Add Expense</h3>
+        <button id="btnCloseExpModal" type="button" class="text-slate-400 text-2xl leading-none">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Expense Title</label>
+        <input id="inpExpTitle" type="text" placeholder="e.g. Hotel Stay, Dinner, Fuel" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
+          <input id="inpExpAmt" type="number" inputmode="numeric" placeholder="0" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Date</label>
+          <input id="inpExpDate" type="date" class="w-full px-2 py-2 rounded-lg border border-slate-300 text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Category</label>
+          <select id="selExpCat" class="w-full px-2 py-2 rounded-lg border border-slate-300 text-xs bg-white">
+            <option value="Travel">Travel</option>
+            <option value="Stay">Stay</option>
+            <option value="Food">Food</option>
+            <option value="Tickets">Tickets</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Paid By (defaults to Trip Manager)</label>
+        <select id="selExpPaidBy" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"></select>
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-medium text-slate-600">Split Between (<span id="splitPreviewTxt">₹0 / person</span>)</label>
+          <button id="btnSelectAllSplit" type="button" class="text-xs font-semibold text-teal-700">Select All</button>
+        </div>
+        <div id="splitCheckboxesWrap" class="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto p-2 rounded-xl bg-slate-50 border border-slate-200"></div>
+      </div>
+      <div class="flex items-center justify-between pt-2">
+        <button id="btnDeleteExp" type="button" class="hidden text-xs font-semibold text-rose-600">Delete</button>
+        <div class="flex gap-2 ml-auto">
+          <button id="btnCancelExp" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+          <button id="btnSaveExp" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Advance Modal -->
+  <div id="advanceModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 id="advModalTitle" class="text-base font-bold text-slate-900">Member Advance</h3>
+        <button id="btnCloseAdv" type="button" class="text-slate-400 text-2xl leading-none">&times;</button>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Advance Given to Trip Manager (₹)</label>
+        <input id="inpAdvAmt" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btnCancelAdv" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+        <button id="btnSaveAdv" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drive Settings & Backup Modal -->
+  <div id="driveModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">Trip Drive Sync &amp; Excel</h3>
+        <button id="btnCloseDrive" type="button" class="text-slate-400 text-2xl leading-none">&times;</button>
+      </div>
+      <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-800 uppercase">Google Drive (.xlsx)</span>
+          <span id="driveBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Connected</span>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Google Cloud OAuth Client ID</label>
+          <input id="inpClientId" type="text" placeholder="Paste OAuth Client ID" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Trip Excel File ID</label>
+          <input id="inpDriveFileId" type="text" placeholder="Paste Drive .xlsx File ID" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 pt-1">
+          <button id="btnDriveConnect" type="button" class="py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold">Connect</button>
+          <button id="btnDriveLoad" type="button" class="py-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold">Load .xlsx</button>
+          <button id="btnDriveSave" type="button" class="py-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold">Save .xlsx</button>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <button id="btnExportXlsx" type="button" class="w-full py-2.5 rounded-xl bg-teal-700 text-white text-xs font-semibold">Download Trip Excel (.xlsx)</button>
+        <label class="block w-full py-2.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold text-center cursor-pointer">
+          Import Trip Excel (.xlsx)
+          <input id="inpImportXlsx" type="file" accept=".xlsx" class="hidden" />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg"></div>
+
+  <script>
+    const DATA_KEY = 'trip_split_data_v1';
+    const DRV_CFG_KEY = 'trip_split_drive_cfg_v1';
+    const DRV_TOK_KEY = 'trip_split_drive_tok_v1';
+    const THEME_KEY = 'trip_split_dark_v1';
+
+    let state = {
+      trips: [],
+      selectedTripId: null,
+      activeTab: 'expenses',
+      editingTripId: null,
+      editingExpId: null,
+      editingMemberId: null,
+      catChart: null
+    };
+    let driveToken = null;
+    let driveAutoTimer = null;
+
+    function fmt(n) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(n) || 0);
+    }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.add('hidden'), 2400);
+    }
+
+    function saveLocal() {
+      try { localStorage.setItem(DATA_KEY, JSON.stringify(state.trips)); } catch (e) {}
+      if (driveToken && document.getElementById('inpDriveFileId').value.trim()) {
+        clearTimeout(driveAutoTimer);
+        driveAutoTimer = setTimeout(() => saveTripXlsxToDrive(), 900);
+      }
+    }
+
+    function loadLocal() {
+      try {
+        const raw = localStorage.getItem(DATA_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            state.trips = parsed;
+            state.selectedTripId = parsed[0] ? parsed[0].id : null;
+          }
+        }
+      } catch (e) {}
+    }
+
+    function getTrip() {
+      return state.trips.find(t => t.id === state.selectedTripId) || state.trips[0] || null;
+    }
+
+    function computeTripStats(trip) {
+      const members = trip.members || [];
+      const expenses = trip.expenses || [];
+      const mgr = members.find(m => m.id === trip.managerId) || members[0] || null;
+
+      const stats = {};
+      members.forEach(m => {
+        stats[m.id] = {
+          member: m,
+          advance: Number(m.advance) || 0,
+          directPaid: 0,
+          share: 0,
+          net: 0
+        };
+      });
+
+      let totalSpend = 0;
+      let poolSpent = 0;
+
+      expenses.forEach(e => {
+        const amt = Number(e.amount) || 0;
+        totalSpend += amt;
+        const splitIds = (e.splitIds && e.splitIds.length) ? e.splitIds.filter(id => stats[id]) : members.map(m => m.id);
+        const perHead = splitIds.length > 0 ? amt / splitIds.length : 0;
+        splitIds.forEach(id => { stats[id].share += perHead; });
+
+        if (e.paidBy === 'POOL' || (mgr && e.paidBy === mgr.id)) {
+          poolSpent += amt;
+        }
+        if (e.paidBy && e.paidBy !== 'POOL' && stats[e.paidBy]) {
+          // If manager paid from pool, advance already covers it unless manager paid extra
+          if (!mgr || e.paidBy !== mgr.id) {
+            stats[e.paidBy].directPaid += amt;
+          } else {
+            stats[e.paidBy].directPaid += amt;
+          }
+        }
+      });
+
+      // Pool Given = sum of non-manager advances + manager advance
+      const totalPoolGiven = members.reduce((a, m) => a + (Number(m.advance) || 0), 0);
+      // Note: If manager holds the pool, manager's net responsibility = (manager.advance + directPaidByManager) vs poolSpent
+      // Clean unified balance per member:
+      // Each member contributed: advance (held by manager) + directPaid (paid out of pocket).
+      // Wait: if Manager paid an expense FROM the pool, Manager shouldn't get credit for spending other people's advance!
+      // Let's handle both cleanly:
+      // - Advances go into Manager's custody.
+      // - Expenses paid by "Trip Manager (Pool)" reduce the Pool. If Pool runs negative, Manager paid out of pocket!
+      // - Expenses paid directly by any member (not from Pool) count as that member's directPaid!
+      const memberList = Object.values(stats);
+      // Reset directPaid for manager if paidBy === 'POOL' vs member.id:
+      // Actually: track `paidFromPool` (paidBy === 'POOL' or paidBy === mgr.id when advance > 0) vs `directPaid`!
+      // Simplest exact accounting:
+      // 1) Everyone's total contribution = m.advance + directPaid (where Manager's directPaid = totalPoolSpent - totalPoolGiven if >0, or simply: Manager's balance = (mgr.advance + totalManagerPaid - totalPoolGiven) - mgr.share!)
+      // Wait: let's verify!
+      // Suppose A, B, C, M (Manager) each give 5000 advance (totalPoolGiven = 20,000).
+      // Manager pays 16,000 in expenses (paidBy = M).
+      // A's net = 5,000 - 4,000 = +1,000 (gets back 1,000 from pool!).
+      // B's net = 5,000 - 4,000 = +1,000.
+      // C's net = 5,000 - 4,000 = +1,000.
+      // M's personal net = 5,000 - 4,000 = +1,000, AND M is holding 20,000 - 16,000 = 4,000 cash in the pool!
+      // Notice: 1,000 + 1,000 + 1,000 + 1,000 = 4,000 (exact pool remaining!).
+      // And if M paid 24,000 (4,000 over the 20,000 pool):
+      // A, B, C each owe (6,000 share - 5,000 advance) = -1,000 each -> total 3,000 owed to M, plus M's own 1,000!
+      // That means in BOTH models, every member's true personal balance is ALWAYS:
+      //   net = (advance + directPaidByMember_excluding_pool_cover) -> NO:
+      //   If M holds the pool, M's effective pocket contribution = totalPaidByM - (sum of OTHER members' advances)!
+      //   Let's check that!
+      //   Case 1 (Pool=20,000, M paid 16,000): M's pocket = 16,000 - 15,000 = 1,000? Wait: M gave 5,000 advance too, so pool remaining is 4,000!
+      //   In Pool accounting:
+      //   Each member's "Given" = m.advance + (m.id === mgr.id ? 0 : directPaid).
+      //   And Manager holds: poolLeft = totalPoolGiven - expensesPaidByManager!
+      //   Let's verify Case 1: A, B, C, M give 5,000 each -> totalPoolGiven = 20,000. M pays 16,000 -> poolLeft = 4,000.
+      //   Each member's balance = m.advance + directPaid(non-pool) - share = 5,000 - 4,000 = +1,000 each!
+      //   And who pays out the +1,000 to A, B, C? The Pool (held by M, which has 4,000 left)!
+      //   Case 2 (Pool=20,000, M pays 24,000): poolLeft = -4,000 (M paid 4,000 extra out of pocket!).
+      //   Each member's balance = 5,000 - 6,000 = -1,000! So A, B, C each pay 1,000 to M (3,000), covering M's 4,000 extra minus M's 1,000 share!
+      //   Case 3 (No advances = 0, A pays 2,000 directly, M pays 2,000 directly):
+      //   totalPoolGiven = 0. A's balance = +1,000, M's balance = +1,000, B's = -1,000, C's = -1,000!
+      //   SO CLEAN! Both models unify into ONE exact formula!
+
+      const mgrId = mgr ? mgr.id : null;
+      let spentByMgrOrPool = 0;
+      expenses.forEach(e => {
+        if (e.paidBy === 'POOL' || (mgrId && e.paidBy === mgrId)) {
+          spentByMgrOrPool += Number(e.amount) || 0;
+        }
+      });
+
+      const poolLeft = totalPoolGiven - spentByMgrOrPool;
+
+      memberList.forEach(st => {
+        if (mgrId && st.member.id === mgrId) {
+          const othersAdvance = totalPoolGiven - st.advance;
+          const mgrActualPaid = spentByMgrOrPool - othersAdvance;
+          st.net = mgrActualPaid - st.share;
+        } else {
+          st.net = st.advance + st.directPaid - st.share;
+        }
+      });
+      (trip.settlements || []).forEach(stl => {
+        if (stats[stl.fromId]) stats[stl.fromId].net += Number(stl.amount) || 0;
+        if (stats[stl.toId]) stats[stl.toId].net -= Number(stl.amount) || 0;
+      });
+
+      return { totalSpend, totalPoolGiven, poolLeft, memberStats: memberList, mgr };
+    }
+
+    function computeSettlements(memberStats) {
+      const debtors = memberStats.filter(s => s.net < -0.5).map(s => ({ id: s.member.id, name: s.member.name, amt: -s.net })).sort((a, b) => b.amt - a.amt);
+      const creditors = memberStats.filter(s => s.net > 0.5).map(s => ({ id: s.member.id, name: s.member.name, amt: s.net })).sort((a, b) => b.amt - a.amt);
+      const tx = [];
+      let i = 0, j = 0;
+      while (i < debtors.length && j < creditors.length) {
+        const pay = Math.min(debtors[i].amt, creditors[j].amt);
+        if (pay >= 1) tx.push({ fromId: debtors[i].id, toId: creditors[j].id, from: debtors[i].name, to: creditors[j].name, amt: Math.round(pay) });
+        debtors[i].amt -= pay;
+        creditors[j].amt -= pay;
+        if (debtors[i].amt < 0.5) i++;
+        if (creditors[j].amt < 0.5) j++;
+      }
+      return tx;
+    }
+
+    function renderAll() {
+      const trip = getTrip();
+      const strip = document.getElementById('tripStripWrap');
+      strip.innerHTML = '';
+      state.trips.forEach(t => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = trip && t.id === trip.id
+          ? 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white'
+          : 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700';
+        b.textContent = t.name;
+        b.addEventListener('click', () => { state.selectedTripId = t.id; renderAll(); });
+        strip.appendChild(b);
+      });
+
+      document.getElementById('emptyTripState').classList.toggle('hidden', !!trip);
+      document.getElementById('viewExpenses').classList.toggle('hidden', !trip || state.activeTab !== 'expenses');
+      document.getElementById('viewMembers').classList.toggle('hidden', !trip || state.activeTab !== 'members');
+      document.getElementById('viewSummary').classList.toggle('hidden', !trip || state.activeTab !== 'summary');
+
+      const navMap = { expenses: 'navExpenses', members: 'navMembers', summary: 'navSummary' };
+      Object.entries(navMap).forEach(([k, id]) => {
+        const el = document.getElementById(id);
+        el.className = state.activeTab === k
+          ? 'nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-teal-50 text-teal-800 font-bold text-xs rounded-xl mx-1 my-1.5'
+          : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs mx-1 my-1.5 rounded-xl';
+      });
+
+      if (!trip) return;
+      document.getElementById('headerSub').textContent = `${trip.name} • ${trip.members.length} members`;
+
+      const { totalSpend, totalPoolGiven, poolLeft, memberStats, mgr } = computeTripStats(trip);
+      document.getElementById('heroTripName').textContent = trip.name;
+      document.getElementById('heroManagerBadge').textContent = `Manager: ${mgr ? mgr.name : '-'}`;
+      document.getElementById('heroTripTotal').textContent = fmt(totalSpend);
+      document.getElementById('heroPoolGiven').textContent = fmt(totalPoolGiven);
+      document.getElementById('heroMemberCount').textContent = String(trip.members.length);
+      document.getElementById('heroPoolLeft').textContent = fmt(poolLeft);
+
+      if (state.activeTab === 'expenses') renderExpenses(trip);
+      else if (state.activeTab === 'members') renderMembers(trip, totalPoolGiven, memberStats, mgr);
+      else renderSummary(trip, totalSpend, memberStats);
+    }
+
+    function renderExpenses(trip) {
+      const el = document.getElementById('expensesList');
+      el.innerHTML = '';
+      const exps = (trip.expenses || []).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      if (!exps.length) {
+        el.innerHTML = '<div class="bg-white rounded-xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-400">No expenses yet. Tap + Add Expense.</div>';
+        return;
+      }
+      exps.forEach(e => {
+        const payer = e.paidBy === 'POOL' ? 'Trip Pool' : ((trip.members.find(m => m.id === e.paidBy) || {}).name || 'Manager');
+        const splitCnt = (e.splitIds && e.splitIds.length) ? e.splitIds.length : trip.members.length;
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-400';
+        card.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-semibold text-slate-900 truncate">${e.title}</span>
+              <span class="text-xs font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-800 shrink-0">${e.category || 'Other'}</span>
+            </div>
+            <div class="text-xs text-slate-500 truncate mt-0.5">Paid by ${payer} • Split ${splitCnt}/${trip.members.length}${e.date ? ' • ' + e.date : ''}</div>
+          </div>
+          <div class="text-sm font-bold text-slate-900 shrink-0">${fmt(e.amount)}</div>
+        `;
+        card.addEventListener('click', () => openExpModal(e));
+        el.appendChild(card);
+      });
+    }
+
+    function renderMembers(trip, totalPoolGiven, memberStats, mgr) {
+      document.getElementById('membersPoolTotal').textContent = `Advance Pool: ${fmt(totalPoolGiven)}`;
+      const el = document.getElementById('membersList');
+      el.innerHTML = '';
+      memberStats.forEach(st => {
+        const isMgr = mgr && st.member.id === mgr.id;
+        const bal = Math.round(st.net);
+        const balTxt = bal > 0 ? `Get Back ${fmt(bal)}` : (bal < 0 ? `Pay ${fmt(-bal)}` : 'Settled');
+        const balCls = bal > 0 ? 'text-teal-700' : (bal < 0 ? 'text-rose-600' : 'text-slate-500');
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-400';
+        card.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-sm font-bold text-slate-900 truncate">${st.member.name}</span>
+              ${isMgr ? '<span class="text-xs font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-800">MANAGER</span>' : ''}
+            </div>
+            <div class="text-xs text-slate-500 mt-0.5">Advance: ${fmt(st.advance)} • Direct: ${fmt(st.directPaid)} • Share: ${fmt(Math.round(st.share))}</div>
+          </div>
+          <div class="text-right shrink-0 text-xs font-bold ${balCls}">${balTxt}</div>
+        `;
+        card.addEventListener('click', () => openAdvanceModal(st.member));
+        el.appendChild(card);
+      });
+    }
+
+    function renderSummary(trip, totalSpend, memberStats) {
+      const cnt = trip.members.length || 1;
+      document.getElementById('summaryTotalSpend').textContent = fmt(totalSpend);
+      document.getElementById('summaryPerPerson').textContent = `Avg / person: ${fmt(Math.round(totalSpend / cnt))}`;
+
+      const tx = computeSettlements(memberStats);
+      const sEl = document.getElementById('settlementList');
+      sEl.innerHTML = '';
+      if (!tx.length) {
+        sEl.innerHTML = '<div class="text-xs text-slate-400">Everyone is settled up!</div>';
+      } else {
+        tx.forEach(t => {
+          const wrap = document.createElement('div');
+          wrap.className = 'border-b border-slate-100 last:border-0 py-2';
+          const r = document.createElement('div');
+          r.className = 'flex items-center justify-between gap-2 text-xs cursor-pointer';
+          r.innerHTML = `<span class="font-semibold text-slate-800">${t.from} → ${t.to}</span><span class="font-bold text-teal-700 shrink-0">${fmt(t.amt)} ▾</span>`;
+          const act = document.createElement('div');
+          act.className = 'hidden flex items-center justify-end gap-2 mt-2 pt-2 border-t border-slate-100';
+          act.innerHTML = `<button type="button" class="cancel-stl px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-semibold">Cancel</button><button type="button" class="settle-btn px-3 py-1 rounded-lg bg-teal-700 text-white text-xs font-semibold">Mark Paid</button>`;
+          r.addEventListener('click', () => act.classList.toggle('hidden'));
+          act.querySelector('.cancel-stl').addEventListener('click', (e) => { e.stopPropagation(); act.classList.add('hidden'); });
+          act.querySelector('.settle-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!trip.settlements) trip.settlements = [];
+            trip.settlements.push({ id: `stl-${Date.now()}`, fromId: t.fromId, toId: t.toId, from: t.from, to: t.to, amount: t.amt, date: new Date().toISOString().slice(0, 10) });
+            saveLocal();
+            renderAll();
+            toast(`Settled ${t.from} → ${t.to}`);
+          });
+          wrap.appendChild(r);
+          wrap.appendChild(act);
+          sEl.appendChild(wrap);
+        });
+      }
+
+      const shCard = document.getElementById('settledHistoryCard');
+      const shList = document.getElementById('settledHistoryList');
+      const stls = trip.settlements || [];
+      shCard.classList.toggle('hidden', !stls.length);
+      shList.innerHTML = '';
+      stls.forEach(stItem => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0';
+        row.innerHTML = `<span class="text-slate-600">✓ ${stItem.from} → ${stItem.to} (${stItem.date || ''})</span><div class="flex items-center gap-2"><span class="font-semibold text-slate-800">${fmt(stItem.amount)}</span><button type="button" class="undo-stl text-rose-500 font-semibold">Undo</button></div>`;
+        row.querySelector('.undo-stl').addEventListener('click', () => {
+          trip.settlements = trip.settlements.filter(x => x.id !== stItem.id);
+          saveLocal();
+          renderAll();
+          toast('Settlement undone');
+        });
+        shList.appendChild(row);
+      });
+
+      const catTotals = {};
+      (trip.expenses || []).forEach(e => {
+        const c = e.category || 'Other';
+        catTotals[c] = (catTotals[c] || 0) + (Number(e.amount) || 0);
+      });
+      const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+      const ctx = document.getElementById('tripCatChart').getContext('2d');
+      if (state.catChart) state.catChart.destroy();
+      state.catChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: sorted.map(x => x[0]),
+          datasets: [{ data: sorted.map(x => x[1]), backgroundColor: sorted.map((_, i) => ['#0f766e', '#f59e0b', '#6366f1', '#ec4899', '#14b8a6', '#94a3b8'][i % 6]), borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
+      });
+    }
+
+    // --- Modals ---
+    let selectedMgrIdx = 0;
+    function renderMemberInputs(existingMembers, managerId) {
+      const count = Math.max(2, Math.min(30, parseInt(document.getElementById('inpMemberCount').value, 10) || 4));
+      const wrap = document.getElementById('memberInputsWrap');
+      const curVals = Array.from(wrap.querySelectorAll('input[type="text"]')).map(i => i.value);
+      if (existingMembers && managerId) {
+        const foundIdx = existingMembers.findIndex(m => m.id === managerId);
+        if (foundIdx >= 0) selectedMgrIdx = foundIdx;
+      }
+      if (selectedMgrIdx >= count) selectedMgrIdx = 0;
+      wrap.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const m = existingMembers && existingMembers[i] ? existingMembers[i] : null;
+        const mId = m ? m.id : `m-${i}-${Date.now()}`;
+        const val = m ? m.name : (curVals[i] || `Member ${i + 1}`);
+        const isMgr = i === selectedMgrIdx;
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.innerHTML = `
+          <input type="text" data-mid="${mId}" value="${val}" class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs" placeholder="Member ${i + 1}" />
+          <button type="button" data-idx="${i}" class="mgr-pill shrink-0 px-2.5 py-1.5 rounded-lg text-xs font-semibold ${isMgr ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">${isMgr ? '★ Manager' : 'Set Manager'}</button>
+        `;
+        row.querySelector('.mgr-pill').addEventListener('click', () => {
+          selectedMgrIdx = i;
+          renderMemberInputs(null, null);
+        });
+        wrap.appendChild(row);
+      }
+    }
+
+    function openTripModal(trip = null) {
+      state.editingTripId = trip ? trip.id : null;
+      document.getElementById('tripModalTitle').textContent = trip ? 'Edit Trip & Members' : 'New Trip';
+      document.getElementById('inpTripName').value = trip ? trip.name : '';
+      document.getElementById('inpMemberCount').value = trip ? trip.members.length : 4;
+      document.getElementById('btnDeleteTrip').classList.toggle('hidden', !trip);
+      selectedMgrIdx = 0;
+      document.getElementById('memberInputsWrap').innerHTML = '';
+      renderMemberInputs(trip ? trip.members : null, trip ? trip.managerId : null);
+      document.getElementById('tripModal').classList.remove('hidden');
+    }
+
+    document.getElementById('inpMemberCount').addEventListener('change', () => {
+      const trip = state.editingTripId ? state.trips.find(t => t.id === state.editingTripId) : null;
+      renderMemberInputs(trip ? trip.members : null, trip ? trip.managerId : null);
+    });
+
+    document.getElementById('btnSaveTrip').addEventListener('click', () => {
+      const name = document.getElementById('inpTripName').value.trim();
+      if (!name) { toast('Enter trip name'); return; }
+      const wrap = document.getElementById('memberInputsWrap');
+      const inputs = Array.from(wrap.querySelectorAll('input[type="text"]'));
+      const mgrIdx = selectedMgrIdx;
+
+      const existing = state.editingTripId ? state.trips.find(t => t.id === state.editingTripId) : null;
+      const newMembers = inputs.map((inp, i) => {
+        const mId = inp.getAttribute('data-mid');
+        const oldM = existing ? existing.members.find(x => x.id === mId) : null;
+        return {
+          id: mId,
+          name: inp.value.trim() || `Member ${i + 1}`,
+          advance: oldM ? oldM.advance : 0
+        };
+      });
+      const managerId = newMembers[mgrIdx] ? newMembers[mgrIdx].id : newMembers[0].id;
+
+      if (existing) {
+        existing.name = name;
+        existing.members = newMembers;
+        existing.managerId = managerId;
+      } else {
+        const id = `trip-${Date.now()}`;
+        state.trips.unshift({ id, name, managerId, members: newMembers, expenses: [] });
+        state.selectedTripId = id;
+      }
+      document.getElementById('tripModal').classList.add('hidden');
+      saveLocal();
+      renderAll();
+      toast('Trip saved');
+    });
+
+    document.getElementById('btnDeleteTrip').addEventListener('click', () => {
+      if (!state.editingTripId) return;
+      state.trips = state.trips.filter(t => t.id !== state.editingTripId);
+      state.selectedTripId = state.trips[0] ? state.trips[0].id : null;
+      document.getElementById('tripModal').classList.add('hidden');
+      saveLocal();
+      renderAll();
+      toast('Trip deleted');
+    });
+
+    function updateSplitPreview() {
+      const amt = parseFloat(document.getElementById('inpExpAmt').value) || 0;
+      const checked = document.querySelectorAll('#splitCheckboxesWrap input:checked').length;
+      const per = checked > 0 ? Math.round(amt / checked) : 0;
+      document.getElementById('splitPreviewTxt').textContent = `${fmt(per)} / person (${checked})`;
+    }
+
+    function openExpModal(exp = null) {
+      const trip = getTrip();
+      if (!trip) return;
+      state.editingExpId = exp ? exp.id : null;
+      document.getElementById('expModalTitle').textContent = exp ? 'Edit Expense' : 'Add Expense';
+      document.getElementById('inpExpTitle').value = exp ? exp.title : '';
+      document.getElementById('inpExpAmt').value = exp ? exp.amount : '';
+      document.getElementById('inpExpDate').value = exp ? (exp.date || new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10);
+      document.getElementById('selExpCat').value = exp ? (exp.category || 'Food') : 'Food';
+      document.getElementById('btnDeleteExp').classList.toggle('hidden', !exp);
+
+      const sel = document.getElementById('selExpPaidBy');
+      sel.innerHTML = '';
+      trip.members.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.id === trip.managerId ? `${m.name} (Trip Manager)` : m.name;
+        sel.appendChild(opt);
+      });
+      sel.value = exp ? exp.paidBy : trip.managerId;
+
+      const wrap = document.getElementById('splitCheckboxesWrap');
+      wrap.innerHTML = '';
+      const activeIds = exp && exp.splitIds ? exp.splitIds : trip.members.map(m => m.id);
+      trip.members.forEach(m => {
+        const lbl = document.createElement('label');
+        lbl.className = 'flex items-center gap-1.5 text-xs text-slate-800 cursor-pointer';
+        lbl.innerHTML = `<input type="checkbox" value="${m.id}" ${activeIds.includes(m.id) ? 'checked' : ''} class="rounded text-teal-700" /> <span class="truncate">${m.name}</span>`;
+        lbl.querySelector('input').addEventListener('change', updateSplitPreview);
+        wrap.appendChild(lbl);
+      });
+      updateSplitPreview();
+      document.getElementById('expModal').classList.remove('hidden');
+    }
+
+    document.getElementById('inpExpAmt').addEventListener('input', updateSplitPreview);
+    document.getElementById('btnSelectAllSplit').addEventListener('click', () => {
+      document.querySelectorAll('#splitCheckboxesWrap input').forEach(c => { c.checked = true; });
+      updateSplitPreview();
+    });
+
+    document.getElementById('btnSaveExp').addEventListener('click', () => {
+      const trip = getTrip();
+      if (!trip) return;
+      const title = document.getElementById('inpExpTitle').value.trim();
+      const amount = parseFloat(document.getElementById('inpExpAmt').value) || 0;
+      const date = document.getElementById('inpExpDate').value;
+      const category = document.getElementById('selExpCat').value;
+      const paidBy = document.getElementById('selExpPaidBy').value;
+      const splitIds = Array.from(document.querySelectorAll('#splitCheckboxesWrap input:checked')).map(c => c.value);
+      if (!title || amount <= 0 || !splitIds.length) { toast('Enter title, amount & at least 1 member'); return; }
+
+      if (state.editingExpId) {
+        const idx = trip.expenses.findIndex(e => e.id === state.editingExpId);
+        if (idx !== -1) trip.expenses[idx] = { ...trip.expenses[idx], title, amount, date, category, paidBy, splitIds };
+      } else {
+        trip.expenses.push({ id: `te-${Date.now()}`, title, amount, date, category, paidBy, splitIds });
+      }
+      document.getElementById('expModal').classList.add('hidden');
+      saveLocal();
+      renderAll();
+      toast('Expense saved');
+    });
+
+    document.getElementById('btnDeleteExp').addEventListener('click', () => {
+      const trip = getTrip();
+      if (!trip || !state.editingExpId) return;
+      trip.expenses = trip.expenses.filter(e => e.id !== state.editingExpId);
+      document.getElementById('expModal').classList.add('hidden');
+      saveLocal();
+      renderAll();
+      toast('Deleted');
+    });
+
+    function openAdvanceModal(member) {
+      state.editingMemberId = member.id;
+      document.getElementById('advModalTitle').textContent = `Advance: ${member.name}`;
+      document.getElementById('inpAdvAmt').value = member.advance || 0;
+      document.getElementById('advanceModal').classList.remove('hidden');
+    }
+
+    document.getElementById('btnSaveAdv').addEventListener('click', () => {
+      const trip = getTrip();
+      if (!trip) return;
+      const m = trip.members.find(x => x.id === state.editingMemberId);
+      if (m) m.advance = parseFloat(document.getElementById('inpAdvAmt').value) || 0;
+      document.getElementById('advanceModal').classList.add('hidden');
+      saveLocal();
+      renderAll();
+      toast('Advance updated');
+    });
+
+    // --- WhatsApp Copy Summary ---
+    function copyWhatsAppSummary() {
+      const trip = getTrip();
+      if (!trip) return;
+      const { totalSpend, totalPoolGiven, poolLeft, memberStats } = computeTripStats(trip);
+      const tx = computeSettlements(memberStats);
+      const lines = [
+        `*${trip.name} — Expense Summary*`,
+        `Total Spend: ${fmt(totalSpend)} | Pool Given: ${fmt(totalPoolGiven)} | Pool Left: ${fmt(poolLeft)}`,
+        '',
+        '*Who Pays Whom:*'
+      ];
+      if (!tx.length) {
+        lines.push('• All members are settled up!');
+      } else {
+        tx.forEach(t => lines.push(`• ${t.from} pays ${t.to}: ${fmt(t.amt)}`));
+      }
+      lines.push('', '*Member Balances:*');
+      memberStats.forEach(s => {
+        const b = Math.round(s.net);
+        const balStr = b > 0 ? `Get Back ${fmt(b)}` : (b < 0 ? `Pay ${fmt(-b)}` : 'Settled');
+        lines.push(`• ${s.member.name}: Advance ${fmt(s.advance)}, Direct ${fmt(s.directPaid)}, Share ${fmt(Math.round(s.share))} → ${balStr}`);
+      });
+      const txt = lines.join('\n');
+      function fallbackCopy(str) {
+        const ta = document.createElement('textarea');
+        ta.value = str;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) {}
+        ta.remove();
+        return ok;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => toast('Summary copied for WhatsApp')).catch(() => {
+          toast(fallbackCopy(txt) ? 'Summary copied for WhatsApp' : 'Copy blocked by browser');
+        });
+      } else {
+        toast(fallbackCopy(txt) ? 'Summary copied for WhatsApp' : 'Copy blocked by browser');
+      }
+    }
+
+
+    function exportTripPdf() {
+      const trip = getTrip();
+      if (!trip) return;
+      if (!window.jspdf || !window.jspdf.jsPDF) { toast('PDF library loading...'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const { totalSpend, totalPoolGiven, poolLeft, memberStats, mgr } = computeTripStats(trip);
+      const tx = computeSettlements(memberStats);
+
+      doc.setFontSize(16);
+      doc.setTextColor(15, 118, 110);
+      doc.text(`${trip.name} — Expense Report`, 14, 18);
+
+      doc.setFontSize(10);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Trip Manager: ${mgr ? mgr.name : '-'}   |   Members: ${trip.members.length}   |   Generated: ${new Date().toISOString().slice(0, 10)}`, 14, 25);
+      doc.text(`Total Spend: Rs. ${Math.round(totalSpend).toLocaleString('en-IN')}   |   Pool Given: Rs. ${Math.round(totalPoolGiven).toLocaleString('en-IN')}   |   Pool Left: Rs. ${Math.round(poolLeft).toLocaleString('en-IN')}`, 14, 31);
+
+      doc.autoTable({
+        startY: 37,
+        head: [['Member', 'Role', 'Advance', 'Direct Paid', 'Share', 'Balance']],
+        body: memberStats.map(s => {
+          const b = Math.round(s.net);
+          return [
+            s.member.name,
+            mgr && s.member.id === mgr.id ? 'Manager' : 'Member',
+            `Rs. ${Math.round(s.advance).toLocaleString('en-IN')}`,
+            `Rs. ${Math.round(s.directPaid).toLocaleString('en-IN')}`,
+            `Rs. ${Math.round(s.share).toLocaleString('en-IN')}`,
+            b > 0 ? `Get Rs. ${b.toLocaleString('en-IN')}` : (b < 0 ? `Pay Rs. ${(-b).toLocaleString('en-IN')}` : 'Settled')
+          ];
+        }),
+        headStyles: { fillColor: [15, 118, 110] },
+        styles: { fontSize: 9 }
+      });
+
+      let y = doc.lastAutoTable.finalY + 8;
+      if (tx.length) {
+        doc.setFontSize(11);
+        doc.setTextColor(15, 23, 42);
+        doc.text('Pending Settlements (Who Pays Whom)', 14, y);
+        doc.autoTable({
+          startY: y + 3,
+          head: [['From', 'To', 'Amount']],
+          body: tx.map(t => [t.from, t.to, `Rs. ${t.amt.toLocaleString('en-IN')}`]),
+          headStyles: { fillColor: [51, 65, 85] },
+          styles: { fontSize: 9 }
+        });
+        y = doc.lastAutoTable.finalY + 8;
+      }
+
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42);
+      doc.text('Expense Breakdown', 14, y);
+      doc.autoTable({
+        startY: y + 3,
+        head: [['Date', 'Item', 'Category', 'Paid By', 'Split', 'Amount']],
+        body: (trip.expenses || []).map(e => {
+          const payer = (trip.members.find(m => m.id === e.paidBy) || {}).name || (mgr ? mgr.name : '-');
+          const sc = (e.splitIds && e.splitIds.length) ? e.splitIds.length : trip.members.length;
+          return [e.date || '-', e.title, e.category || 'Other', payer, `${sc}/${trip.members.length}`, `Rs. ${Math.round(e.amount).toLocaleString('en-IN')}`];
+        }),
+        headStyles: { fillColor: [15, 118, 110] },
+        styles: { fontSize: 8.5 }
+      });
+
+      doc.save(`${trip.name.replace(/[^a-z0-9]+/gi, '_')}_Summary.pdf`);
+      toast('Trip PDF downloaded');
+    }
+
+    document.getElementById('btnExportPdf').addEventListener('click', exportTripPdf);
+    document.getElementById('btnDrawerExportPdf').addEventListener('click', () => { closeDrawer(); exportTripPdf(); });
+
+    // --- Excel Export / Import & Drive Sync ---
+    function buildTripsWorkbook() {
+      const wb = XLSX.utils.book_new();
+      const expRows = [['Trip Name', 'Manager', 'Date', 'Title', 'Category', 'Amount', 'Paid By', 'Split Between']];
+      const memRows = [['Trip Name', 'Member Name', 'Is Manager', 'Advance Given', 'Direct Paid', 'Share', 'Balance']];
+      state.trips.forEach(tr => {
+        const { memberStats, mgr } = computeTripStats(tr);
+        const mgrName = mgr ? mgr.name : '';
+        (tr.expenses || []).forEach(e => {
+          const payer = (tr.members.find(m => m.id === e.paidBy) || {}).name || mgrName;
+          const splitNames = (e.splitIds || []).map(id => (tr.members.find(m => m.id === id) || {}).name).filter(Boolean).join(', ');
+          expRows.push([tr.name, mgrName, e.date || '', e.title, e.category || 'Other', Number(e.amount) || 0, payer, splitNames]);
+        });
+        memberStats.forEach(s => {
+          memRows.push([tr.name, s.member.name, mgr && s.member.id === mgr.id ? 'Yes' : 'No', s.advance, s.directPaid, Math.round(s.share), Math.round(s.net)]);
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(expRows), 'Trip Expenses');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(memRows), 'Member Balances');
+      return wb;
+    }
+
+    function parseTripsWorkbook(wb) {
+      const tripsMap = {};
+      const memSheet = wb.Sheets['Member Balances'];
+      if (memSheet) {
+        const rows = XLSX.utils.sheet_to_json(memSheet, { header: 1, defval: '' });
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          const tName = String(r[0] || '').trim(), mName = String(r[1] || '').trim();
+          if (!tName || !mName) continue;
+          if (!tripsMap[tName]) tripsMap[tName] = { id: `trip-${Object.keys(tripsMap).length}-${Date.now()}`, name: tName, managerId: null, members: [], expenses: [] };
+          const mId = `m-${i}-${Date.now()}`;
+          tripsMap[tName].members.push({ id: mId, name: mName, advance: Number(r[3]) || 0 });
+          if (String(r[2]).toLowerCase() === 'yes') tripsMap[tName].managerId = mId;
+        }
+      }
+      const expSheet = wb.Sheets['Trip Expenses'];
+      if (expSheet) {
+        const rows = XLSX.utils.sheet_to_json(expSheet, { header: 1, defval: '' });
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i];
+          const tName = String(r[0] || '').trim();
+          if (!tName || !tripsMap[tName]) continue;
+          const tr = tripsMap[tName];
+          const payerObj = tr.members.find(m => m.name === String(r[6]).trim()) || tr.members[0];
+          const splitNames = String(r[7] || '').split(',').map(x => x.trim()).filter(Boolean);
+          const splitIds = splitNames.map(n => (tr.members.find(m => m.name === n) || {}).id).filter(Boolean);
+          tr.expenses.push({
+            id: `te-${i}-${Date.now()}`,
+            date: String(r[2] || ''),
+            title: String(r[3] || ''),
+            category: String(r[4] || 'Other'),
+            amount: Number(r[5]) || 0,
+            paidBy: payerObj ? payerObj.id : tr.managerId,
+            splitIds: splitIds.length ? splitIds : tr.members.map(m => m.id)
+          });
+        }
+      }
+      return Object.values(tripsMap);
+    }
+
+    function updateDriveUI(conn, lbl) {
+      document.getElementById('driveBadge').textContent = conn ? 'Connected' : 'Not Connected';
+      const pill = document.getElementById('btnDrivePill');
+      pill.textContent = lbl || (conn ? 'Drive: Synced' : 'Drive: Offline');
+      pill.className = conn
+        ? 'px-2.5 py-1.5 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold'
+        : 'px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold';
+    }
+
+    async function saveTripXlsxToDrive() {
+      const fileId = document.getElementById('inpDriveFileId').value.trim();
+      if (!driveToken || !fileId || typeof XLSX === 'undefined') return;
+      try {
+        const bytes = XLSX.write(buildTripsWorkbook(), { bookType: 'xlsx', type: 'array' });
+        const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${driveToken}`, 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+          body: new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        });
+        if (!res.ok) throw new Error();
+        toast('Trips saved to Drive');
+      } catch (e) { updateDriveUI(false, 'Reconnect Drive'); }
+    }
+
+    async function loadTripXlsxFromDrive() {
+      const fileId = document.getElementById('inpDriveFileId').value.trim();
+      if (!driveToken || !fileId || typeof XLSX === 'undefined') { toast('Connect Drive first'); return; }
+      try {
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`, { headers: { 'Authorization': `Bearer ${driveToken}` } });
+        if (!res.ok) throw new Error();
+        const wb = XLSX.read(new Uint8Array(await res.arrayBuffer()), { type: 'array' });
+        const parsed = parseTripsWorkbook(wb);
+        if (parsed.length) { state.trips = parsed; state.selectedTripId = parsed[0].id; saveLocal(); renderAll(); }
+        document.getElementById('driveModal').classList.add('hidden');
+        toast(`Loaded ${parsed.length} trips from Drive`);
+      } catch (e) { toast('Could not load Trip Excel'); }
+    }
+
+    // --- Listeners ---
+    function closeDrawer() { document.getElementById('drawerBackdrop').classList.add('hidden'); }
+    document.getElementById('btnDrawerOpen').addEventListener('click', () => document.getElementById('drawerBackdrop').classList.remove('hidden'));
+    document.getElementById('btnDrawerClose').addEventListener('click', closeDrawer);
+    document.getElementById('drawerBackdrop').addEventListener('click', e => { if (e.target.id === 'drawerBackdrop') closeDrawer(); });
+    document.getElementById('btnDrawerNewTrip').addEventListener('click', () => { closeDrawer(); openTripModal(null); });
+    document.getElementById('btnDrawerEditTrip').addEventListener('click', () => { closeDrawer(); const t = getTrip(); if (t) openTripModal(t); });
+    document.getElementById('btnDrawerCopySummary').addEventListener('click', () => { closeDrawer(); copyWhatsAppSummary(); });
+    document.getElementById('btnDrawerExportXlsx').addEventListener('click', () => { closeDrawer(); document.getElementById('btnExportXlsx').click(); });
+    document.getElementById('btnDrawerDriveSettings').addEventListener('click', () => { closeDrawer(); document.getElementById('driveModal').classList.remove('hidden'); });
+
+    document.getElementById('navExpenses').addEventListener('click', () => { state.activeTab = 'expenses'; renderAll(); });
+    document.getElementById('navMembers').addEventListener('click', () => { state.activeTab = 'members'; renderAll(); });
+    document.getElementById('navSummary').addEventListener('click', () => { state.activeTab = 'summary'; renderAll(); });
+
+    document.getElementById('btnNewTripChip').addEventListener('click', () => openTripModal(null));
+    document.getElementById('btnEmptyCreateTrip').addEventListener('click', () => openTripModal(null));
+    document.getElementById('btnCloseTripModal').addEventListener('click', () => document.getElementById('tripModal').classList.add('hidden'));
+    document.getElementById('btnCancelTrip').addEventListener('click', () => document.getElementById('tripModal').classList.add('hidden'));
+
+    document.getElementById('btnAddExpense').addEventListener('click', () => openExpModal(null));
+    document.getElementById('btnCloseExpModal').addEventListener('click', () => document.getElementById('expModal').classList.add('hidden'));
+    document.getElementById('btnCancelExp').addEventListener('click', () => document.getElementById('expModal').classList.add('hidden'));
+
+    document.getElementById('btnCloseAdv').addEventListener('click', () => document.getElementById('advanceModal').classList.add('hidden'));
+    document.getElementById('btnCancelAdv').addEventListener('click', () => document.getElementById('advanceModal').classList.add('hidden'));
+    document.getElementById('btnCopySummary').addEventListener('click', copyWhatsAppSummary);
+
+    document.getElementById('btnDrivePill').addEventListener('click', () => document.getElementById('driveModal').classList.remove('hidden'));
+    document.getElementById('btnCloseDrive').addEventListener('click', () => document.getElementById('driveModal').classList.add('hidden'));
+    document.getElementById('btnExportXlsx').addEventListener('click', () => { XLSX.writeFile(buildTripsWorkbook(), 'Trip_Expenses.xlsx'); toast('Trip Excel downloaded'); });
+    document.getElementById('inpImportXlsx').addEventListener('change', e => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = ev => {
+        const parsed = parseTripsWorkbook(XLSX.read(new Uint8Array(ev.target.result), { type: 'array' }));
+        if (parsed.length) { state.trips = parsed; state.selectedTripId = parsed[0].id; saveLocal(); renderAll(); toast('Imported trips'); }
+        document.getElementById('driveModal').classList.add('hidden');
+      };
+      r.readAsArrayBuffer(f);
+    });
+
+    document.getElementById('btnDriveConnect').addEventListener('click', () => {
+      const cid = document.getElementById('inpClientId').value.trim();
+      const fid = document.getElementById('inpDriveFileId').value.trim();
+      try { localStorage.setItem(DRV_CFG_KEY, JSON.stringify({ clientId: cid, fileId: fid })); } catch (e) {}
+      if (!cid || window.location.protocol === 'file:' || typeof google === 'undefined') { toast('Enter Client ID on https:// host'); return; }
+      google.accounts.oauth2.initTokenClient({
+        client_id: cid, scope: 'https://www.googleapis.com/auth/drive',
+        callback: resp => {
+          if (resp && resp.access_token) {
+            driveToken = resp.access_token;
+            try { localStorage.setItem(DRV_TOK_KEY, JSON.stringify({ token: driveToken, expiresAt: Date.now() + 3500000 })); } catch (e) {}
+            updateDriveUI(true); toast('Drive connected');
+          }
+        }
+      }).requestAccessToken();
+    });
+    document.getElementById('btnDriveLoad').addEventListener('click', loadTripXlsxFromDrive);
+    document.getElementById('btnDriveSave').addEventListener('click', saveTripXlsxToDrive);
+
+    // Dark Mode & Init
+    try {
+      const cfg = JSON.parse(localStorage.getItem(DRV_CFG_KEY) || '{}');
+      if (cfg.clientId) document.getElementById('inpClientId').value = cfg.clientId;
+      if (cfg.fileId) document.getElementById('inpDriveFileId').value = cfg.fileId;
+      const tok = JSON.parse(localStorage.getItem(DRV_TOK_KEY) || 'null');
+      if (tok && tok.token && Date.now() < tok.expiresAt) { driveToken = tok.token; updateDriveUI(true); }
+      if (localStorage.getItem(THEME_KEY) === '1') { document.body.classList.add('dark'); document.getElementById('themeLabel').textContent = 'Light Mode'; }
+    } catch (e) {}
+    document.getElementById('btnThemeToggle').addEventListener('click', () => {
+      const d = document.body.classList.toggle('dark');
+      document.getElementById('themeLabel').textContent = d ? 'Light Mode' : 'Dark Mode';
+      try { localStorage.setItem(THEME_KEY, d ? '1' : '0'); } catch (e) {}
+    });
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+    loadLocal();
+    renderAll();
+  </script>
+</body>
+</html>
