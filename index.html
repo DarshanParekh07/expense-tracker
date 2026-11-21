@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>2026 Monthly Expenses</title>
+  <title>Expense Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -30,6 +30,7 @@
     body.dark .bg-slate-100 { background-color: #334155 !important; color: #e2e8f0 !important; }
     body.dark .text-slate-900, body.dark .text-slate-800 { color: #f8fafc !important; }
     body.dark .text-teal-800, body.dark .text-teal-700 { color: #5eead4 !important; }
+    body.dark .nav-active-pill { background-color: rgba(20, 184, 166, 0.22) !important; color: #5eead4 !important; }
     body.dark .text-slate-700, body.dark .text-slate-600 { color: #cbd5e1 !important; }
     body.dark .text-slate-500, body.dark .text-slate-400 { color: #94a3b8 !important; }
     body.dark input, body.dark select { background-color: #0f172a !important; color: #f8fafc !important; border-color: #475569 !important; }
@@ -44,8 +45,8 @@
     <aside id="navDrawer" class="w-72 max-w-[82vw] h-full bg-white shadow-2xl flex flex-col overflow-y-auto">
       <div class="p-4 bg-gradient-to-br from-teal-700 to-teal-900 text-white flex items-center justify-between">
         <div>
-          <div class="text-base font-bold">Monthly Expenses</div>
-          <div class="text-xs text-teal-100">Personal Finance &amp; Drive Sync</div>
+          <div class="text-base font-bold">Expense Tracker</div>
+          <div class="text-xs text-teal-100">Personal Finance</div>
         </div>
         <button id="btnMenuClose" type="button" class="text-white/80 hover:text-white text-2xl leading-none">&times;</button>
       </div>
@@ -89,7 +90,7 @@
       <div class="flex items-center gap-2.5 min-w-0">
         <button id="btnMenuOpen" type="button" aria-label="Open menu" class="w-9 h-9 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-lg font-bold hover:bg-slate-200 shrink-0">☰</button>
         <div class="min-w-0">
-          <h1 class="text-lg font-bold text-slate-900 truncate">Monthly Expenses</h1>
+          <h1 class="text-lg font-bold text-slate-900 truncate">Expense Tracker</h1>
           <p id="headerSubtitle" class="text-xs text-slate-500 truncate">Stored locally</p>
         </div>
       </div>
@@ -874,8 +875,8 @@
       Object.entries(navMapInit).forEach(([tab, id]) => {
         const el = document.getElementById(id);
         if (el) el.className = state.activeTab === tab
-          ? 'flex flex-col items-center justify-center gap-0.5 text-teal-700 font-semibold text-xs'
-          : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs';
+          ? 'nav-active-pill flex flex-col items-center justify-center gap-0.5 bg-teal-50 text-teal-800 font-bold text-xs rounded-xl mx-1 my-1.5 shadow-xs transition'
+          : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs mx-1 my-1.5 rounded-xl transition';
       });
       if (state.activeTab === 'udhar') {
         document.getElementById('yearStripWrap').classList.add('hidden');
