@@ -3,2842 +3,366 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f766e" />
-  <link rel="manifest" href="manifest.json" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>2026 Monthly Expenses</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Household Inline Experience — Full Preview</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     html { font-size: 17.5px; }
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    body.dark { background-color: #0f172a; color: #f1f5f9; }
-    body.dark header, body.dark nav { background-color: #1e293b; border-color: #334155; }
-    body.dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; color: #f1f5f9 !important; }
-    body.dark .bg-slate-50 { background-color: #0f172a !important; border-color: #334155 !important; }
-    body.dark .bg-slate-100 { background-color: #334155 !important; color: #e2e8f0 !important; }
-    body.dark .text-slate-900, body.dark .text-slate-800 { color: #f8fafc !important; }
-    body.dark .text-teal-800, body.dark .text-teal-700 { color: #5eead4 !important; }
-    body.dark .text-slate-700, body.dark .text-slate-600 { color: #cbd5e1 !important; }
-    body.dark .text-slate-500, body.dark .text-slate-400 { color: #94a3b8 !important; }
-    body.dark input, body.dark select { background-color: #0f172a !important; color: #f8fafc !important; border-color: #475569 !important; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #0f172a; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="min-h-screen flex flex-col pb-20">
 
-  <!-- Left Slide-Out Navigation Drawer -->
-  <div id="navDrawerBackdrop" class="hidden fixed inset-0 z-50 bg-slate-900/50">
-    <aside id="navDrawer" class="w-72 max-w-[82vw] h-full bg-white shadow-2xl flex flex-col overflow-y-auto">
-      <div class="p-4 bg-gradient-to-br from-teal-700 to-teal-900 text-white flex items-center justify-between">
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-lg font-bold">☰</span>
         <div>
-          <div class="text-base font-bold">Monthly Expenses</div>
-          <div class="text-xs text-teal-100">Personal Finance &amp; Drive Sync</div>
-        </div>
-        <button id="btnMenuClose" type="button" class="text-white/80 hover:text-white text-2xl leading-none">&times;</button>
-      </div>
-
-      <div class="p-3 space-y-4 flex-1 text-xs">
-        <div class="space-y-1">
-          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Views</div>
-          <button type="button" data-dtab="monthly" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📋</span><span>Monthly Expenses</span></button>
-          <button type="button" data-dtab="udhar" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🤝</span><span>Dues</span></button>
-          <button type="button" data-dtab="projects" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🏗️</span><span>Projects</span></button>
-          <button type="button" data-dtab="summary" class="d-nav w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📊</span><span>Summary &amp; Charts</span></button>
-        </div>
-
-        <div class="space-y-1 border-t border-slate-200 pt-3">
-          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Quick Actions</div>
-          <button id="btnNewMonthTop" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2.5"><span>➕</span><span>New Month</span></button>
-          <button id="btnNewYearTop" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2.5"><span>📅</span><span>New Year</span></button>
-          <button id="btnDrawerPending" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⏳</span><span>Toggle Pending Only</span></button>
-          <button id="btnDrawerDeleteMonth" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-rose-600 hover:bg-rose-50 flex items-center gap-2.5"><span>🗑️</span><span>Delete Current Month</span></button>
-        </div>
-
-        <div class="space-y-1 border-t border-slate-200 pt-3">
-          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Drive &amp; Excel</div>
-          <button id="btnDrawerLoad" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⬇️</span><span>Load .xlsx from Drive</span></button>
-          <button id="btnDrawerSave" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⬆️</span><span>Save .xlsx to Drive</span></button>
-          <button id="btnDrawerDownload" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>📥</span><span>Download Excel (.xlsx)</span></button>
-          <button id="btnBackup" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>⚙️</span><span>Drive Settings &amp; Backups</span></button>
-        </div>
-
-        <div class="space-y-1 border-t border-slate-200 pt-3">
-          <div class="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">Appearance</div>
-          <button id="btnThemeToggle" type="button" class="w-full text-left px-3 py-2.5 rounded-lg font-semibold text-slate-800 hover:bg-slate-100 flex items-center gap-2.5"><span>🌙</span><span id="themeToggleLabel">Dark Mode</span></button>
+          <h1 class="text-base font-bold leading-tight">Monthly Expenses</h1>
+          <p class="text-xs text-slate-500">Interactive Preview (Safe Sandbox)</p>
         </div>
       </div>
-    </aside>
-  </div>
-
-  <!-- Top App Bar -->
-  <header class="sticky top-0 z-30 bg-white border-b border-slate-200">
-    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <button id="btnMenuOpen" type="button" aria-label="Open menu" class="w-9 h-9 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-lg font-bold hover:bg-slate-200 shrink-0">☰</button>
-        <div class="min-w-0">
-          <h1 class="text-lg font-bold text-slate-900 truncate">Monthly Expenses</h1>
-          <p id="headerSubtitle" class="text-xs text-slate-500 truncate">Stored locally</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-1.5 shrink-0">
-        <button id="btnDrivePill" type="button" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition">Drive: Offline</button>
-      </div>
+      <span class="px-2.5 py-1 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold">Drive: Synced</span>
     </div>
-    <!-- Year & Month Chips -->
-    <div id="yearStripWrap" class="max-w-2xl mx-auto px-4 pb-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
-    <div id="monthStripWrap" class="max-w-2xl mx-auto px-4 pb-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar"></div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-4 space-y-4">
-    <!-- Monthly View -->
-    <section id="viewMonthly" class="space-y-4">
-      <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <span class="text-xs font-medium text-teal-100 uppercase tracking-wider">Total Outflow</span>
-          <div class="flex items-center gap-1.5">
-            <button id="btnFinalizeMonth" type="button" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">🔒 Finalize</button>
-            <button id="btnPendingFilter" type="button" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition">Pending Only</button>
-            <span id="monthlyPaidBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0/0 Paid</span>
-          </div>
-        </div>
-        <div id="heroGrandTotal" class="text-3xl font-bold mt-1">₹0</div>
-        <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/15">
-          <div>
-            <div class="text-xs text-teal-100">Investments</div>
-            <div id="heroInvTotal" class="text-sm font-semibold">₹0</div>
-          </div>
-          <div class="text-center">
-            <div class="text-xs text-teal-100">Expenses</div>
-            <div id="heroExpTotal" class="text-sm font-semibold">₹0</div>
-          </div>
-          <div class="text-right">
-            <div class="text-xs text-amber-200">Pending</div>
-            <div id="heroPendingTotal" class="text-sm font-semibold text-amber-200">₹0</div>
-          </div>
-        </div>
+  <main class="flex-1 max-w-md w-full mx-auto px-4 py-4 space-y-4">
+    <div class="rounded-2xl bg-gradient-to-br from-teal-700 to-teal-900 text-white p-4 shadow-sm">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium text-teal-100 uppercase tracking-wider">Total Outflow</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-white/15">Preview</span>
       </div>
-
-      <!-- Investments Section -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Investments</h2>
-          <button id="btnAddInv" type="button" class="text-xs font-semibold text-teal-700 hover:text-teal-900">+ Add Investment</button>
-        </div>
-        <div id="investmentsList" class="space-y-2"></div>
+      <div id="heroTotal" class="text-3xl font-bold mt-1">₹71,200</div>
+      <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-white/15 text-xs">
+        <div><span class="text-teal-100">Investments:</span> <span class="font-semibold">₹5,000</span></div>
+        <div class="text-right"><span class="text-teal-100">Expenses:</span> <span id="heroExp" class="font-semibold">₹66,200</span></div>
       </div>
+    </div>
 
-      <!-- Expenses Section -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Expenses</h2>
-          <button id="btnAddExp" type="button" class="text-xs font-semibold text-teal-700 hover:text-teal-900">+ Add Expense</button>
-        </div>
-        <div id="expensesList" class="space-y-2"></div>
-      </div>
-    </section>
+    <div class="flex items-center justify-between">
+      <h2 class="text-xs font-bold uppercase tracking-wide text-slate-700">Expenses</h2>
+      <button id="btnOpenAdd" type="button" class="text-xs font-semibold text-teal-700">+ Add Expense</button>
+    </div>
 
-    <!-- Summary View -->
-    <section id="viewSummary" class="hidden space-y-4">
-      <div id="summaryYearStrip" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar"></div>
-      <div class="rounded-2xl bg-gradient-to-br from-purple-900 to-slate-950 text-white p-4 shadow-sm">
-        <div id="summaryCountLabel" class="text-xs font-medium text-purple-200 uppercase tracking-wider">Total</div>
-        <div id="summaryGrandTotal" class="text-3xl font-bold mt-1">₹0</div>
-        <div id="summaryAvgLabel" class="text-sm text-purple-200 mt-1">Monthly Avg: ₹0</div>
-      </div>
-
-      <!-- Search Across All Months -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-3 space-y-2">
-        <input id="inputSummarySearch" type="search" placeholder="Search items across all months (e.g. EMI, Light Bill, Lakshya)..." class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        <div id="summarySearchResults" class="hidden space-y-1.5 max-h-56 overflow-y-auto pt-1"></div>
-      </div>
-
-      <!-- KPI Highlights Strip -->
-      <div class="grid grid-cols-3 gap-2">
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs font-semibold uppercase text-slate-400">Highest Month</div>
-          <div id="kpiHighestVal" class="text-sm font-bold text-slate-900 mt-0.5">₹0</div>
-          <div id="kpiHighestName" class="text-xs text-slate-500 truncate">-</div>
-        </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs font-semibold uppercase text-slate-400">Lowest Month</div>
-          <div id="kpiLowestVal" class="text-sm font-bold text-slate-900 mt-0.5">₹0</div>
-          <div id="kpiLowestName" class="text-xs text-slate-500 truncate">-</div>
-        </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-3">
-          <div class="text-xs font-semibold uppercase text-slate-400">Total Invested</div>
-          <div id="kpiInvestedVal" class="text-sm font-bold text-teal-700 mt-0.5">₹0</div>
-          <div id="kpiInvestedPct" class="text-xs text-slate-500">0% of total</div>
-        </div>
-      </div>
-
-      <!-- Category Doughnut + Breakdown -->
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-        <h3 class="text-sm font-bold text-slate-800">Category Breakdown</h3>
-        <div class="relative h-52">
-          <canvas id="categoryDoughnutChart"></canvas>
-        </div>
-        <div id="categoryBreakdownList" class="space-y-2 pt-1"></div>
-      </div>
-
-      <div class="bg-white rounded-2xl border border-slate-200 p-4">
-        <h3 class="text-sm font-bold text-slate-800 mb-3">Monthly Outflow Trend</h3>
-        <div class="relative h-64">
-          <canvas id="summaryChart"></canvas>
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">All Months</h3>
-        <div id="summaryMonthsList" class="space-y-2"></div>
-      </div>
-    </section>
-    <!-- Udhar (Loans Given / Taken) View -->
-    <section id="viewUdhar" class="hidden space-y-4">
-      <div class="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 text-white p-4 shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-medium text-slate-300 uppercase tracking-wider">Pending Dues</span>
-          <span id="udharPendingBadge" class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white">0 Pending</span>
-        </div>
-        <div class="grid grid-cols-2 gap-3 mt-3 pt-2">
-          <div>
-            <div class="text-xs text-emerald-300">To Receive (Given)</div>
-            <div id="udharGivenTotal" class="text-2xl font-bold text-emerald-300 mt-0.5">₹0</div>
-          </div>
-          <div class="text-right">
-            <div class="text-xs text-rose-300">To Pay (Taken)</div>
-            <div id="udharTakenTotal" class="text-2xl font-bold text-rose-300 mt-0.5">₹0</div>
-          </div>
-        </div>
-        <div id="udharNetTotal" class="text-xs text-slate-300 mt-3 pt-2 border-t border-white/15">Total Open: ₹0</div>
-      </div>
-
-      <div class="flex items-center justify-between gap-2">
-        <input id="inputUdharSearch" type="search" placeholder="Search person name..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        <button id="btnAddUdhar" type="button" class="shrink-0 px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Due</button>
-      </div>
-
-      <div id="udharFilterChips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-        <button type="button" data-ufilter="pending" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white">Pending</button>
-        <button type="button" data-ufilter="all" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">All</button>
-        <button type="button" data-ufilter="GIVEN" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Given</button>
-        <button type="button" data-ufilter="TAKEN" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Taken</button>
-        <button type="button" data-ufilter="settled" class="u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Settled</button>
-      </div>
-
-      <div id="udharList" class="space-y-2"></div>
-    </section>
-    <!-- Projects View (Isolated from Home Summary) -->
-    <section id="viewProjects" class="hidden space-y-4">
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
-        <div id="projectStripWrap" class="flex items-center gap-1.5"></div>
-        <button id="btnNewProject" type="button" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-800 hover:bg-teal-100">+ New Project</button>
-      </div>
-
-      <div id="projectEmptyState" class="hidden text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-300 p-6 text-center space-y-2">
-        <div>No projects yet. Create one for a renovation, wedding, vehicle, trip, or any multi-step goal.</div>
-      </div>
-
-      <div id="projectActiveWrap" class="hidden space-y-4">
-        <div class="rounded-2xl bg-gradient-to-br from-amber-700 to-stone-900 text-white p-4 shadow-sm">
-          <div class="flex items-center justify-between gap-2">
-            <span id="projHeroTitle" class="text-xs font-bold uppercase tracking-wider text-amber-200 truncate">Project</span>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button id="btnProjLock" type="button" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25">Active</button>
-              <button id="btnProjEditMeta" type="button" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25">Edit</button>
-            </div>
-          </div>
-          <div id="projTotalSpent" class="text-3xl font-bold mt-1">₹0</div>
-          <div id="projBudgetBarWrap" class="mt-2.5 space-y-1">
-            <div class="flex justify-between text-xs text-teal-100">
-              <span id="projBudgetLabel">Budget: ₹0</span>
-              <span id="projRemainingLabel">Remaining: ₹0</span>
-            </div>
-            <div class="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-              <div id="projBudgetBar" class="h-full bg-emerald-400 rounded-full transition-all" style="width:0%"></div>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-3 mt-3 pt-2.5 border-t border-white/15 text-xs">
-            <div><span class="text-amber-100">Paid:</span> <span id="projPaidTotal" class="font-semibold">₹0</span></div>
-            <div class="text-right"><span class="text-amber-200">Pending:</span> <span id="projPendingTotal" class="font-semibold text-amber-200">₹0</span></div>
-          </div>
-        </div>
-
-        <!-- Sub-view Switcher: Entries vs Project Charts -->
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btnProjSubEntries" type="button" class="py-2 rounded-xl text-xs font-semibold bg-teal-700 text-white">Entries</button>
-          <button id="btnProjSubCharts" type="button" class="py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700">Project Charts</button>
-        </div>
-
-        <div id="projEntriesPane" class="space-y-3">
-          <div class="flex items-center gap-2">
-            <input id="inputProjSearch" type="search" placeholder="Search item, vendor, category..." class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
-            <button id="btnAddProjItem" type="button" class="shrink-0 px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add</button>
-          </div>
-          <div id="projItemsList" class="space-y-2"></div>
-        </div>
-
-        <div id="projChartsPane" class="hidden space-y-4">
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-            <h3 class="text-sm font-bold text-slate-800">Spend by Category</h3>
-            <div class="relative h-52"><canvas id="projDoughnutChart"></canvas></div>
-          </div>
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
-            <h3 class="text-sm font-bold text-slate-800">Monthly Spend Trend</h3>
-            <div class="relative h-52"><canvas id="projBarChart"></canvas></div>
-          </div>
-          <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
-            <h3 class="text-sm font-bold text-slate-800">Top Vendors / Payees</h3>
-            <div id="projVendorsList" class="space-y-2"></div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <div id="expensesList" class="space-y-2.5"></div>
   </main>
 
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-slate-200">
-    <div class="max-w-2xl mx-auto grid grid-cols-4 h-16">
-      <button id="navMonthly" type="button" class="flex flex-col items-center justify-center gap-0.5 text-teal-700 font-semibold text-xs">
-        <span class="text-base">📋</span>
-        <span>Monthly</span>
+  <nav class="fixed bottom-0 inset-x-0 z-20 bg-white border-t border-slate-200">
+    <div class="max-w-md mx-auto grid grid-cols-4 h-16">
+      <button type="button" class="flex flex-col items-center justify-center gap-0.5 text-teal-700 font-bold text-xs">
+        <span class="text-base">📋</span><span>Monthly</span>
       </button>
-      <button id="navUdhar" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
-        <span class="text-base">🤝</span>
-        <span>Dues</span>
+      <button type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
+        <span class="text-base">🤝</span><span>Loans</span>
       </button>
-      <button id="navProjects" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
-        <span class="text-base">🏗️</span>
-        <span>Projects</span>
+      <button type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
+        <span class="text-base">📊</span><span>Summary</span>
       </button>
-      <button id="navSummary" type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
-        <span class="text-base">📊</span>
-        <span>Summary</span>
+      <button type="button" class="flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs">
+        <span class="text-base">🏗️</span><span>Projects</span>
       </button>
     </div>
   </nav>
 
-  <!-- Entry Editor Modal -->
-  <div id="entryModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 shadow-xl">
+  <!-- Add Expense Modal -->
+  <div id="addDemoModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl">
       <div class="flex items-center justify-between">
-        <h3 id="entryModalTitle" class="text-base font-bold text-slate-900">Add Item</h3>
-        <button id="btnCloseEntryModal" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-      <div class="space-y-3">
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btnTypeExpense" type="button" class="py-2 rounded-lg text-xs font-semibold border">Expense</button>
-          <button id="btnTypeInvestment" type="button" class="py-2 rounded-lg text-xs font-semibold border">Investment</button>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Item / Category</label>
-          <input id="inputEntryTitle" type="text" placeholder="e.g. Shop Rent, Sbi cc, Light Bill" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
-          <input id="inputEntryAmount" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Status / EMI Note</label>
-          <input id="inputEntryNote" type="text" placeholder="Paid" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-          <input id="inputEntryPaid" type="checkbox" class="rounded text-teal-700 focus:ring-teal-600" />
-          <span>Marked Paid</span>
-        </label>
-        <label id="wrapEntryHousehold" class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-          <input id="inputEntryHousehold" type="checkbox" class="rounded text-teal-700 focus:ring-teal-600" />
-          <span>Make this an Expandable Household Card</span>
-        </label>
-      </div>
-      <div class="flex items-center justify-between pt-2">
-        <button id="btnDeleteEntry" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete</button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button id="btnCancelEntry" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnSaveEntry" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Zan Editor Modal -->
-  <div id="zanModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h3 id="zanModalTitle" class="text-base font-bold text-slate-900">Zan-Home Item</h3>
-        <button id="btnCloseZanModal" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Type</label>
-          <select id="selectZanKind" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
-            <option value="DEDUCTION">Pre-spent Deduction (minus from Transfer, e.g. Dmart, Cash)</option>
-            <option value="EXTRA">Extra Pay (+ on top of ₹23,000)</option>
-            <option value="DEBIT">Debit-Taken (minus from Monthly Fix)</option>
-            <option value="SODEXO">Sodexo / Fixed Credit</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Item / Label</label>
-          <input id="inputZanLabel" type="text" placeholder="e.g. Dmart, Cash, Extra" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
-          <input id="inputZanAmount" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Note</label>
-          <input id="inputZanNote" type="text" placeholder="Optional note" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-      </div>
-      <div class="flex items-center justify-between pt-2">
-        <button id="btnDeleteZan" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete</button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button id="btnCancelZan" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnSaveZan" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- New Month Modal -->
-  <div id="newMonthModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-slate-900">Create New Month</h3>
-        <button id="btnCloseNewMonth" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-      <div class="space-y-3">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Month</label>
-            <select id="selectNewMonth" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12" selected>December</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Year</label>
-            <input id="inputNewYear" type="number" inputmode="numeric" value="2026" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-          </div>
-        </div>
-        <label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer">
-          <input id="inputPrefillRecurring" type="checkbox" checked class="mt-0.5 rounded text-teal-700 focus:ring-teal-600" />
-          <span>Pre-fill recurring items only (skips one-offs)</span>
-        </label>
-      </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button id="btnCancelNewMonth" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-        <button id="btnCreateNewMonth" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Create Month</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Drive Sync & Local Backup Modal -->
-  <div id="backupModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-slate-900">Google Drive Sync &amp; Excel</h3>
-        <button id="btnCloseBackup" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-
-      <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">Google Drive (.xlsx)</span>
-          <span id="driveAuthBadge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">Not Connected</span>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Google Cloud OAuth Client ID (requires https:// host)</label>
-          <input id="inputClientId" type="text" placeholder="1234567890-abc.apps.googleusercontent.com" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Drive Excel File ID</label>
-          <input id="inputDriveFileId" type="text" value="" placeholder="Paste Drive Excel File ID" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
-          <input id="inputAutoSync" type="checkbox" checked class="rounded text-teal-700 focus:ring-teal-600" />
-          <span>Auto-save to Drive after edits when connected</span>
-        </label>
-        <div class="grid grid-cols-3 gap-1.5 pt-1">
-          <button id="btnDriveConnect" type="button" class="py-2 px-2 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">Connect</button>
-          <button id="btnDriveLoad" type="button" class="py-2 px-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold hover:bg-slate-100">Load .xlsx</button>
-          <button id="btnDriveSave" type="button" class="py-2 px-2 rounded-lg bg-white border border-slate-300 text-slate-800 text-xs font-semibold hover:bg-slate-100">Save .xlsx</button>
-        </div>
-      </div>
-
-      <div class="space-y-2 pt-1">
-        <div class="text-xs font-bold text-slate-700 uppercase tracking-wide">Local File Export / Import</div>
-        <button id="btnExportXlsx" type="button" class="w-full py-2.5 px-4 rounded-xl bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">Download Excel (.xlsx)</button>
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btnExportCsv" type="button" class="py-2 px-3 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold hover:bg-slate-200">Download CSV</button>
-          <button id="btnExportJson" type="button" class="py-2 px-3 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold hover:bg-slate-200">Download JSON</button>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <label class="block py-2 px-3 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold text-center cursor-pointer hover:bg-slate-200">
-            Import .xlsx
-            <input id="inputImportXlsx" type="file" accept=".xlsx" class="hidden" />
-          </label>
-          <label class="block py-2 px-3 rounded-xl bg-slate-100 text-slate-800 text-xs font-semibold text-center cursor-pointer hover:bg-slate-200">
-            Import JSON
-            <input id="inputImportJson" type="file" accept=".json,application/json" class="hidden" />
-          </label>
-        </div>
-        <button id="btnResetSeed" type="button" class="w-full py-2 px-4 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold hover:bg-rose-50">Clear All Local Data</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Udhar Editor Modal -->
-  <div id="udharModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
-        <h3 id="udharModalTitle" class="text-base font-bold text-slate-900">Add Due</h3>
-        <button id="btnCloseUdharModal" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btnUdharGiven" type="button" class="py-2 rounded-lg text-xs font-semibold border">Given (Loaned)</button>
-        <button id="btnUdharTaken" type="button" class="py-2 rounded-lg text-xs font-semibold border">Taken (Borrowed)</button>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Person Name</label>
-          <input id="inputUdharPerson" type="text" placeholder="e.g. Vaibhav, Divyam" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
-          <input id="inputUdharAmount" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Given / Taken Date</label>
-          <input id="inputUdharDate" type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Mode</label>
-          <select id="selectUdharMode" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
-            <option value="GPay">GPay</option>
-            <option value="Cash">Cash</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3 items-end">
-        <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer pb-2">
-          <input id="inputUdharSettled" type="checkbox" class="rounded text-teal-700 focus:ring-teal-600" />
-          <span>Returned / Settled</span>
-        </label>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Returned Date</label>
-          <input id="inputUdharReturnDate" type="date" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
+        <h3 class="text-base font-bold">Add Expense</h3>
+        <button id="btnCloseAdd" type="button" class="text-slate-400 text-xl">&times;</button>
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Note (optional)</label>
-        <input id="inputUdharNote" type="text" placeholder="Reason or details" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-      </div>
-      <div class="flex items-center justify-between pt-2">
-        <button id="btnDeleteUdhar" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete</button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button id="btnCancelUdhar" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnSaveUdhar" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Delete Month 2-Step Confirmation Modal -->
-  <div id="deleteMonthModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-rose-600">Delete Month</h3>
-        <button id="btnCloseDelMonth" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-      <div id="delStep1" class="space-y-3">
-        <p class="text-xs text-slate-700">Are you sure you want to delete <strong id="delMonthLabel1">this month</strong>? All its investments, expenses, and Zan-Home records will be removed.</p>
-        <div class="flex justify-end gap-2">
-          <button id="btnCancelDel1" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">No, Keep It</button>
-          <button id="btnConfirmDelStep1" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700">Yes, Delete</button>
-        </div>
-      </div>
-      <div id="delStep2" class="hidden space-y-3">
-        <p class="text-xs text-slate-700">To permanently delete <strong id="delMonthLabel2">this month</strong>, type <code id="delExpectedCode" class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-rose-600">delete-month-year</code> below:</p>
-        <input id="inputDeleteConfirm" type="text" placeholder="delete-month-year" autocomplete="off" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-rose-600" />
-        <div class="flex justify-end gap-2">
-          <button id="btnCancelDel2" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnFinalDeleteMonth" type="button" disabled class="px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 text-white opacity-40 cursor-not-allowed">Delete Permanently</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- New / Edit Project Modal -->
-  <div id="projectMetaModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h3 id="projMetaModalTitle" class="text-base font-bold text-slate-900">New Project</h3>
-        <button id="btnCloseProjMeta" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Item / Category</label>
+        <input id="inpDemoTitle" type="text" placeholder="e.g. Dmart, Light Bill, Household" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Project Name</label>
-        <input id="inputProjName" type="text" placeholder="e.g. Home Renovation, Wedding, Car" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
+        <input id="inpDemoAmt" type="number" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
       </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Target Budget (₹, optional)</label>
-        <input id="inputProjBudget" type="number" inputmode="numeric" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-      </div>
-      <div class="flex items-center justify-between pt-2">
-        <button id="btnDeleteProject" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete Project</button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button id="btnCancelProjMeta" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnSaveProjMeta" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Project Expense Item Modal -->
-  <div id="projectItemModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
-        <h3 id="projItemModalTitle" class="text-base font-bold text-slate-900">Add Project Expense</h3>
-        <button id="btnCloseProjItem" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Item / Description</label>
-        <input id="inputProjItemTitle" type="text" placeholder="e.g. Tiles, Advance Booking, Labor" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Category (pick or type)</label>
-          <input id="inputProjItemCat" list="projCategoryPresets" placeholder="Goods / Material" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-          <datalist id="projCategoryPresets">
-            <option value="Goods / Material"></option>
-            <option value="Service / Labor"></option>
-            <option value="Booking / Advance"></option>
-            <option value="Travel / Transport"></option>
-            <option value="Fees / Taxes"></option>
-            <option value="Shopping / Gifts"></option>
-            <option value="Other"></option>
-          </datalist>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Vendor / Paid To</label>
-          <input id="inputProjItemVendor" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-      </div>
-      <div class="grid grid-cols-3 gap-2">
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
-          <input id="inputProjItemAmt" type="number" inputmode="numeric" placeholder="0" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Date</label>
-          <input id="inputProjItemDate" type="date" class="w-full px-2 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-teal-600" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Mode</label>
-          <select id="selectProjItemMode" class="w-full px-2 py-2 rounded-lg border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-teal-600">
-            <option value="GPay">GPay</option>
-            <option value="Cash">Cash</option>
-            <option value="Bank Transfer">Bank</option>
-            <option value="Cheque">Cheque</option>
-            <option value="Card">Card</option>
-          </select>
-        </div>
-      </div>
-      <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-        <input id="inputProjItemPaid" type="checkbox" checked class="rounded text-teal-700 focus:ring-teal-600" />
-        <span>Marked Paid</span>
+      <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 cursor-pointer">
+        <input id="chkIsHousehold" type="checkbox" class="rounded text-teal-700" />
+        <span>Make this an Expandable Household Card</span>
       </label>
+      <div class="flex justify-end gap-2 pt-1">
+        <button id="btnCancelAdd" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+        <button id="btnSaveAdd" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Household Sub-Item Modal -->
+  <div id="editSubModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 id="subModalTitle" class="text-base font-bold">Edit Item</h3>
+        <button id="btnCloseSub" type="button" class="text-slate-400 text-xl">&times;</button>
+      </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">Note</label>
-        <input id="inputProjItemNote" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        <label class="block text-xs font-medium text-slate-600 mb-1">Type</label>
+        <select id="selSubKind" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white">
+          <option value="DEDUCTION">Pre-spent Deduction (- Transfer)</option>
+          <option value="EXTRA">Extra Pay (+ on top)</option>
+          <option value="SODEXO">Sodexo / Fixed Credit</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Label</label>
+        <input id="inpSubLabel" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Amount (₹)</label>
+        <input id="inpSubAmt" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
       </div>
       <div class="flex items-center justify-between pt-2">
-        <button id="btnDeleteProjItem" type="button" class="hidden text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete</button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button id="btnCancelProjItem" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnSaveProjItem" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
+        <button id="btnDelSub" type="button" class="text-xs font-semibold text-rose-600">Delete</button>
+        <div class="flex gap-2">
+          <button id="btnCancelSub" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+          <button id="btnSaveSub" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Edit Household Base Fix / Delete Card Modal -->
-  <div id="hhFixModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3.5 shadow-xl">
+  <!-- Edit Base Fix Modal -->
+  <div id="fixModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-3 shadow-xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-bold text-slate-900">Household Settings</h3>
-        <button id="btnCloseHhFix" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+        <h3 class="text-base font-bold">Edit Household Base Fix</h3>
+        <button id="btnCloseFix" type="button" class="text-slate-400 text-xl">&times;</button>
       </div>
       <div>
         <label class="block text-xs font-medium text-slate-600 mb-1">Card Title</label>
-        <input id="inputHhTitle" type="text" placeholder="Household" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        <input id="inpFixTitle" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
       </div>
       <div>
         <label class="block text-xs font-medium text-slate-600 mb-1">Monthly Base Fix (₹)</label>
-        <input id="inputHhBaseFix" type="number" inputmode="numeric" value="23000" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
+        <input id="inpFixAmt" type="number" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
       </div>
       <div class="flex items-center justify-between pt-2">
-        <button id="btnDeleteHhCard" type="button" class="text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-2">Delete Card</button>
-        <div class="flex items-center gap-2 ml-auto">
-          <button id="btnCancelHhFix" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancel</button>
-          <button id="btnSaveHhFix" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white hover:bg-teal-800">Save</button>
+        <button id="btnDelHouseholdCard" type="button" class="text-xs font-semibold text-rose-600">Delete Household Card</button>
+        <div class="flex gap-2">
+          <button id="btnCancelFix" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600">Cancel</button>
+          <button id="btnSaveFix" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-700 text-white">Save</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg"></div>
+  <div id="toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-lg"></div>
 
   <script>
-    const STORAGE_KEY = 'monthly_expenses_2026_v1';
-    const UDHAR_KEY = 'monthly_exp_udhar_v1';
-    const PROJECTS_KEY = 'monthly_exp_projects_v1';
-    const SEED_MONTHS = [];
-    const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    let expenses = [
+      { id: 'e1', title: 'Monthly Transfer', amount: 25000, isPaid: true, isHousehold: false },
+      { id: 'e2', title: 'Household', amount: 25200, isPaid: false, isHousehold: true, baseFix: 23000 },
+      { id: 'e3', title: 'Shop Rent', amount: 16000, isPaid: true, isHousehold: false }
+    ];
+    let hhItems = [
+      { id: 1, label: 'Dmart', kind: 'DEDUCTION', amount: 3000 },
+      { id: 2, label: 'Sodexo', kind: 'SODEXO', amount: 2200 }
+    ];
+    let expanded = false;
+    let editingSubId = null;
 
-    let state = {
-      months: [],
-      udhar: [],
-      projects: [],
-      selectedProjectId: null,
-      projSubView: 'entries',
-      editingProjMetaId: null,
-      editingProjItemId: null,
-      projDoughnutInstance: null,
-      projBarInstance: null,
-      udharFilter: 'pending',
-      editingUdharId: null,
-      selectedYear: null,
-      summaryYear: 'ALL',
-      selectedMonthId: null,
-      activeTab: 'monthly',
-      pendingOnly: false,
-      householdExpanded: false,
-      editingEntry: null,
-      editingZanId: null,
-      chartInstance: null,
-      doughnutInstance: null,
-      confirmResetPending: false
-    };
-
-    function formatInr(num) {
-      const n = Number(num) || 0;
-      return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        maximumFractionDigits: 0
-      }).format(n);
+    function fmt(n) {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
     }
 
-    function showToast(msg) {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.remove('hidden');
-      clearTimeout(el._timer);
-      el._timer = setTimeout(() => el.classList.add('hidden'), 2600);
+    function showToast(m) {
+      const t = document.getElementById('toast');
+      t.textContent = m;
+      t.classList.remove('hidden');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.add('hidden'), 2000);
     }
 
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.months));
-        localStorage.setItem(UDHAR_KEY, JSON.stringify(state.udhar));
-        localStorage.setItem(PROJECTS_KEY, JSON.stringify(state.projects));
-      } catch (e) {
-        // Fallback silently to in-memory if storage is restricted
-      }
+    function computeHH(baseFix) {
+      const ded = hhItems.filter(x => x.kind === 'DEDUCTION').reduce((a, x) => a + x.amount, 0);
+      const ext = hhItems.filter(x => x.kind === 'EXTRA').reduce((a, x) => a + x.amount, 0);
+      const sod = hhItems.filter(x => x.kind === 'SODEXO').reduce((a, x) => a + x.amount, 0);
+      const baseTransfer = baseFix - ded;
+      const sendTotal = baseTransfer + ext;
+      const hhTotal = baseTransfer + ded + sod + ext;
+      return { baseTransfer, sendTotal, hhTotal };
     }
 
-    function loadState() {
-      try {
-        const pRaw = localStorage.getItem(PROJECTS_KEY);
-        if (pRaw) {
-          const pParsed = JSON.parse(pRaw);
-          if (Array.isArray(pParsed)) {
-            state.projects = pParsed;
-            state.selectedProjectId = pParsed[0] ? pParsed[0].id : null;
-          }
-        }
-        const uRaw = localStorage.getItem(UDHAR_KEY);
-        if (uRaw) {
-          const uParsed = JSON.parse(uRaw);
-          if (Array.isArray(uParsed)) state.udhar = uParsed;
-        }
-      } catch (e) {}
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            state.months = parsed;
-            state.selectedMonthId = parsed[0].id;
-            return;
-          }
-        }
-      } catch (e) {}
-      state.months = JSON.parse(JSON.stringify(SEED_MONTHS));
-      state.selectedMonthId = state.months[0] ? state.months[0].id : null;
-      saveState();
-    }
-
-    function isCurrentCalendarMonth(yr, mNum) {
-      const now = new Date();
-      return Number(yr) === now.getFullYear() && Number(mNum) === (now.getMonth() + 1);
-    }
-
-    function isMonthReadOnly(m) {
-      if (!m) return true;
-      if (typeof m.isFinalized === 'boolean') return m.isFinalized;
-      return !isCurrentCalendarMonth(m.year, m.monthNumber);
-    }
-
-    function getActiveMonth() {
-      return state.months.find(m => m.id === state.selectedMonthId) || state.months[0] || null;
-    }
-
-    function classifyZanItem(z) {
-      if (z.kind) return z.kind;
-      const lbl = (z.label || '').toLowerCase();
-      if (lbl === 'transfer') return 'TRANSFER';
-      if (lbl.includes('sodexo')) return 'SODEXO';
-      if (lbl.includes('extra') || lbl.includes('tution') || lbl.includes('tuition')) return 'EXTRA';
-      if ((Number(z.debitTaken) || 0) > 0 && (Number(z.creditGiven) || 0) === 0) return 'DEBIT';
-      return 'DEDUCTION';
-    }
-
-    function computeZanSummary(month) {
-      const items = month.zanItems || [];
-      let deductions = 0, extra = 0, debit = 0, sodexo = 0;
-      items.forEach(z => {
-        const k = classifyZanItem(z);
-        const c = Number(z.creditGiven) || 0;
-        const d = Number(z.debitTaken) || 0;
-        debit += d;
-        if (k === 'DEDUCTION') deductions += c;
-        else if (k === 'EXTRA') extra += c;
-        else if (k === 'SODEXO') sodexo += c;
-      });
-      const zanRow = (month.expenses || []).find(e => e.isZanLinked || ['zan-home', 'household'].includes((e.title || '').toLowerCase()));
-      const baseFix = (zanRow && Number(zanRow.baseFix)) ? Number(zanRow.baseFix) : 23000;
-      const transfer = baseFix - deductions - debit;
-      const transferItem = items.find(z => classifyZanItem(z) === 'TRANSFER');
-      if (transferItem) transferItem.creditGiven = transfer;
-      const transferToSend = transfer + extra;
-      const totalZanHome = transfer + deductions + sodexo + extra;
-      return { transfer, transferToSend, deductions, extra, debit, sodexo, totalZanHome };
-    }
-
-    function syncZanHomeTotal(month) {
-      const { totalZanHome } = computeZanSummary(month);
-      const zanRow = month.expenses.find(e => e.isZanLinked || e.title.toLowerCase() === 'zan-home');
-      if (zanRow) {
-        zanRow.amount = totalZanHome;
-        zanRow.isZanLinked = true;
+    function render() {
+      const hhCard = expenses.find(e => e.isHousehold);
+      if (hhCard) {
+        hhCard.amount = computeHH(hhCard.baseFix || 23000).hhTotal;
       }
-    }
+      const expSum = expenses.reduce((a, b) => a + b.amount, 0);
+      document.getElementById('heroExp').textContent = fmt(expSum);
+      document.getElementById('heroTotal').textContent = fmt(expSum + 5000);
 
-    function renderAll() {
-      const m = getActiveMonth();
-      document.getElementById('viewMonthly').classList.toggle('hidden', state.activeTab !== 'monthly');
-      document.getElementById('viewUdhar').classList.toggle('hidden', state.activeTab !== 'udhar');
-      document.getElementById('viewProjects').classList.toggle('hidden', state.activeTab !== 'projects');
-      document.getElementById('viewSummary').classList.toggle('hidden', state.activeTab !== 'summary');
-      const navMapInit = { monthly: 'navMonthly', udhar: 'navUdhar', projects: 'navProjects', summary: 'navSummary' };
-      Object.entries(navMapInit).forEach(([tab, id]) => {
-        const el = document.getElementById(id);
-        if (el) el.className = state.activeTab === tab
-          ? 'flex flex-col items-center justify-center gap-0.5 text-teal-700 font-semibold text-xs'
-          : 'flex flex-col items-center justify-center gap-0.5 text-slate-500 font-medium text-xs';
-      });
-      if (state.activeTab === 'udhar') {
-        document.getElementById('yearStripWrap').classList.add('hidden');
-        document.getElementById('monthStripWrap').classList.add('hidden');
-        document.getElementById('headerSubtitle').textContent = 'Dues • Stored locally';
-        renderUdhar();
-        return;
-      }
-      if (state.activeTab === 'projects') {
-        document.getElementById('yearStripWrap').classList.add('hidden');
-        document.getElementById('monthStripWrap').classList.add('hidden');
-        document.getElementById('headerSubtitle').textContent = 'Projects • Stored locally';
-        renderProjects();
-        return;
-      }
-      if (!m) {
-        document.getElementById('headerSubtitle').textContent = 'No data loaded • Tap Drive / Backup';
-        document.getElementById('monthStripWrap').innerHTML = '';
-        document.getElementById('heroGrandTotal').textContent = '₹0';
-        document.getElementById('heroInvTotal').textContent = '₹0';
-        document.getElementById('heroExpTotal').textContent = '₹0';
-        document.getElementById('heroPendingTotal').textContent = '₹0';
-        document.getElementById('monthlyPaidBadge').textContent = '0/0 Paid';
-        document.getElementById('investmentsList').innerHTML = '<div class="text-xs text-slate-500 bg-white rounded-xl border border-dashed border-slate-300 p-5 text-center space-y-2"><div>No data loaded yet. Tap <strong>Drive: Offline</strong> above to connect Google Drive and load your <code>.xlsx</code> file, or tap <strong>+ Month</strong> to start fresh.</div></div>';
-        document.getElementById('expensesList').innerHTML = '';
-        return;
-      }
-
-      document.getElementById('headerSubtitle').textContent = `${m.monthName} ${m.year} • Stored locally`;
-
-      // Render Year & Month Strips
-      const yStrip = document.getElementById('yearStripWrap');
-      const strip = document.getElementById('monthStripWrap');
-      yStrip.innerHTML = '';
-      strip.innerHTML = '';
-      if (state.activeTab === 'summary') {
-        yStrip.classList.add('hidden');
-        strip.classList.add('hidden');
-      } else {
-        const years = [...new Set(state.months.map(x => x.year))].sort((a, b) => b - a);
-        if (!state.selectedYear || !years.includes(state.selectedYear)) state.selectedYear = m.year;
-        yStrip.classList.toggle('hidden', years.length <= 1);
-        years.forEach(yr => {
-          const yb = document.createElement('button');
-          yb.type = 'button';
-          yb.className = yr === state.selectedYear
-            ? 'shrink-0 px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-800 text-white'
-            : 'shrink-0 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
-          yb.textContent = String(yr);
-          yb.addEventListener('click', () => {
-            state.selectedYear = yr;
-            const firstInYear = state.months.find(x => x.year === yr);
-            if (firstInYear) state.selectedMonthId = firstInYear.id;
-            renderAll();
-          });
-          yStrip.appendChild(yb);
-        });
-
-        strip.classList.remove('hidden');
-        state.months.filter(item => item.year === state.selectedYear).forEach(item => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          const active = item.id === m.id;
-          btn.className = active
-            ? 'shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-teal-700 text-white'
-            : 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200';
-          btn.textContent = `${item.monthName.slice(0, 3)} '${String(item.year).slice(-2)}`;
-          btn.addEventListener('click', () => {
-            state.selectedMonthId = item.id;
-            renderAll();
-          });
-          strip.appendChild(btn);
-        });
-      }
-
-
-
-      if (state.activeTab === 'monthly') renderMonthly(m);
-      if (state.activeTab === 'summary') renderSummary();
-    }
-
-    function createItemCard(item, sectionKey, month) {
-      const isHh = !!item.isZanLinked || ['zan-home', 'household'].includes((item.title || '').toLowerCase());
-      if (!isHh) {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3 shadow-xs';
-
-        const checkBtn = document.createElement('button');
-        checkBtn.type = 'button';
-        checkBtn.className = item.isPaid
-          ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
-          : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
-        checkBtn.textContent = '✓';
-        checkBtn.title = 'Toggle Paid';
-        checkBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (isMonthReadOnly(getActiveMonth())) { showToast('Month is finalized (read-only)'); return; }
-          item.isPaid = !item.isPaid;
-          const note = (item.statusNote || '').trim();
-          if (item.isPaid) {
-            if (!note || note.toLowerCase() === 'pending') item.statusNote = 'Paid';
-            else if (/^pending\b/i.test(note)) item.statusNote = note.replace(/^pending/i, 'Paid');
-          } else {
-            if (!note || note.toLowerCase() === 'paid') item.statusNote = 'Pending';
-            else if (/^paid\b/i.test(note)) item.statusNote = note.replace(/^paid/i, 'Pending');
-          }
-          saveState();
-          renderAll();
-        });
-
-        const info = document.createElement('div');
-        info.className = 'flex-1 min-w-0 cursor-pointer';
-        const titleRow = document.createElement('div');
-        titleRow.className = 'flex items-center gap-1.5';
-        const titleEl = document.createElement('span');
-        titleEl.className = 'text-sm font-semibold text-slate-900 truncate';
-        titleEl.textContent = item.title;
-        titleRow.appendChild(titleEl);
-        info.appendChild(titleRow);
-
-        if (item.statusNote) {
-          const noteEl = document.createElement('div');
-          noteEl.className = 'text-xs text-slate-500 truncate mt-0.5';
-          noteEl.textContent = item.statusNote;
-          info.appendChild(noteEl);
-        }
-
-        const amtEl = document.createElement('div');
-        amtEl.className = 'text-sm font-bold text-slate-900 shrink-0 cursor-pointer';
-        amtEl.textContent = formatInr(item.amount);
-
-        const openTarget = () => {
-          if (isMonthReadOnly(getActiveMonth())) {
-            showToast('Month is finalized — tap Unlock to edit');
-          } else {
-            openEntryModal(sectionKey, item);
-          }
-        };
-        info.addEventListener('click', openTarget);
-        amtEl.addEventListener('click', openTarget);
-
-        card.appendChild(checkBtn);
-        card.appendChild(info);
-        card.appendChild(amtEl);
-        return card;
-      }
-
-      // Inline Expandable Household Card (collapsed by default)
-      item.isZanLinked = true;
-      const ro = isMonthReadOnly(month);
-      const { transfer, transferToSend, totalZanHome } = computeZanSummary(month);
-      if ((month.zanItems || []).length > 0) item.amount = totalZanHome;
-      const displayTitle = (item.title || '').toLowerCase() === 'zan-home' ? 'Household' : item.title;
-
-      const card = document.createElement('div');
-      card.className = 'bg-white rounded-2xl border-2 border-teal-600/40 shadow-sm overflow-hidden';
-
-      const hdr = document.createElement('div');
-      hdr.className = 'px-3.5 py-3 flex items-center gap-3 cursor-pointer hover:bg-teal-50/40';
-
-      const checkBtn = document.createElement('button');
-      checkBtn.type = 'button';
-      checkBtn.className = item.isPaid
-        ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
-        : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
-      checkBtn.textContent = '✓';
-      checkBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (ro) { showToast('Month is finalized (read-only)'); return; }
-        item.isPaid = !item.isPaid;
-        const note = (item.statusNote || '').trim();
-        if (item.isPaid) {
-          if (!note || note.toLowerCase() === 'pending') item.statusNote = 'Paid';
-          else if (/^pending\b/i.test(note)) item.statusNote = note.replace(/^pending/i, 'Paid');
-        } else {
-          if (!note || note.toLowerCase() === 'paid') item.statusNote = 'Pending';
-          else if (/^paid\b/i.test(note)) item.statusNote = note.replace(/^paid/i, 'Pending');
-        }
-        saveState();
-        renderAll();
-      });
-
-      const info = document.createElement('div');
-      info.className = 'flex-1 min-w-0';
-      info.innerHTML = `
-        <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="text-sm font-bold text-slate-900 truncate">${displayTitle}</span>
-          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800">Send: ${formatInr(transferToSend)}</span>
-        </div>
-        <div class="text-xs text-slate-500 mt-0.5">${item.statusNote || 'Tap to ' + (state.householdExpanded ? 'collapse' : 'expand')}</div>
-      `;
-
-      const right = document.createElement('div');
-      right.className = 'text-right shrink-0';
-      right.innerHTML = `
-        <div class="text-sm font-bold text-slate-900">${formatInr(item.amount)}</div>
-        <div class="text-xs text-teal-700 font-semibold">${state.householdExpanded ? '▲ Hide' : '▼ Expand'}</div>
-      `;
-
-      hdr.addEventListener('click', () => {
-        state.householdExpanded = !state.householdExpanded;
-        renderAll();
-      });
-      hdr.appendChild(checkBtn);
-      hdr.appendChild(info);
-      hdr.appendChild(right);
-      card.appendChild(hdr);
-
-      if (state.householdExpanded) {
-        const panel = document.createElement('div');
-        panel.className = 'border-t border-slate-200 bg-slate-50 p-3.5 space-y-3';
-        const baseFix = Number(item.baseFix) || 23000;
-        panel.innerHTML = `
-          <div class="rounded-xl bg-slate-800 text-white p-3 flex items-center justify-between gap-2">
-            <div>
-              <div class="text-xs text-slate-300">Transfer to Send (Fix ${formatInr(baseFix)} − Ded + Extra)</div>
-              <div class="text-2xl font-bold text-teal-300 mt-0.5">${formatInr(transferToSend)}</div>
-            </div>
-            <button type="button" class="hh-copy px-3 py-2 rounded-lg bg-teal-600 text-white text-xs font-semibold hover:bg-teal-500 shrink-0">Copy ₹</button>
-          </div>
-          ${ro ? '' : `
-          <div class="flex items-center justify-between gap-2">
-            <button type="button" class="hh-add px-2.5 py-1.5 rounded-lg bg-teal-700 text-white text-xs font-semibold hover:bg-teal-800">+ Add Item</button>
-            <button type="button" class="hh-edit px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100">Edit Fix / Delete Card</button>
-          </div>`}
-          <div class="hh-sublist space-y-1.5"></div>
-        `;
-
-        panel.querySelector('.hh-copy').addEventListener('click', () => {
-          if (navigator.clipboard) navigator.clipboard.writeText(String(transferToSend)).catch(() => {});
-          showToast(`Copied ₹${transferToSend}`);
-        });
-        if (!ro) {
-          panel.querySelector('.hh-add').addEventListener('click', () => openZanModal(null));
-          panel.querySelector('.hh-edit').addEventListener('click', () => {
-            document.getElementById('inputHhTitle').value = displayTitle;
-            document.getElementById('inputHhBaseFix').value = baseFix;
-            document.getElementById('hhFixModal').classList.remove('hidden');
-          });
-        }
-
-        const subList = panel.querySelector('.hh-sublist');
-        const trRow = document.createElement('div');
-        trRow.className = 'bg-white rounded-lg border border-slate-200 px-3 py-2 flex items-center justify-between text-xs';
-        trRow.innerHTML = `<div><span class="font-semibold text-slate-900">Transfer</span> <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">AUTO</span></div><span class="font-bold text-teal-700">${formatInr(transfer)}</span>`;
-        subList.appendChild(trRow);
-
-        (month.zanItems || []).forEach(z => {
-          const k = classifyZanItem(z);
-          if (k === 'TRANSFER') return;
-          const r = document.createElement('div');
-          r.className = 'bg-white rounded-lg border border-slate-200 px-3 py-2 flex items-center justify-between gap-2 text-xs cursor-pointer hover:border-teal-400';
-          const tag = k === 'EXTRA' ? '+ EXTRA' : (k === 'SODEXO' ? 'SODEXO' : (k === 'DEBIT' ? 'DEBIT' : '- TRANSFER'));
-          const tagCls = k === 'EXTRA' ? 'bg-emerald-50 text-emerald-700' : ((k === 'DEDUCTION' || k === 'DEBIT') ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600');
-          const amtVal = k === 'DEBIT' ? z.debitTaken : z.creditGiven;
-          const amtCls = (k === 'DEDUCTION' || k === 'DEBIT') ? 'text-rose-600' : 'text-teal-700';
-          r.innerHTML = `
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5"><span class="font-semibold text-slate-900 truncate">${z.label}</span><span class="px-1.5 py-0.5 rounded font-bold ${tagCls}">${tag}</span></div>
-              ${z.note ? `<div class="text-xs text-slate-500 truncate mt-0.5">${z.note}</div>` : ''}
-            </div>
-            <span class="font-bold shrink-0 ${amtCls}">${k === 'DEBIT' ? '- ' : ''}${formatInr(amtVal)}</span>
-          `;
-          r.addEventListener('click', () => {
-            if (ro) showToast('Month is finalized (read-only)');
-            else openZanModal(z);
-          });
-          subList.appendChild(r);
-        });
-
-        card.appendChild(panel);
-      }
-      return card;
-    }
-
-    function renderMonthly(m) {
-      if (m.zanItems && m.zanItems.length > 0) {
-        const netZ = m.zanItems.reduce((a, z) => a + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
-        const zr = m.expenses.find(e => e.isZanLinked || e.title.toLowerCase().includes('zan'));
-        if (zr && netZ !== 0 && Number(zr.amount) === 0) zr.amount = netZ;
-      }
-      const invSum = m.investments.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-      const expSum = m.expenses.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-      const allItems = [...m.investments, ...m.expenses];
-      const paidCount = allItems.filter(x => x.isPaid).length;
-      const pendingSum = allItems.filter(x => !x.isPaid).reduce((s, x) => s + (Number(x.amount) || 0), 0);
-
-      document.getElementById('heroGrandTotal').textContent = formatInr(invSum + expSum);
-      document.getElementById('heroInvTotal').textContent = formatInr(invSum);
-      document.getElementById('heroExpTotal').textContent = formatInr(expSum);
-      document.getElementById('heroPendingTotal').textContent = formatInr(pendingSum);
-      document.getElementById('monthlyPaidBadge').textContent = `${paidCount}/${allItems.length} Paid`;
-
-      const ro = isMonthReadOnly(m);
-      const finBtn = document.getElementById('btnFinalizeMonth');
-      finBtn.textContent = ro ? '🔒 Finalized (Tap to Unlock)' : '✓ Active (Finalize)';
-      finBtn.className = ro
-        ? 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/80 text-white hover:bg-rose-500 transition'
-        : 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
-      document.getElementById('btnAddInv').classList.toggle('hidden', ro);
-      document.getElementById('btnAddExp').classList.toggle('hidden', ro);
-
-      const fBtn = document.getElementById('btnPendingFilter');
-      fBtn.className = state.pendingOnly
-        ? 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 transition'
-        : 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25 transition';
-
-      const invItems = state.pendingOnly ? m.investments.filter(x => !x.isPaid) : m.investments;
-      const invList = document.getElementById('investmentsList');
-      invList.innerHTML = '';
-      if (invItems.length === 0) {
-        invList.innerHTML = `<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">${state.pendingOnly ? 'All investments paid!' : 'No investments yet. Tap + Add Investment.'}</div>`;
-      } else {
-        invItems.forEach(item => invList.appendChild(createItemCard(item, 'investments', m)));
-      }
-
-      const expItems = state.pendingOnly ? m.expenses.filter(x => !x.isPaid) : m.expenses;
-      const expList = document.getElementById('expensesList');
-      expList.innerHTML = '';
-      if (expItems.length === 0) {
-        expList.innerHTML = `<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">${state.pendingOnly ? 'All expenses paid!' : 'No expenses yet. Tap + Add Expense.'}</div>`;
-      } else {
-        expItems.forEach(item => expList.appendChild(createItemCard(item, 'expenses', m)));
-      }
-    }
-
-    function renderSummary() {
-      const years = [...new Set(state.months.map(x => x.year))].sort((a, b) => b - a);
-      if (state.summaryYear === 'ALL' && years.length > 0 && !state._summaryInit) {
-        state.summaryYear = years[0];
-        state._summaryInit = true;
-      }
-      const sStrip = document.getElementById('summaryYearStrip');
-      sStrip.innerHTML = '';
-      ['ALL', ...years].forEach(yr => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        const active = String(state.summaryYear) === String(yr);
-        b.className = active
-          ? 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white'
-          : 'shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700';
-        b.textContent = yr === 'ALL' ? 'All Years' : String(yr);
-        b.addEventListener('click', () => { state.summaryYear = yr; renderSummary(); });
-        sStrip.appendChild(b);
-      });
-      const filteredMonths = state.summaryYear === 'ALL'
-        ? state.months
-        : state.months.filter(x => String(x.year) === String(state.summaryYear));
-      const chronological = [...filteredMonths].sort((a, b) => (a.year - b.year) || (a.monthNumber - b.monthNumber));
-      const labels = [];
-      const invSeries = [];
-      const expSeries = [];
-      let totalAll = 0;
-
-      chronological.forEach(m => {
-        const inv = m.investments.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-        const exp = m.expenses.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-        totalAll += inv + exp;
-        labels.push(`${m.monthName.slice(0, 3)} '${String(m.year).slice(-2)}`);
-        invSeries.push(inv);
-        expSeries.push(exp);
-      });
-
-      const avg = chronological.length ? totalAll / chronological.length : 0;
-      document.getElementById('summaryCountLabel').textContent = `Total Across ${chronological.length} Months`;
-      document.getElementById('summaryGrandTotal').textContent = formatInr(totalAll);
-      document.getElementById('summaryAvgLabel').textContent = `Monthly Average: ${formatInr(avg)}`;
-
-      const ctx = document.getElementById('summaryChart').getContext('2d');
-      if (state.chartInstance) state.chartInstance.destroy();
-      state.chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            { label: 'Expenses', data: expSeries, backgroundColor: '#0f766e', borderRadius: 4, order: 2 },
-            { label: 'Investments', data: invSeries, backgroundColor: '#99f6e4', borderRadius: 4, order: 2 },
-            {
-              label: 'Avg',
-              data: labels.map(() => Math.round(avg)),
-              type: 'line',
-              borderColor: '#f59e0b',
-              borderWidth: 2,
-              borderDash: [5, 4],
-              pointRadius: 0,
-              fill: false,
-              order: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: { stacked: true, grid: { display: false } },
-            y: {
-              stacked: true,
-              ticks: { callback: (v) => '₹' + Math.round(v / 1000) + 'k' }
-            }
-          },
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-          }
-        }
-      });
-
-      // Detailed Category Breakdown across filtered months
-      const cats = {
-        'Credit Cards': 0,
-        'Zan-Home': 0,
-        'Monthly Transfer': 0,
-        'Shop Rent': 0,
-        'Investments': 0,
-        'Bills & Utilities': 0,
-        'Vehicle & Fuel': 0,
-        'Education & Kids': 0,
-        'Travel & Trips': 0,
-        'Insurance & Tax': 0,
-        'Shopping & Misc': 0
-      };
-      chronological.forEach(m => {
-        m.investments.forEach(i => { cats['Investments'] += Number(i.amount) || 0; });
-        m.expenses.forEach(e => {
-          const t = (e.title || '').toLowerCase();
-          const amt = Number(e.amount) || 0;
-          if (/\b(cc|credit\s*card)\b/.test(t)) cats['Credit Cards'] += amt;
-          else if (t.includes('zan')) cats['Zan-Home'] += amt;
-          else if (t === 'trans' || t.startsWith('trans ')) cats['Monthly Transfer'] += amt;
-          else if (t.includes('rent')) cats['Shop Rent'] += amt;
-          else if (/mediclaim|policy|insurance|it return/.test(t)) cats['Insurance & Tax'] += amt;
-          else if (/lakshya|school|bus|tution|tuition|books|coaching/.test(t)) cats['Education & Kids'] += amt;
-          else if (/car|activa|amaze|tyre|wheel|wash|petrol|service/.test(t)) cats['Vehicle & Fuel'] += amt;
-          else if (/safari|udaipur|morbi|abu|surat|daman|jaisalmer|travelling/.test(t)) cats['Travel & Trips'] += amt;
-          else if (/light|bill|newspaper|recharge|maintenance|ro amc|gas/.test(t)) cats['Bills & Utilities'] += amt;
-          else cats['Shopping & Misc'] += amt;
-        });
-      });
-      const catEl = document.getElementById('categoryBreakdownList');
-      catEl.innerHTML = '';
-      Object.entries(cats).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).forEach(([label, val]) => {
-        const pct = totalAll > 0 ? Math.round((val / totalAll) * 100) : 0;
-        const row = document.createElement('div');
-        row.className = 'space-y-1';
-        row.innerHTML = `
-          <div class="flex justify-between text-xs font-medium">
-            <span class="text-slate-700">${label}</span>
-            <span class="font-bold text-slate-900">${formatInr(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
-          </div>
-          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div class="h-full bg-teal-600 rounded-full" style="width:${pct}%"></div>
-          </div>
-        `;
-        catEl.appendChild(row);
-      });
-
-      // KPI Highlights
-      const monthTotals = chronological.map(m => ({
-        name: `${m.monthName.slice(0, 3)} '${String(m.year).slice(-2)}`,
-        total: m.investments.reduce((a, x) => a + (Number(x.amount) || 0), 0) + m.expenses.reduce((a, x) => a + (Number(x.amount) || 0), 0)
-      }));
-      if (monthTotals.length > 0) {
-        const hi = monthTotals.reduce((a, b) => b.total > a.total ? b : a);
-        const lo = monthTotals.reduce((a, b) => b.total < a.total ? b : a);
-        document.getElementById('kpiHighestVal').textContent = formatInr(hi.total);
-        document.getElementById('kpiHighestName').textContent = hi.name;
-        document.getElementById('kpiLowestVal').textContent = formatInr(lo.total);
-        document.getElementById('kpiLowestName').textContent = lo.name;
-      }
-      const invPct = totalAll > 0 ? Math.round((cats['Investments'] / totalAll) * 100) : 0;
-      document.getElementById('kpiInvestedVal').textContent = formatInr(cats['Investments']);
-      document.getElementById('kpiInvestedPct').textContent = `${invPct}% of total`;
-
-      // Category Doughnut Chart
-      const dCtx = document.getElementById('categoryDoughnutChart').getContext('2d');
-      if (state.doughnutInstance) state.doughnutInstance.destroy();
-      const sortedCats = Object.entries(cats).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
-      state.doughnutInstance = new Chart(dCtx, {
-        type: 'doughnut',
-        data: {
-          labels: sortedCats.map(c => c[0]),
-          datasets: [{
-            data: sortedCats.map(c => c[1]),
-            backgroundColor: ['#0f766e', '#14b8a6', '#f59e0b', '#6366f1', '#ec4899', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316', '#3b82f6', '#94a3b8'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '62%',
-          plugins: {
-            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } }
-          }
-        }
-      });
-
-      const listEl = document.getElementById('summaryMonthsList');
+      const listEl = document.getElementById('expensesList');
       listEl.innerHTML = '';
-      filteredMonths.forEach(m => {
-        const inv = m.investments.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-        const exp = m.expenses.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-        const row = document.createElement('div');
-        row.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center justify-between cursor-pointer hover:border-teal-300';
-        row.innerHTML = `
-          <div>
-            <div class="text-sm font-bold text-slate-900">${m.monthName} ${m.year}</div>
-            <div class="text-xs text-slate-500">Inv: ${formatInr(inv)} • Exp: ${formatInr(exp)}</div>
-          </div>
-          <div class="text-sm font-bold text-slate-900">${formatInr(inv + exp)}</div>
-        `;
-        row.addEventListener('click', () => {
-          state.selectedMonthId = m.id;
-          state.activeTab = 'monthly';
-          renderAll();
-        });
-        listEl.appendChild(row);
-      });
-    }
 
-    // Entry Modal Logic
-    let modalSection = 'expenses';
-    function updateTypeButtons() {
-      const isExp = modalSection === 'expenses';
-      document.getElementById('btnTypeExpense').className = isExp
-        ? 'py-2 rounded-lg text-xs font-semibold border border-teal-700 bg-teal-50 text-teal-800'
-        : 'py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600';
-      document.getElementById('btnTypeInvestment').className = !isExp
-        ? 'py-2 rounded-lg text-xs font-semibold border border-teal-700 bg-teal-50 text-teal-800'
-        : 'py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600';
-    }
-
-    function openEntryModal(sectionKey, item = null) {
-      modalSection = sectionKey;
-      state.editingEntry = item ? { sectionKey, id: item.id } : { sectionKey, id: null };
-      document.getElementById('entryModalTitle').textContent = item ? 'Edit Item' : 'Add Item';
-      document.getElementById('inputEntryTitle').value = item ? item.title : '';
-      document.getElementById('inputEntryAmount').value = item ? item.amount : '';
-      document.getElementById('inputEntryNote').value = item ? item.statusNote : 'Paid';
-      document.getElementById('inputEntryPaid').checked = item ? item.isPaid : true;
-      document.getElementById('inputEntryHousehold').checked = item ? !!item.isZanLinked : false;
-      document.getElementById('btnDeleteEntry').classList.toggle('hidden', !item);
-      updateTypeButtons();
-      document.getElementById('entryModal').classList.remove('hidden');
-    }
-
-    function closeEntryModal() {
-      document.getElementById('entryModal').classList.add('hidden');
-    }
-
-    // Zan Modal Logic
-    function openZanModal(item = null) {
-      state.editingZanId = item ? item.id : null;
-      const kind = item ? classifyZanItem(item) : 'DEDUCTION';
-      const amt = item ? (kind === 'DEBIT' ? (Number(item.debitTaken) || 0) : (Number(item.creditGiven) || 0)) : '';
-      document.getElementById('zanModalTitle').textContent = item ? 'Edit Household Item' : 'Add Household Item';
-      document.getElementById('selectZanKind').value = kind;
-      document.getElementById('inputZanLabel').value = item ? item.label : '';
-      document.getElementById('inputZanAmount').value = amt;
-      document.getElementById('inputZanNote').value = item ? item.note : '';
-      document.getElementById('btnDeleteZan').classList.toggle('hidden', !item);
-      document.getElementById('zanModal').classList.remove('hidden');
-    }
-
-    function closeZanModal() {
-      document.getElementById('zanModal').classList.add('hidden');
-    }
-
-    // Wire up events
-    document.getElementById('navMonthly').addEventListener('click', () => { state.activeTab = 'monthly'; renderAll(); });
-    document.getElementById('navSummary').addEventListener('click', () => { state.activeTab = 'summary'; renderAll(); });
-
-    document.getElementById('btnAddInv').addEventListener('click', () => openEntryModal('investments', null));
-    document.getElementById('btnAddExp').addEventListener('click', () => openEntryModal('expenses', null));
-
-    document.getElementById('btnTypeExpense').addEventListener('click', () => { modalSection = 'expenses'; updateTypeButtons(); });
-    document.getElementById('btnTypeInvestment').addEventListener('click', () => { modalSection = 'investments'; updateTypeButtons(); });
-    document.getElementById('btnCloseEntryModal').addEventListener('click', closeEntryModal);
-    document.getElementById('btnCancelEntry').addEventListener('click', closeEntryModal);
-    document.getElementById('inputEntryPaid').addEventListener('change', (e) => {
-      const checked = e.target.checked;
-      const noteEl = document.getElementById('inputEntryNote');
-      const note = noteEl.value.trim();
-      if (checked) {
-        if (!note || note.toLowerCase() === 'pending') noteEl.value = 'Paid';
-        else if (/^pending/i.test(note)) noteEl.value = note.replace(/^pending/i, 'Paid');
-      } else {
-        if (!note || note.toLowerCase() === 'paid') noteEl.value = 'Pending';
-        else if (/^paid/i.test(note)) noteEl.value = note.replace(/^paid/i, 'Pending');
-      }
-    });
-    document.getElementById('inputEntryNote').addEventListener('input', (e) => {
-      const val = e.target.value.trim().toLowerCase();
-      if (val.startsWith('paid')) document.getElementById('inputEntryPaid').checked = true;
-      else if (val.startsWith('pending')) document.getElementById('inputEntryPaid').checked = false;
-    });
-
-    document.getElementById('btnSaveEntry').addEventListener('click', () => {
-      const m = getActiveMonth();
-      const title = document.getElementById('inputEntryTitle').value.trim();
-      const amount = parseFloat(document.getElementById('inputEntryAmount').value) || 0;
-      const note = document.getElementById('inputEntryNote').value.trim();
-      const isPaid = document.getElementById('inputEntryPaid').checked;
-      if (!title || !m) { showToast('Please enter an item name'); return; }
-
-      if (state.editingEntry && state.editingEntry.id) {
-        const origKey = state.editingEntry.sectionKey;
-        const idx = m[origKey].findIndex(x => x.id === state.editingEntry.id);
-        if (idx !== -1) {
-          const updated = { ...m[origKey][idx], title, amount, statusNote: note, isPaid, isZanLinked: document.getElementById('inputEntryHousehold').checked || ['zan-home', 'household'].includes(title.toLowerCase()) };
-          if (origKey === modalSection) {
-            m[origKey][idx] = updated;
-          } else {
-            m[origKey].splice(idx, 1);
-            m[modalSection].push(updated);
-          }
-        }
-      } else {
-        m[modalSection].push({
-          id: `${m.id}-${Date.now()}`,
-          title,
-          amount,
-          statusNote: note,
-          isPaid,
-          isZanLinked: document.getElementById('inputEntryHousehold').checked || ['zan-home', 'household'].includes(title.toLowerCase())
-        });
-      }
-      saveState();
-      closeEntryModal();
-      renderAll();
-      showToast('Saved');
-    });
-
-    document.getElementById('btnDeleteEntry').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m || !state.editingEntry || !state.editingEntry.id) return;
-      const key = state.editingEntry.sectionKey;
-      m[key] = m[key].filter(x => x.id !== state.editingEntry.id);
-      saveState();
-      closeEntryModal();
-      renderAll();
-      showToast('Deleted');
-    });
-
-    document.getElementById('btnCloseZanModal').addEventListener('click', closeZanModal);
-    document.getElementById('btnCancelZan').addEventListener('click', closeZanModal);
-    document.getElementById('btnSaveZan').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m) { showToast('Load or create a month first'); return; }
-      const kind = document.getElementById('selectZanKind').value;
-      const label = document.getElementById('inputZanLabel').value.trim();
-      if (!label) { showToast('Please enter an Item / Label'); return; }
-      const amt = parseFloat(document.getElementById('inputZanAmount').value) || 0;
-      const creditGiven = kind === 'DEBIT' ? 0 : amt;
-      const debitTaken = kind === 'DEBIT' ? amt : 0;
-      const note = document.getElementById('inputZanNote').value.trim();
-
-      if (state.editingZanId) {
-        const idx = m.zanItems.findIndex(z => z.id === state.editingZanId);
-        if (idx !== -1) m.zanItems[idx] = { ...m.zanItems[idx], kind, label, creditGiven, debitTaken, note };
-      } else {
-        m.zanItems.push({ id: `${m.id}-zan-${Date.now()}`, kind, label, creditGiven, debitTaken, note });
-      }
-      syncZanHomeTotal(m);
-      saveState();
-      closeZanModal();
-      renderAll();
-      showToast('Transfer & Zan-Home updated');
-    });
-
-    document.getElementById('btnDeleteZan').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m || !state.editingZanId) return;
-      m.zanItems = m.zanItems.filter(z => z.id !== state.editingZanId);
-      syncZanHomeTotal(m);
-      saveState();
-      closeZanModal();
-      renderAll();
-      showToast('Deleted & synced');
-    });
-
-    // New Month Modal
-    document.getElementById('btnNewMonthTop').addEventListener('click', () => {
-      closeDrawer();
-      document.getElementById('newMonthModal').classList.remove('hidden');
-    });
-    document.getElementById('btnCloseNewMonth').addEventListener('click', () => document.getElementById('newMonthModal').classList.add('hidden'));
-    document.getElementById('btnCancelNewMonth').addEventListener('click', () => document.getElementById('newMonthModal').classList.add('hidden'));
-    document.getElementById('btnCreateNewMonth').addEventListener('click', () => {
-      const monthNumber = parseInt(document.getElementById('selectNewMonth').value, 10);
-      const year = parseInt(document.getElementById('inputNewYear').value, 10) || 2026;
-      const monthName = MONTH_NAMES[monthNumber - 1];
-      const id = `${year}-${String(monthNumber).padStart(2, '0')}`;
-      const existing = state.months.find(m => m.id === id);
-      if (existing) {
-        state.selectedMonthId = existing.id;
-        document.getElementById('newMonthModal').classList.add('hidden');
-        renderAll();
-        showToast(`${monthName} ${year} already exists`);
-        return;
-      }
-      const prefill = document.getElementById('inputPrefillRecurring').checked;
-      const recent = state.months.slice(0, 4);
-      const latest = recent[0] || null;
-      function pickRecurring(sectionKey) {
-        if (!prefill || !latest) return [];
-        const counts = {};
-        recent.forEach(m => {
-          (m[sectionKey] || []).forEach(it => {
-            const k = (it.title || '').trim().toLowerCase();
-            if (k) counts[k] = (counts[k] || 0) + 1;
-          });
-        });
-        const list = (latest[sectionKey] || []).filter(it => {
-          const k = (it.title || '').trim().toLowerCase();
-          return recent.length < 2 || (counts[k] || 0) >= 2;
-        });
-        return list.map((x, idx) => {
-          const isCc = /\b(cc|credit\s*card)\b/i.test(x.title || '');
-          let cleanTitle = x.title || '';
-          if (/\bcc\b/i.test(cleanTitle)) {
-            cleanTitle = cleanTitle.replace(/\bcc\b/ig, 'Credit Card').replace(/^(sbi|hdfc|icici|axis|kotak)\b/i, m => m.toUpperCase());
-          }
-          return {
-            id: `${id}-${sectionKey}-${idx}`,
-            title: cleanTitle,
-            amount: isCc ? 0 : x.amount,
-            statusNote: 'Pending',
-            isPaid: false,
-            isZanLinked: !!x.isZanLinked
-          };
-        });
-      }
-      function pickRecurringZan() {
-        if (!prefill || !latest) return [];
-        const counts = {};
-        recent.forEach(m => {
-          (m.zanItems || []).forEach(z => {
-            const k = (z.label || '').trim().toLowerCase();
-            if (k) counts[k] = (counts[k] || 0) + 1;
-          });
-        });
-        const list = (latest.zanItems || []).filter(z => {
-          const k = (z.label || '').trim().toLowerCase();
-          if (k.includes('extra')) return false;
-          return recent.length < 2 || (counts[k] || 0) >= 2;
-        });
-        return list.map((z, idx) => {
-          const kl = (z.label || '').toLowerCase();
-          const isSodexo = kl.includes('sodexo');
-          const isTransfer = kl === 'transfer';
-          return {
-            id: `${id}-zan-${idx}`,
-            label: z.label,
-            creditGiven: isSodexo ? (Number(z.creditGiven) || 2200) : (isTransfer ? 23000 : 0),
-            debitTaken: 0,
-            note: ''
-          };
-        });
-      }
-      const newMonth = {
-        id,
-        monthNumber,
-        monthName,
-        year,
-        isFinalized: false,
-        investments: pickRecurring('investments'),
-        expenses: pickRecurring('expenses'),
-        zanItems: pickRecurringZan()
-      };
-      if (prefill) syncZanHomeTotal(newMonth);
-      state.months.push(newMonth);
-      state.months.sort((a, b) => (b.year - a.year) || (b.monthNumber - a.monthNumber));
-      state.selectedMonthId = id;
-      state.activeTab = 'monthly';
-      saveState();
-      document.getElementById('newMonthModal').classList.add('hidden');
-      renderAll();
-      showToast(`Created ${monthName} ${year}`);
-    });
-
-    // Backup Modal
-    document.getElementById('btnBackup').addEventListener('click', () => {
-      closeDrawer();
-      state.confirmResetPending = false;
-      document.getElementById('btnResetSeed').textContent = 'Clear All Local Data';
-      document.getElementById('backupModal').classList.remove('hidden');
-    });
-    document.getElementById('btnCloseBackup').addEventListener('click', () => document.getElementById('backupModal').classList.add('hidden'));
-
-    function downloadFile(filename, content, mime) {
-      const blob = new Blob([content], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    document.getElementById('btnExportCsv').addEventListener('click', () => {
-      const rows = ['Month,Year,Section,Item,Amount,Paid,StatusNote'];
-      state.months.forEach(m => {
-        m.investments.forEach(e => rows.push(`${m.monthName},${m.year},INVESTMENT,"${e.title.replace(/"/g, '""')}",${e.amount},${e.isPaid},"${(e.statusNote || '').replace(/"/g, '""')}"`));
-        m.expenses.forEach(e => rows.push(`${m.monthName},${m.year},EXPENSE,"${e.title.replace(/"/g, '""')}",${e.amount},${e.isPaid},"${(e.statusNote || '').replace(/"/g, '""')}"`));
-      });
-      downloadFile('monthly_expenses_2026.csv', rows.join('\n'), 'text/csv');
-      showToast('CSV downloaded');
-    });
-
-    document.getElementById('btnExportJson').addEventListener('click', () => {
-      downloadFile('monthly_expenses_2026_backup.json', JSON.stringify(state.months, null, 2), 'application/json');
-      showToast('JSON backup downloaded');
-    });
-
-    document.getElementById('inputImportJson').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result);
-          if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Invalid');
-          state.months = parsed;
-          state.selectedMonthId = parsed[0].id;
-          saveState();
-          document.getElementById('backupModal').classList.add('hidden');
-          renderAll();
-          showToast('Backup restored');
-        } catch (err) {
-          showToast('Invalid JSON backup file');
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    document.getElementById('btnResetSeed').addEventListener('click', () => {
-      if (!state.confirmResetPending) {
-        state.confirmResetPending = true;
-        document.getElementById('btnResetSeed').textContent = 'Tap again to confirm reset';
-        return;
-      }
-      state.months = JSON.parse(JSON.stringify(SEED_MONTHS));
-      state.selectedMonthId = state.months[0].id;
-      saveState();
-      document.getElementById('backupModal').classList.add('hidden');
-      renderAll();
-      showToast('Local data cleared');
-    });
-
-    
-    // --- + Year quick action ---
-    
-    // --- Left Navigation Drawer ---
-    function closeDrawer() { document.getElementById('navDrawerBackdrop').classList.add('hidden'); }
-    document.getElementById('btnMenuOpen').addEventListener('click', () => {
-      document.getElementById('navDrawerBackdrop').classList.remove('hidden');
-    });
-    document.getElementById('btnMenuClose').addEventListener('click', closeDrawer);
-    document.getElementById('navDrawerBackdrop').addEventListener('click', (e) => {
-      if (e.target.id === 'navDrawerBackdrop') closeDrawer();
-    });
-    document.querySelectorAll('.d-nav').forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.activeTab = btn.getAttribute('data-dtab');
-        closeDrawer();
-        renderAll();
-      });
-    });
-    document.getElementById('btnDrawerPending').addEventListener('click', () => {
-      state.pendingOnly = !state.pendingOnly;
-      state.activeTab = 'monthly';
-      closeDrawer();
-      renderAll();
-    });
-    document.getElementById('btnDrawerLoad').addEventListener('click', () => { closeDrawer(); loadXlsxFromDrive(); });
-    document.getElementById('btnDrawerSave').addEventListener('click', () => { closeDrawer(); saveXlsxToDrive(); });
-    document.getElementById('btnDrawerDownload').addEventListener('click', () => { closeDrawer(); document.getElementById('btnExportXlsx').click(); });
-
-    document.getElementById('btnNewYearTop').addEventListener('click', () => {
-      closeDrawer();
-      const maxYear = state.months.reduce((mx, m) => Math.max(mx, Number(m.year) || 2026), 2026);
-      document.getElementById('selectNewMonth').value = '1';
-      document.getElementById('inputNewYear').value = String(maxYear + 1);
-      document.getElementById('newMonthModal').classList.remove('hidden');
-    });
-
-    // --- SheetJS (.xlsx) Multi-Sheet Export & Parse (One Sheet Per Year) ---
-    function buildWorkbookFromMonths(months) {
-      const wb = XLSX.utils.book_new();
-      const byYear = {};
-      months.forEach(m => {
-        const y = String(m.year || 2026);
-        if (!byYear[y]) byYear[y] = [];
-        byYear[y].push(m);
-      });
-      const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
-      years.forEach(yearStr => {
-        const yMonths = byYear[yearStr].slice().sort((a, b) => b.monthNumber - a.monthNumber);
-        const rows = [];
-        const formulas = [];
-        yMonths.forEach(m => {
-          rows.push([`(${m.monthName} ${m.year})`, isMonthReadOnly(m) ? 'FINALIZED' : 'OPEN']);
-          rows.push(['Investments']);
-          const invStart = rows.length + 1;
-          let invTot = 0;
-          m.investments.forEach(i => {
-            const amt = Number(i.amount) || 0;
-            invTot += amt;
-            rows.push([amt, i.title, i.statusNote || (i.isPaid ? 'Paid' : 'Pending')]);
-          });
-          const invEnd = rows.length;
-          const invTotRow = rows.length + 1;
-          rows.push([invTot]);
-          if (invEnd >= invStart) formulas.push({ r: invTotRow - 1, c: 0, f: `SUM(A${invStart}:A${invEnd})`, v: invTot });
-
-          rows.push(['Expenses']);
-          const exps = m.expenses || [];
-          const zans = m.zanItems || [];
-          const maxR = Math.max(exps.length, zans.length + 2);
-          const expStart = rows.length + 1;
-          const zanStart = expStart + 1;
-          const zanEnd = zanStart + zans.length - 1;
-          const zanTotRow = zanStart + zans.length;
-          let expTot = 0, zCr = 0, zDb = 0;
-          for (let i = 0; i < maxR; i++) {
-            const curRow1 = rows.length + 1;
-            const row = ['', '', '', '', '', '', ''];
-            if (i < exps.length) {
-              const e = exps[i];
-              const amt = Number(e.amount) || 0;
-              expTot += amt;
-              row[0] = amt;
-              row[1] = e.title;
-              row[2] = e.statusNote || (e.isPaid ? 'Paid' : 'Pending');
-              if ((e.isZanLinked || (e.title || '').toLowerCase() === 'zan-home') && zans.length > 0) {
-                formulas.push({ r: curRow1 - 1, c: 0, f: `E${zanTotRow}-F${zanTotRow}`, v: amt });
-              }
-            }
-            if (i === 0) {
-              row[3] = 'Zan'; row[4] = 'Credit-Given'; row[5] = 'Debit-Taken';
-            } else if (i - 1 < zans.length) {
-              const z = zans[i - 1];
-              const c = Number(z.creditGiven) || 0;
-              const d = Number(z.debitTaken) || 0;
-              zCr += c; zDb += d;
-              row[3] = z.label; row[4] = c || ''; row[5] = d || ''; row[6] = z.note || '';
-            } else if (i - 1 === zans.length) {
-              row[4] = zCr; row[5] = zDb;
-              if (zanEnd >= zanStart) {
-                formulas.push({ r: curRow1 - 1, c: 4, f: `SUM(E${zanStart}:E${zanEnd})`, v: zCr });
-                formulas.push({ r: curRow1 - 1, c: 5, f: `SUM(F${zanStart}:F${zanEnd})`, v: zDb });
-              }
-            }
-            rows.push(row);
-          }
-          const expEnd = expStart + exps.length - 1;
-          const expTotRow = rows.length + 1;
-          rows.push([expTot]);
-          if (expEnd >= expStart) formulas.push({ r: expTotRow - 1, c: 0, f: `SUM(A${expStart}:A${expEnd})`, v: expTot });
-
-          const grandRow = rows.length + 1;
-          rows.push([invTot + expTot, 'Total Expense']);
-          formulas.push({ r: grandRow - 1, c: 0, f: `A${invTotRow}+A${expTotRow}`, v: invTot + expTot });
-          rows.push([]);
-        });
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        formulas.forEach(fm => {
-          const addr = XLSX.utils.encode_cell({ r: fm.r, c: fm.c });
-          ws[addr] = { t: 'n', f: fm.f, v: fm.v };
-        });
-        XLSX.utils.book_append_sheet(wb, ws, yearStr);
-      });
-      // Separate Udhar sheet
-      const udharRows = [['Type', 'Person Name', 'Amount', 'Date', 'Mode', 'Status', 'Returned Date', 'Note']];
-      (state.udhar || []).forEach(u => {
-        udharRows.push([
-          u.type || 'GIVEN',
-          u.person || '',
-          Number(u.amount) || 0,
-          u.date || '',
-          u.mode || 'GPay',
-          u.isSettled ? 'Settled' : 'Pending',
-          u.returnDate || '',
-          u.note || ''
-        ]);
-      });
-      const uWs = XLSX.utils.aoa_to_sheet(udharRows);
-      XLSX.utils.book_append_sheet(wb, uWs, 'Dues');
-      // Separate Projects sheet
-      const projRows = [['Project Name', 'Budget', 'Project Status', 'Date', 'Category', 'Item', 'Vendor', 'Amount', 'Mode', 'Status', 'Note']];
-      (state.projects || []).forEach(pr => {
-        const pStatus = pr.isCompleted ? 'Completed' : 'Active';
-        if (!pr.items || pr.items.length === 0) {
-          projRows.push([pr.name, Number(pr.budget) || 0, pStatus, '', '', '', '', 0, '', '', '']);
-        } else {
-          pr.items.forEach(it => {
-            projRows.push([
-              pr.name,
-              Number(pr.budget) || 0,
-              pStatus,
-              it.date || '',
-              it.category || 'Other',
-              it.title || '',
-              it.vendor || '',
-              Number(it.amount) || 0,
-              it.mode || 'GPay',
-              it.isPaid ? 'Paid' : 'Pending',
-              it.note || ''
-            ]);
-          });
-        }
-      });
-      const pWs = XLSX.utils.aoa_to_sheet(projRows);
-      XLSX.utils.book_append_sheet(wb, pWs, 'Projects');
-      return wb;
-    }
-
-    function parseWorkbookToMonths(wb) {
-      const parsed = [];
-      const headerRe = /^\(([A-Za-z]+)\s+(\d{4})\)$/;
-      const parsedUdhar = [];
-      const parsedProjectsMap = {};
-      wb.SheetNames.forEach(name => {
-        const ws = wb.Sheets[name];
-        if (['dues', 'loans', 'udhar'].includes(name.trim().toLowerCase())) {
-          const uData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-          for (let i = 1; i < uData.length; i++) {
-            const r = uData[i];
-            if (!r[1] && !r[2]) continue;
-            parsedUdhar.push({
-              id: `udhar-${i}-${Date.now()}`,
-              type: String(r[0] || 'GIVEN').toUpperCase().includes('TAKEN') ? 'TAKEN' : 'GIVEN',
-              person: String(r[1] || '').trim(),
-              amount: Number(r[2]) || 0,
-              date: String(r[3] || '').trim(),
-              mode: String(r[4] || 'GPay').trim(),
-              isSettled: String(r[5] || '').toLowerCase().includes('settled') || String(r[5] || '').toLowerCase().includes('paid'),
-              returnDate: String(r[6] || '').trim(),
-              note: String(r[7] || '').trim()
-            });
-          }
-          return;
-        }
-        if (name.trim().toLowerCase() === 'projects') {
-          const pData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-          for (let i = 1; i < pData.length; i++) {
-            const r = pData[i];
-            const pName = String(r[0] || '').trim();
-            if (!pName) continue;
-            if (!parsedProjectsMap[pName]) {
-              parsedProjectsMap[pName] = {
-                id: `proj-${Object.keys(parsedProjectsMap).length}-${Date.now()}`,
-                name: pName,
-                budget: Number(r[1]) || 0,
-                isCompleted: String(r[2] || '').toLowerCase().includes('complete'),
-                items: []
-              };
-            }
-            if (String(r[5] || '').trim() || Number(r[7])) {
-              parsedProjectsMap[pName].items.push({
-                id: `pi-${i}-${Date.now()}`,
-                date: String(r[3] || '').trim(),
-                category: String(r[4] || 'Other').trim(),
-                title: String(r[5] || '').trim(),
-                vendor: String(r[6] || '').trim(),
-                amount: Number(r[7]) || 0,
-                mode: String(r[8] || 'GPay').trim(),
-                isPaid: String(r[9] || '').toLowerCase().includes('paid'),
-                note: String(r[10] || '').trim()
-              });
-            }
-          }
-          return;
-        }
-        const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-        let cur = null, sec = null, inZan = false;
-        data.forEach(row => {
-          const c1 = row[0], c2 = row[1], c3 = row[2], c4 = row[3], c5 = row[4], c6 = row[5], c7 = row[6];
-          if (typeof c1 === 'string' && headerRe.test(c1.trim())) {
-            if (cur) {
-              if (cur.zanItems.length > 0) {
-                const netZan = cur.zanItems.reduce((acc, z) => acc + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
-                const zanRow = cur.expenses.find(e => e.isZanLinked || e.title.toLowerCase().includes('zan'));
-                if (zanRow && netZan !== 0) zanRow.amount = netZan;
-              }
-              parsed.push(cur);
-            }
-            const m = c1.trim().match(headerRe);
-            const mName = m[1], yr = parseInt(m[2], 10);
-            const mNum = MONTH_NAMES.indexOf(mName) + 1;
-            const id = `${yr}-${String(mNum).padStart(2, '0')}`;
-            const flag = String(c2 || '').trim().toUpperCase();
-            const isFin = flag === 'FINALIZED' ? true : (flag === 'OPEN' ? false : !isCurrentCalendarMonth(yr, mNum));
-            cur = { id, monthNumber: mNum, monthName: mName, year: yr, isFinalized: isFin, investments: [], expenses: [], zanItems: [] };
-            sec = null; inZan = false;
-            return;
-          }
-          if (!cur) return;
-          if (typeof c1 === 'string' && c1.trim().toLowerCase() === 'investments') { sec = 'INVESTMENT'; return; }
-          if (typeof c1 === 'string' && c1.trim().toLowerCase() === 'expenses') { sec = 'EXPENSE'; return; }
-          if (typeof c4 === 'string' && c4.trim().toLowerCase() === 'zan') { inZan = true; }
-          if (inZan && c4 !== '' && String(c4).trim().toLowerCase() !== 'zan') {
-            cur.zanItems.push({
-              id: `${cur.id}-zan-${cur.zanItems.length}`,
-              label: String(c4).trim(),
-              creditGiven: Number(c5) || 0,
-              debitTaken: Number(c6) || 0,
-              note: c7 ? String(c7).trim() : ''
-            });
-          } else if (inZan && c4 === '' && (typeof c5 === 'number' || typeof c6 === 'number')) {
-            inZan = false;
-          }
-          if (typeof c2 === 'string' && c2.trim().toLowerCase() === 'total expense') return;
-          if ((typeof c1 === 'number' || c1 === '') && c2 === '') return;
-          if (c2 !== '' && (sec === 'INVESTMENT' || sec === 'EXPENSE')) {
-            const title = String(c2).trim();
-            const statusNote = c3 ? String(c3).trim() : '';
-            const item = {
-              id: `${cur.id}-${sec}-${sec === 'INVESTMENT' ? cur.investments.length : cur.expenses.length}`,
-              title,
-              amount: Number(c1) || 0,
-              statusNote,
-              isPaid: statusNote.toLowerCase().includes('paid'),
-              isZanLinked: document.getElementById('inputEntryHousehold').checked || ['zan-home', 'household'].includes(title.toLowerCase())
-            };
-            if (sec === 'INVESTMENT') cur.investments.push(item);
-            else cur.expenses.push(item);
-          }
-        });
-        if (cur) {
-          if (cur.zanItems.length > 0) {
-            const netZan = cur.zanItems.reduce((acc, z) => acc + (Number(z.creditGiven) || 0) - (Number(z.debitTaken) || 0), 0);
-            const zanRow = cur.expenses.find(e => e.isZanLinked || e.title.toLowerCase().includes('zan'));
-            if (zanRow && netZan !== 0) zanRow.amount = netZan;
-          }
-          parsed.push(cur);
-        }
-      });
-      parsed.sort((a, b) => (b.year - a.year) || (b.monthNumber - a.monthNumber));
-      return { months: parsed, udhar: parsedUdhar, projects: Object.values(parsedProjectsMap) };
-    }
-
-    document.getElementById('btnExportXlsx').addEventListener('click', () => {
-      if (typeof XLSX === 'undefined') { showToast('Excel library loading...'); return; }
-      const wb = buildWorkbookFromMonths(state.months);
-      XLSX.writeFile(wb, 'MonthlyExpenses_2026.xlsx');
-      showToast('Excel (.xlsx) downloaded');
-    });
-
-    document.getElementById('inputImportXlsx').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file || typeof XLSX === 'undefined') return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const wb = XLSX.read(new Uint8Array(ev.target.result), { type: 'array' });
-          const { months: parsed, udhar: parsedUdhar, projects: parsedProjects } = parseWorkbookToMonths(wb);
-          if (!parsed.length && !parsedUdhar.length && !parsedProjects.length) throw new Error('No data found');
-          if (parsed.length) { state.months = parsed; state.selectedMonthId = parsed[0].id; }
-          if (parsedUdhar.length) state.udhar = parsedUdhar;
-          if (parsedProjects.length) { state.projects = parsedProjects; state.selectedProjectId = parsedProjects[0].id; }
-          saveState();
-          document.getElementById('backupModal').classList.add('hidden');
-          renderAll();
-          showToast(`Imported ${parsed.length} months from Excel`);
-        } catch (err) {
-          showToast('Could not parse Excel file');
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    });
-
-    // --- Google Drive OAuth 2.0 Sync ---
-    const DRIVE_CFG_KEY = 'monthly_exp_drive_cfg_v1';
-    const DRIVE_TOKEN_KEY = 'monthly_exp_drive_tok_v1';
-    let driveToken = null;
-    let driveAutoTimer = null;
-
-    function restoreDriveToken() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || 'null');
-        if (saved && saved.token && saved.expiresAt && Date.now() < saved.expiresAt) {
-          driveToken = saved.token;
-          updateDriveBadge(true);
-          return true;
-        }
-      } catch (e) {}
-      return false;
-    }
-
-    function storeDriveToken(token, expiresIn) {
-      driveToken = token;
-      const ttl = Math.max(60, (Number(expiresIn) || 3500) - 60) * 1000;
-      try {
-        localStorage.setItem(DRIVE_TOKEN_KEY, JSON.stringify({ token, expiresAt: Date.now() + ttl, wasConnected: true }));
-      } catch (e) {}
-    }
-
-    function loadDriveConfig() {
-      try {
-        const cfg = JSON.parse(localStorage.getItem(DRIVE_CFG_KEY) || '{}');
-        if (cfg.clientId) document.getElementById('inputClientId').value = cfg.clientId;
-        if (cfg.fileId) document.getElementById('inputDriveFileId').value = cfg.fileId;
-        if (typeof cfg.autoSync === 'boolean') document.getElementById('inputAutoSync').checked = cfg.autoSync;
-      } catch (e) {}
-    }
-
-    function saveDriveConfig() {
-      try {
-        localStorage.setItem(DRIVE_CFG_KEY, JSON.stringify({
-          clientId: document.getElementById('inputClientId').value.trim(),
-          fileId: document.getElementById('inputDriveFileId').value.trim(),
-          autoSync: document.getElementById('inputAutoSync').checked
-        }));
-      } catch (e) {}
-    }
-
-    function updateDriveBadge(connected, labelText) {
-      const b = document.getElementById('driveAuthBadge');
-      const pill = document.getElementById('btnDrivePill');
-      b.textContent = connected ? 'Connected' : 'Not Connected';
-      b.className = connected
-        ? 'text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800'
-        : 'text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700';
-      if (pill) {
-        pill.textContent = labelText || (connected ? 'Drive: Synced' : 'Drive: Offline');
-        pill.className = connected
-          ? 'px-2.5 py-1.5 rounded-lg bg-teal-50 text-teal-800 text-xs font-semibold hover:bg-teal-100 transition'
-          : 'px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition';
-      }
-    }
-
-
-    document.getElementById('btnFinalizeMonth').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m) return;
-      const currentlyRo = isMonthReadOnly(m);
-      m.isFinalized = !currentlyRo;
-      saveState();
-      renderAll();
-      showToast(m.isFinalized ? `${m.monthName} ${m.year} finalized (read-only)` : `${m.monthName} ${m.year} unlocked for editing`);
-    });
-
-    document.getElementById('btnPendingFilter').addEventListener('click', () => {
-      state.pendingOnly = !state.pendingOnly;
-      renderAll();
-    });
-
-    document.getElementById('btnDrivePill').addEventListener('click', () => {
-      const cid = document.getElementById('inputClientId').value.trim();
-      if (!driveToken && cid) {
-        document.getElementById('btnDriveConnect').click();
-      } else {
-        document.getElementById('btnBackup').click();
-      }
-    });
-
-    // Dark Mode
-    const THEME_KEY = 'monthly_exp_dark_v1';
-    function applyTheme(isDark) {
-      document.body.classList.toggle('dark', isDark);
-      const lbl = document.getElementById('themeToggleLabel');
-      if (lbl) lbl.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    }
-    try { applyTheme(localStorage.getItem(THEME_KEY) === '1'); } catch (e) {}
-    document.getElementById('btnThemeToggle').addEventListener('click', () => {
-      const next = !document.body.classList.contains('dark');
-      applyTheme(next);
-      try { localStorage.setItem(THEME_KEY, next ? '1' : '0'); } catch (e) {}
-    });
-
-    // Summary Search
-    document.getElementById('inputSummarySearch').addEventListener('input', (e) => {
-      const q = e.target.value.trim().toLowerCase();
-      const box = document.getElementById('summarySearchResults');
-      if (!q) { box.classList.add('hidden'); box.innerHTML = ''; return; }
-      const hits = [];
-      state.months.forEach(m => {
-        [...m.investments, ...m.expenses].forEach(it => {
-          if ((it.title || '').toLowerCase().includes(q) || (it.statusNote || '').toLowerCase().includes(q)) {
-            hits.push({ m, it });
-          }
-        });
-      });
-      box.classList.remove('hidden');
-      box.innerHTML = hits.length ? '' : '<div class="text-xs text-slate-400 py-2 text-center">No matching items found</div>';
-      hits.slice(0, 30).forEach(({ m, it }) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50 cursor-pointer hover:bg-slate-100';
-        row.innerHTML = `
-          <div class="min-w-0 pr-2">
-            <div class="font-semibold text-slate-900 truncate">${it.title}</div>
-            <div class="text-xs text-slate-500 truncate">${m.monthName.slice(0,3)} ${m.year}${it.statusNote ? ' • ' + it.statusNote : ''}</div>
-          </div>
-          <div class="font-bold text-slate-900 shrink-0">${formatInr(it.amount)}</div>
-        `;
-        row.addEventListener('click', () => {
-          state.selectedYear = m.year;
-          state.selectedMonthId = m.id;
-          state.activeTab = 'monthly';
-          renderAll();
-        });
-        box.appendChild(row);
-      });
-    });
-
-    async function saveXlsxToDrive() {
-      const fileId = document.getElementById('inputDriveFileId').value.trim();
-      if (!driveToken || !fileId || typeof XLSX === 'undefined') return;
-      try {
-        const wb = buildWorkbookFromMonths(state.months);
-        const bytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const res = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(fileId)}?uploadType=media`, {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${driveToken}`,
-            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-          },
-          body: new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        });
-        if (!res.ok) throw new Error('Upload failed');
-        showToast('Excel saved to Google Drive');
-      } catch (err) {
-        driveToken = null; try { const prev = JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || '{}'); localStorage.setItem(DRIVE_TOKEN_KEY, JSON.stringify({ wasConnected: prev.wasConnected })); } catch(e){} updateDriveBadge(false, 'Reconnect Drive'); showToast('Drive session expired — tap Reconnect Drive');
-      }
-    }
-
-    async function loadXlsxFromDrive() {
-      const fileId = document.getElementById('inputDriveFileId').value.trim();
-      if (!driveToken || !fileId || typeof XLSX === 'undefined') {
-        showToast('Connect Google Drive first');
-        return;
-      }
-      try {
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`, {
-          headers: { 'Authorization': `Bearer ${driveToken}` }
-        });
-        if (!res.ok) throw new Error('Download failed');
-        const buf = await res.arrayBuffer();
-        const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
-        const { months: parsed, udhar: parsedUdhar, projects: parsedProjects } = parseWorkbookToMonths(wb);
-        if (!parsed.length && !parsedUdhar.length && !parsedProjects.length) throw new Error('Empty workbook');
-        if (parsed.length) { state.months = parsed; state.selectedMonthId = parsed[0].id; }
-        state.udhar = parsedUdhar;
-        state.projects = parsedProjects;
-        state.selectedProjectId = parsedProjects[0] ? parsedProjects[0].id : null;
-        _origSaveState();
-        renderAll();
-        document.getElementById('backupModal').classList.add('hidden');
-        showToast(`Loaded ${parsed.length} months from Drive`);
-      } catch (err) {
-        showToast('Could not load Excel from Drive');
-      }
-    }
-
-    document.getElementById('btnDriveConnect').addEventListener('click', () => {
-      saveDriveConfig();
-      const clientId = document.getElementById('inputClientId').value.trim();
-      if (!clientId) { showToast('Enter your Google OAuth Client ID'); return; }
-      if (window.location.protocol === 'file:') { showToast('Host this HTML on https:// for Google Sign-In'); return; }
-      if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-        showToast('Google Sign-In script not loaded');
-        return;
-      }
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: clientId,
-        scope: 'https://www.googleapis.com/auth/drive',
-        callback: (resp) => {
-          if (resp && resp.access_token) {
-            storeDriveToken(resp.access_token, resp.expires_in);
-            updateDriveBadge(true);
-            showToast('Google Drive connected');
-          } else {
-            showToast('Google Sign-In cancelled');
-          }
-        }
-      });
-      client.requestAccessToken();
-    });
-
-    document.getElementById('btnDriveLoad').addEventListener('click', () => { saveDriveConfig(); loadXlsxFromDrive(); });
-    document.getElementById('btnDriveSave').addEventListener('click', () => { saveDriveConfig(); saveXlsxToDrive(); });
-    document.getElementById('inputAutoSync').addEventListener('change', saveDriveConfig);
-
-    const _origSaveState = saveState;
-    saveState = function() {
-      _origSaveState();
-      if (driveToken && document.getElementById('inputAutoSync').checked) {
-        clearTimeout(driveAutoTimer);
-        driveAutoTimer = setTimeout(() => saveXlsxToDrive(), 900);
-      }
-    };
-
-    loadDriveConfig();
-    if (!restoreDriveToken()) {
-      // Attempt silent token refresh if user connected previously
-      window.addEventListener('load', () => {
-        try {
-          const prev = JSON.parse(localStorage.getItem(DRIVE_TOKEN_KEY) || 'null');
-          const cid = document.getElementById('inputClientId').value.trim();
-          if (prev && prev.wasConnected && cid && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
-            const c = google.accounts.oauth2.initTokenClient({
-              client_id: cid,
-              scope: 'https://www.googleapis.com/auth/drive',
-              callback: (resp) => {
-                if (resp && resp.access_token) {
-                  storeDriveToken(resp.access_token, resp.expires_in);
-                  updateDriveBadge(true);
-                }
-              }
-            });
-            c.requestAccessToken({ prompt: '' });
-          }
-        } catch (e) {}
-      });
-    }
-
-    
-    // --- Udhar (Loans Given / Taken) ---
-    let udharModalType = 'GIVEN';
-    function updateUdharTypeButtons() {
-      const isG = udharModalType === 'GIVEN';
-      document.getElementById('btnUdharGiven').className = isG
-        ? 'py-2 rounded-lg text-xs font-semibold border border-teal-700 bg-teal-50 text-teal-800'
-        : 'py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600';
-      document.getElementById('btnUdharTaken').className = !isG
-        ? 'py-2 rounded-lg text-xs font-semibold border border-rose-600 bg-rose-50 text-rose-700'
-        : 'py-2 rounded-lg text-xs font-semibold border border-slate-200 text-slate-600';
-    }
-
-    function openUdharModal(item = null) {
-      state.editingUdharId = item ? item.id : null;
-      udharModalType = item ? item.type : 'GIVEN';
-      const today = new Date().toISOString().slice(0, 10);
-      document.getElementById('udharModalTitle').textContent = item ? 'Edit Due' : 'Add Due';
-      document.getElementById('inputUdharPerson').value = item ? item.person : '';
-      document.getElementById('inputUdharAmount').value = item ? item.amount : '';
-      document.getElementById('inputUdharDate').value = item ? (item.date || today) : today;
-      document.getElementById('selectUdharMode').value = item ? (item.mode || 'GPay') : 'GPay';
-      document.getElementById('inputUdharSettled').checked = item ? !!item.isSettled : false;
-      document.getElementById('inputUdharReturnDate').value = item ? (item.returnDate || '') : '';
-      document.getElementById('inputUdharNote').value = item ? (item.note || '') : '';
-      document.getElementById('btnDeleteUdhar').classList.toggle('hidden', !item);
-      updateUdharTypeButtons();
-      document.getElementById('udharModal').classList.remove('hidden');
-    }
-
-    function renderUdhar() {
-      const list = state.udhar || [];
-      const pendingList = list.filter(u => !u.isSettled);
-      const givenPending = pendingList.filter(u => u.type === 'GIVEN').reduce((a, u) => a + (Number(u.amount) || 0), 0);
-      const takenPending = pendingList.filter(u => u.type === 'TAKEN').reduce((a, u) => a + (Number(u.amount) || 0), 0);
-
-      document.getElementById('udharNetTotal').textContent = `Total Open: ${formatInr(givenPending + takenPending)}`;
-      document.getElementById('udharGivenTotal').textContent = formatInr(givenPending);
-      document.getElementById('udharTakenTotal').textContent = formatInr(takenPending);
-      document.getElementById('udharPendingBadge').textContent = `${pendingList.length} Pending`;
-
-      document.querySelectorAll('.u-chip').forEach(btn => {
-        const active = btn.getAttribute('data-ufilter') === state.udharFilter;
-        btn.className = active
-          ? 'u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-teal-700 text-white'
-          : 'u-chip shrink-0 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700';
-      });
-
-      const q = (document.getElementById('inputUdharSearch').value || '').trim().toLowerCase();
-      const filtered = list.filter(u => {
-        if (state.udharFilter === 'pending' && u.isSettled) return false;
-        if (state.udharFilter === 'settled' && !u.isSettled) return false;
-        if ((state.udharFilter === 'GIVEN' || state.udharFilter === 'TAKEN') && u.type !== state.udharFilter) return false;
-        if (q && !(u.person || '').toLowerCase().includes(q) && !(u.note || '').toLowerCase().includes(q)) return false;
-        return true;
-      }).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-      const container = document.getElementById('udharList');
-      container.innerHTML = '';
-      if (filtered.length === 0) {
-        container.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No matching dues. Tap + Add Due.</div>';
-        return;
-      }
-
-      filtered.forEach(u => {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3 shadow-xs';
-
-        const chk = document.createElement('button');
-        chk.type = 'button';
-        chk.className = u.isSettled
-          ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
-          : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
-        chk.textContent = '✓';
-        chk.addEventListener('click', (e) => {
-          e.stopPropagation();
-          u.isSettled = !u.isSettled;
-          if (u.isSettled && !u.returnDate) u.returnDate = new Date().toISOString().slice(0, 10);
-          saveState();
-          renderUdhar();
-        });
-
-        const info = document.createElement('div');
-        info.className = 'flex-1 min-w-0 cursor-pointer';
-        const isG = u.type === 'GIVEN';
-        info.innerHTML = `
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm font-semibold text-slate-900 truncate">${u.person}</span>
-            <span class="text-xs font-bold px-1.5 py-0.5 rounded ${isG ? 'bg-teal-50 text-teal-700' : 'bg-rose-50 text-rose-700'}">${u.type}</span>
-            <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${u.mode || 'GPay'}</span>
-          </div>
-          <div class="text-xs text-slate-500 truncate mt-0.5">${u.date || ''}${u.returnDate ? ' • Returned: ' + u.returnDate : ''}${u.note ? ' • ' + u.note : ''}</div>
-        `;
-
-        const amt = document.createElement('div');
-        amt.className = `text-sm font-bold shrink-0 cursor-pointer ${isG ? 'text-teal-700' : 'text-rose-600'}`;
-        amt.textContent = (isG ? '+ ' : '- ') + formatInr(u.amount);
-
-        info.addEventListener('click', () => openUdharModal(u));
-        amt.addEventListener('click', () => openUdharModal(u));
-
-        card.appendChild(chk);
-        card.appendChild(info);
-        card.appendChild(amt);
-        container.appendChild(card);
-      });
-    }
-
-    document.getElementById('navUdhar').addEventListener('click', () => { state.activeTab = 'udhar'; renderAll(); });
-    document.getElementById('btnAddUdhar').addEventListener('click', () => openUdharModal(null));
-    document.getElementById('btnUdharGiven').addEventListener('click', () => { udharModalType = 'GIVEN'; updateUdharTypeButtons(); });
-    document.getElementById('btnUdharTaken').addEventListener('click', () => { udharModalType = 'TAKEN'; updateUdharTypeButtons(); });
-    document.getElementById('btnCloseUdharModal').addEventListener('click', () => document.getElementById('udharModal').classList.add('hidden'));
-    document.getElementById('btnCancelUdhar').addEventListener('click', () => document.getElementById('udharModal').classList.add('hidden'));
-    document.getElementById('inputUdharSearch').addEventListener('input', () => renderUdhar());
-    document.querySelectorAll('.u-chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.udharFilter = btn.getAttribute('data-ufilter');
-        renderUdhar();
-      });
-    });
-
-    document.getElementById('btnSaveUdhar').addEventListener('click', () => {
-      const person = document.getElementById('inputUdharPerson').value.trim();
-      const amount = parseFloat(document.getElementById('inputUdharAmount').value) || 0;
-      const date = document.getElementById('inputUdharDate').value;
-      const mode = document.getElementById('selectUdharMode').value;
-      const isSettled = document.getElementById('inputUdharSettled').checked;
-      let returnDate = document.getElementById('inputUdharReturnDate').value;
-      if (isSettled && !returnDate) returnDate = new Date().toISOString().slice(0, 10);
-      const note = document.getElementById('inputUdharNote').value.trim();
-      if (!person || amount <= 0) { showToast('Enter person name & amount'); return; }
-
-      if (state.editingUdharId) {
-        const idx = state.udhar.findIndex(u => u.id === state.editingUdharId);
-        if (idx !== -1) {
-          state.udhar[idx] = { ...state.udhar[idx], type: udharModalType, person, amount, date, mode, isSettled, returnDate, note };
-        }
-      } else {
-        state.udhar.push({ id: `udhar-${Date.now()}`, type: udharModalType, person, amount, date, mode, isSettled, returnDate, note });
-      }
-      document.getElementById('udharModal').classList.add('hidden');
-      saveState();
-      renderUdhar();
-      showToast('Due saved');
-    });
-
-    document.getElementById('btnDeleteUdhar').addEventListener('click', () => {
-      if (!state.editingUdharId) return;
-      state.udhar = state.udhar.filter(u => u.id !== state.editingUdharId);
-      document.getElementById('udharModal').classList.add('hidden');
-      saveState();
-      renderUdhar();
-      showToast('Due deleted');
-    });
-
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(() => {}); }
-
-    
-    // --- 2-Step Delete Month ---
-    let expectedDeletePhrase = '';
-    function closeDelMonthModal() {
-      document.getElementById('deleteMonthModal').classList.add('hidden');
-    }
-
-    document.getElementById('btnDrawerDeleteMonth').addEventListener('click', () => {
-      closeDrawer();
-      const m = getActiveMonth();
-      if (!m) { showToast('No month selected'); return; }
-      const label = `${m.monthName} ${m.year}`;
-      expectedDeletePhrase = `delete-${m.monthName.toLowerCase()}-${m.year}`;
-      document.getElementById('delMonthLabel1').textContent = label;
-      document.getElementById('delMonthLabel2').textContent = label;
-      document.getElementById('delExpectedCode').textContent = expectedDeletePhrase;
-      const inp = document.getElementById('inputDeleteConfirm');
-      inp.value = '';
-      inp.placeholder = expectedDeletePhrase;
-      document.getElementById('delStep1').classList.remove('hidden');
-      document.getElementById('delStep2').classList.add('hidden');
-      const finalBtn = document.getElementById('btnFinalDeleteMonth');
-      finalBtn.disabled = true;
-      finalBtn.className = 'px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 text-white opacity-40 cursor-not-allowed';
-      document.getElementById('deleteMonthModal').classList.remove('hidden');
-    });
-
-    document.getElementById('btnCloseDelMonth').addEventListener('click', closeDelMonthModal);
-    document.getElementById('btnCancelDel1').addEventListener('click', closeDelMonthModal);
-    document.getElementById('btnCancelDel2').addEventListener('click', closeDelMonthModal);
-
-    document.getElementById('btnConfirmDelStep1').addEventListener('click', () => {
-      document.getElementById('delStep1').classList.add('hidden');
-      document.getElementById('delStep2').classList.remove('hidden');
-      document.getElementById('inputDeleteConfirm').focus();
-    });
-
-    document.getElementById('inputDeleteConfirm').addEventListener('input', (e) => {
-      const match = e.target.value.trim().toLowerCase() === expectedDeletePhrase;
-      const btn = document.getElementById('btnFinalDeleteMonth');
-      btn.disabled = !match;
-      btn.className = match
-        ? 'px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 cursor-pointer'
-        : 'px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 text-white opacity-40 cursor-not-allowed';
-    });
-
-    document.getElementById('btnFinalDeleteMonth').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m) return;
-      if (document.getElementById('inputDeleteConfirm').value.trim().toLowerCase() !== expectedDeletePhrase) return;
-      const deletedLabel = `${m.monthName} ${m.year}`;
-      state.months = state.months.filter(x => x.id !== m.id);
-      const nextInYear = state.months.find(x => x.year === state.selectedYear);
-      const fallback = nextInYear || state.months[0] || null;
-      state.selectedMonthId = fallback ? fallback.id : null;
-      if (fallback) state.selectedYear = fallback.year;
-      closeDelMonthModal();
-      saveState();
-      renderAll();
-      showToast(`Deleted ${deletedLabel}`);
-    });
-
-    
-    // --- Projects (Isolated from Home Summary) ---
-    function getActiveProject() {
-      return (state.projects || []).find(p => p.id === state.selectedProjectId) || (state.projects || [])[0] || null;
-    }
-
-    function renderProjects() {
-      const list = state.projects || [];
-      const strip = document.getElementById('projectStripWrap');
-      strip.innerHTML = '';
-      list.forEach(pr => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        const active = pr.id === (getActiveProject() && getActiveProject().id);
-        b.className = active
-          ? 'shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-teal-700 text-white'
-          : 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200';
-        b.textContent = pr.name;
-        b.addEventListener('click', () => { state.selectedProjectId = pr.id; renderProjects(); });
-        strip.appendChild(b);
-      });
-
-      const pr = getActiveProject();
-      document.getElementById('projectEmptyState').classList.toggle('hidden', !!pr);
-      document.getElementById('projectActiveWrap').classList.toggle('hidden', !pr);
-      if (!pr) return;
-
-      const items = pr.items || [];
-      const total = items.reduce((a, x) => a + (Number(x.amount) || 0), 0);
-      const paid = items.filter(x => x.isPaid).reduce((a, x) => a + (Number(x.amount) || 0), 0);
-      const pending = total - paid;
-      const budget = Number(pr.budget) || 0;
-
-      document.getElementById('projHeroTitle').textContent = pr.name;
-      document.getElementById('projTotalSpent').textContent = formatInr(total);
-      document.getElementById('projPaidTotal').textContent = formatInr(paid);
-      document.getElementById('projPendingTotal').textContent = formatInr(pending);
-
-      const lockBtn = document.getElementById('btnProjLock');
-      lockBtn.textContent = pr.isCompleted ? '🔒 Completed' : '✓ Active';
-      lockBtn.className = pr.isCompleted
-        ? 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/80 text-white'
-        : 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/15 text-white hover:bg-white/25';
-
-      const bWrap = document.getElementById('projBudgetBarWrap');
-      if (budget > 0) {
-        bWrap.classList.remove('hidden');
-        const rem = budget - total;
-        const pct = Math.min(100, Math.round((total / budget) * 100));
-        document.getElementById('projBudgetLabel').textContent = `Budget: ${formatInr(budget)} (${pct}%)`;
-        document.getElementById('projRemainingLabel').textContent = rem >= 0 ? `Left: ${formatInr(rem)}` : `Over by ${formatInr(-rem)}`;
-        const bar = document.getElementById('projBudgetBar');
-        bar.style.width = `${pct}%`;
-        bar.className = `h-full rounded-full transition-all ${rem < 0 ? 'bg-rose-400' : (pct > 85 ? 'bg-amber-400' : 'bg-emerald-400')}`;
-      } else {
-        bWrap.classList.add('hidden');
-      }
-
-      document.getElementById('btnAddProjItem').classList.toggle('hidden', !!pr.isCompleted);
-      const isEntries = state.projSubView === 'entries';
-      document.getElementById('projEntriesPane').classList.toggle('hidden', !isEntries);
-      document.getElementById('projChartsPane').classList.toggle('hidden', isEntries);
-      document.getElementById('btnProjSubEntries').className = isEntries
-        ? 'py-2 rounded-xl text-xs font-semibold bg-teal-700 text-white'
-        : 'py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700';
-      document.getElementById('btnProjSubCharts').className = !isEntries
-        ? 'py-2 rounded-xl text-xs font-semibold bg-teal-700 text-white'
-        : 'py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700';
-
-      if (isEntries) {
-        const q = (document.getElementById('inputProjSearch').value || '').trim().toLowerCase();
-        const filtered = items.filter(it => {
-          if (!q) return true;
-          return (it.title || '').toLowerCase().includes(q) || (it.vendor || '').toLowerCase().includes(q) || (it.category || '').toLowerCase().includes(q);
-        }).slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-        const el = document.getElementById('projItemsList');
-        el.innerHTML = '';
-        if (!filtered.length) {
-          el.innerHTML = '<div class="text-xs text-slate-400 bg-white rounded-xl border border-dashed border-slate-200 p-4 text-center">No project expenses yet. Tap + Add.</div>';
-          return;
-        }
-        filtered.forEach(it => {
-          const card = document.createElement('div');
-          card.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3';
-          const chk = document.createElement('button');
-          chk.type = 'button';
-          chk.className = it.isPaid
-            ? 'w-6 h-6 rounded-full bg-teal-700 text-white flex items-center justify-center text-xs shrink-0'
-            : 'w-6 h-6 rounded-full border-2 border-slate-300 text-transparent flex items-center justify-center text-xs shrink-0';
-          chk.textContent = '✓';
-          chk.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (pr.isCompleted) { showToast('Project is completed (read-only)'); return; }
-            it.isPaid = !it.isPaid;
-            saveState();
-            renderProjects();
-          });
-          const body = document.createElement('div');
-          body.className = 'flex-1 min-w-0 cursor-pointer';
-          body.innerHTML = `
-            <div class="flex items-center gap-1.5">
-              <span class="text-sm font-semibold text-slate-900 truncate">${it.title}</span>
-              <span class="text-xs font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 shrink-0">${it.category || 'Other'}</span>
+      expenses.forEach(exp => {
+        if (!exp.isHousehold) {
+          const row = document.createElement('div');
+          row.className = 'bg-white rounded-xl border border-slate-200 px-3.5 py-3 flex items-center gap-3';
+          row.innerHTML = `
+            <button type="button" class="chk-btn w-6 h-6 rounded-full ${exp.isPaid ? 'bg-teal-700 text-white' : 'border-2 border-slate-300 text-transparent'} flex items-center justify-center text-xs shrink-0">✓</button>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold">${exp.title}</div>
+              <div class="text-xs text-slate-500">${exp.isPaid ? 'Paid' : 'Pending'}</div>
             </div>
-            <div class="text-xs text-slate-500 truncate mt-0.5">${it.date || ''}${it.vendor ? ' • ' + it.vendor : ''} • ${it.mode || 'GPay'}${it.note ? ' • ' + it.note : ''}</div>
+            <div class="text-sm font-bold">${fmt(exp.amount)}</div>
           `;
-          const amt = document.createElement('div');
-          amt.className = 'text-sm font-bold text-slate-900 shrink-0 cursor-pointer';
-          amt.textContent = formatInr(it.amount);
-          const editFn = () => {
-            if (pr.isCompleted) { showToast('Project is completed — tap Completed to reopen'); return; }
-            openProjItemModal(it);
-          };
-          body.addEventListener('click', editFn);
-          amt.addEventListener('click', editFn);
-          card.appendChild(chk);
-          card.appendChild(body);
-          card.appendChild(amt);
-          el.appendChild(card);
-        });
-      } else {
-        renderProjectCharts(pr);
-      }
-    }
-
-    function renderProjectCharts(pr) {
-      const items = pr.items || [];
-      const catTotals = {};
-      const monthTotals = {};
-      const vendorTotals = {};
-
-      items.forEach(it => {
-        const amt = Number(it.amount) || 0;
-        const cat = it.category || 'Other';
-        catTotals[cat] = (catTotals[cat] || 0) + amt;
-        const ym = (it.date || '').slice(0, 7) || 'Undated';
-        monthTotals[ym] = (monthTotals[ym] || 0) + amt;
-        const ven = (it.vendor || '').trim() || 'Unspecified';
-        vendorTotals[ven] = (vendorTotals[ven] || 0) + amt;
-      });
-
-      const dCtx = document.getElementById('projDoughnutChart').getContext('2d');
-      if (state.projDoughnutInstance) state.projDoughnutInstance.destroy();
-      const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
-      state.projDoughnutInstance = new Chart(dCtx, {
-        type: 'doughnut',
-        data: {
-          labels: sortedCats.map(c => c[0]),
-          datasets: [{ data: sortedCats.map(c => c[1]), backgroundColor: ['#0f766e', '#0f766e', '#f59e0b', '#ec4899', '#06b6d4', '#84cc16', '#94a3b8'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } }
-      });
-
-      const bCtx = document.getElementById('projBarChart').getContext('2d');
-      if (state.projBarInstance) state.projBarInstance.destroy();
-      const sortedMonths = Object.entries(monthTotals).sort((a, b) => a[0].localeCompare(b[0]));
-      state.projBarInstance = new Chart(bCtx, {
-        type: 'bar',
-        data: {
-          labels: sortedMonths.map(m => m[0]),
-          datasets: [{ label: 'Spent', data: sortedMonths.map(m => m[1]), backgroundColor: '#0f766e', borderRadius: 4 }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => '₹' + Math.round(v / 1000) + 'k' } } },
-          plugins: { legend: { display: false } }
+          row.querySelector('.chk-btn').addEventListener('click', () => { exp.isPaid = !exp.isPaid; render(); });
+          listEl.appendChild(row);
+          return;
         }
+
+        const { baseTransfer, sendTotal, hhTotal } = computeHH(exp.baseFix || 23000);
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl border-2 border-teal-600/40 shadow-sm overflow-hidden';
+
+        const hdr = document.createElement('div');
+        hdr.className = 'px-3.5 py-3 flex items-center gap-3 cursor-pointer hover:bg-teal-50/40';
+        hdr.innerHTML = `
+          <button type="button" class="hh-chk w-6 h-6 rounded-full ${exp.isPaid ? 'bg-teal-700 text-white' : 'border-2 border-slate-300 text-transparent'} flex items-center justify-center text-xs shrink-0">✓</button>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-sm font-bold text-slate-900">${exp.title}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800">Send: ${fmt(sendTotal)}</span>
+            </div>
+            <div class="text-xs text-slate-500 mt-0.5">Tap to ${expanded ? 'collapse' : 'expand'} breakdown</div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-sm font-bold text-slate-900">${fmt(hhTotal)}</div>
+            <div class="text-xs text-teal-700 font-semibold">${expanded ? '▲ Hide' : '▼ Expand'}</div>
+          </div>
+        `;
+        hdr.querySelector('.hh-chk').addEventListener('click', (e) => { e.stopPropagation(); exp.isPaid = !exp.isPaid; render(); });
+        hdr.addEventListener('click', () => { expanded = !expanded; render(); });
+        card.appendChild(hdr);
+
+        if (expanded) {
+          const panel = document.createElement('div');
+          panel.className = 'border-t border-slate-200 bg-slate-50 p-3.5 space-y-3';
+          panel.innerHTML = `
+            <div class="rounded-xl bg-slate-800 text-white p-3 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs text-slate-300">Transfer to Send (Fix ${fmt(exp.baseFix || 23000)} − Ded + Extra)</div>
+                <div class="text-2xl font-bold text-teal-300 mt-0.5">${fmt(sendTotal)}</div>
+              </div>
+              <button type="button" class="copy-btn px-3 py-2 rounded-lg bg-teal-600 text-white text-xs font-semibold hover:bg-teal-500 shrink-0">Copy ₹</button>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <button type="button" class="add-sub-btn px-2.5 py-1.5 rounded-lg bg-teal-700 text-white text-xs font-semibold">+ Add Item</button>
+              <button type="button" class="edit-fix-btn px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-semibold">Edit Fix / Delete Card</button>
+            </div>
+            <div class="sub-list space-y-1.5"></div>
+          `;
+          panel.querySelector('.copy-btn').addEventListener('click', () => {
+            if (navigator.clipboard) navigator.clipboard.writeText(String(sendTotal)).catch(() => {});
+            showToast(`Copied ₹${sendTotal}`);
+          });
+          panel.querySelector('.add-sub-btn').addEventListener('click', () => openSubModal(null));
+          panel.querySelector('.edit-fix-btn').addEventListener('click', () => {
+            document.getElementById('inpFixTitle').value = exp.title;
+            document.getElementById('inpFixAmt').value = exp.baseFix || 23000;
+            document.getElementById('fixModal').classList.remove('hidden');
+          });
+
+          const subList = panel.querySelector('.sub-list');
+          const tr = document.createElement('div');
+          tr.className = 'bg-white rounded-lg border border-slate-200 px-3 py-2 flex items-center justify-between text-xs';
+          tr.innerHTML = `<div><span class="font-semibold">Transfer</span> <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">AUTO</span></div><span class="font-bold text-teal-700">${fmt(baseTransfer)}</span>`;
+          subList.appendChild(tr);
+
+          hhItems.forEach(it => {
+            const r = document.createElement('div');
+            r.className = 'bg-white rounded-lg border border-slate-200 px-3 py-2 flex items-center justify-between text-xs cursor-pointer hover:border-teal-400';
+            const isDed = it.kind === 'DEDUCTION';
+            const isExt = it.kind === 'EXTRA';
+            const badge = isDed ? '<span class="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-bold">- TRANSFER</span>'
+              : (isExt ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold">+ EXTRA</span>'
+              : '<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">SODEXO</span>');
+            r.innerHTML = `<div><span class="font-semibold">${it.label}</span> ${badge}</div><span class="font-bold ${isDed ? 'text-rose-600' : 'text-teal-700'}">${fmt(it.amount)}</span>`;
+            r.addEventListener('click', () => openSubModal(it));
+            subList.appendChild(r);
+          });
+
+          card.appendChild(panel);
+        }
+        listEl.appendChild(card);
       });
-
-      const vEl = document.getElementById('projVendorsList');
-      vEl.innerHTML = '';
-      const sortedVendors = Object.entries(vendorTotals).sort((a, b) => b[1] - a[1]);
-      if (!sortedVendors.length) {
-        vEl.innerHTML = '<div class="text-xs text-slate-400">No entries yet</div>';
-      } else {
-        sortedVendors.slice(0, 8).forEach(([vName, vAmt]) => {
-          const r = document.createElement('div');
-          r.className = 'flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-0';
-          r.innerHTML = `<span class="font-medium text-slate-700 truncate pr-2">${vName}</span><span class="font-bold text-slate-900 shrink-0">${formatInr(vAmt)}</span>`;
-          vEl.appendChild(r);
-        });
-      }
     }
 
-    function openProjMetaModal(pr = null) {
-      state.editingProjMetaId = pr ? pr.id : null;
-      document.getElementById('projMetaModalTitle').textContent = pr ? 'Edit Project' : 'New Project';
-      document.getElementById('inputProjName').value = pr ? pr.name : '';
-      document.getElementById('inputProjBudget').value = pr ? (pr.budget || '') : '';
-      document.getElementById('btnDeleteProject').classList.toggle('hidden', !pr);
-      document.getElementById('projectMetaModal').classList.remove('hidden');
+    function openSubModal(it) {
+      editingSubId = it ? it.id : null;
+      document.getElementById('subModalTitle').textContent = it ? 'Edit Household Item' : 'Add Household Item';
+      document.getElementById('selSubKind').value = it ? it.kind : 'DEDUCTION';
+      document.getElementById('inpSubLabel').value = it ? it.label : '';
+      document.getElementById('inpSubAmt').value = it ? it.amount : '';
+      document.getElementById('btnDelSub').classList.toggle('hidden', !it);
+      document.getElementById('editSubModal').classList.remove('hidden');
     }
 
-    function openProjItemModal(it = null) {
-      state.editingProjItemId = it ? it.id : null;
-      const today = new Date().toISOString().slice(0, 10);
-      document.getElementById('projItemModalTitle').textContent = it ? 'Edit Project Expense' : 'Add Project Expense';
-      document.getElementById('inputProjItemTitle').value = it ? it.title : '';
-      document.getElementById('inputProjItemCat').value = it ? (it.category || '') : '';
-      document.getElementById('inputProjItemVendor').value = it ? (it.vendor || '') : '';
-      document.getElementById('inputProjItemAmt').value = it ? it.amount : '';
-      document.getElementById('inputProjItemDate').value = it ? (it.date || today) : today;
-      document.getElementById('selectProjItemMode').value = it ? (it.mode || 'GPay') : 'GPay';
-      document.getElementById('inputProjItemPaid').checked = it ? !!it.isPaid : true;
-      document.getElementById('inputProjItemNote').value = it ? (it.note || '') : '';
-      document.getElementById('btnDeleteProjItem').classList.toggle('hidden', !it);
-      document.getElementById('projectItemModal').classList.remove('hidden');
-    }
-
-    document.getElementById('navProjects').addEventListener('click', () => { state.activeTab = 'projects'; renderAll(); });
-    document.getElementById('btnNewProject').addEventListener('click', () => openProjMetaModal(null));
-    document.getElementById('btnProjEditMeta').addEventListener('click', () => { const pr = getActiveProject(); if (pr) openProjMetaModal(pr); });
-    document.getElementById('btnCloseProjMeta').addEventListener('click', () => document.getElementById('projectMetaModal').classList.add('hidden'));
-    document.getElementById('btnCancelProjMeta').addEventListener('click', () => document.getElementById('projectMetaModal').classList.add('hidden'));
-    document.getElementById('btnProjSubEntries').addEventListener('click', () => { state.projSubView = 'entries'; renderProjects(); });
-    document.getElementById('btnProjSubCharts').addEventListener('click', () => { state.projSubView = 'charts'; renderProjects(); });
-    document.getElementById('inputProjSearch').addEventListener('input', () => renderProjects());
-    document.getElementById('btnAddProjItem').addEventListener('click', () => openProjItemModal(null));
-    document.getElementById('btnCloseProjItem').addEventListener('click', () => document.getElementById('projectItemModal').classList.add('hidden'));
-    document.getElementById('btnCancelProjItem').addEventListener('click', () => document.getElementById('projectItemModal').classList.add('hidden'));
-
-    document.getElementById('btnProjLock').addEventListener('click', () => {
-      const pr = getActiveProject();
-      if (!pr) return;
-      pr.isCompleted = !pr.isCompleted;
-      saveState();
-      renderProjects();
-      showToast(pr.isCompleted ? `${pr.name} marked Completed` : `${pr.name} reopened`);
-    });
-
-    document.getElementById('btnSaveProjMeta').addEventListener('click', () => {
-      const name = document.getElementById('inputProjName').value.trim();
-      const budget = parseFloat(document.getElementById('inputProjBudget').value) || 0;
-      if (!name) { showToast('Enter project name'); return; }
-      if (state.editingProjMetaId) {
-        const pr = state.projects.find(p => p.id === state.editingProjMetaId);
-        if (pr) { pr.name = name; pr.budget = budget; }
+    document.getElementById('btnCloseSub').addEventListener('click', () => document.getElementById('editSubModal').classList.add('hidden'));
+    document.getElementById('btnCancelSub').addEventListener('click', () => document.getElementById('editSubModal').classList.add('hidden'));
+    document.getElementById('btnSaveSub').addEventListener('click', () => {
+      const kind = document.getElementById('selSubKind').value;
+      const label = document.getElementById('inpSubLabel').value.trim();
+      const amount = Number(document.getElementById('inpSubAmt').value) || 0;
+      if (!label) { showToast('Enter label'); return; }
+      if (editingSubId) {
+        const it = hhItems.find(x => x.id === editingSubId);
+        if (it) { it.kind = kind; it.label = label; it.amount = amount; }
       } else {
-        const id = `proj-${Date.now()}`;
-        state.projects.unshift({ id, name, budget, isCompleted: false, items: [] });
-        state.selectedProjectId = id;
+        hhItems.push({ id: Date.now(), label, kind, amount });
       }
-      document.getElementById('projectMetaModal').classList.add('hidden');
-      saveState();
-      renderProjects();
-      showToast('Project saved');
+      document.getElementById('editSubModal').classList.add('hidden');
+      render();
+      showToast('Updated');
     });
-
-    document.getElementById('btnDeleteProject').addEventListener('click', () => {
-      if (!state.editingProjMetaId) return;
-      state.projects = state.projects.filter(p => p.id !== state.editingProjMetaId);
-      state.selectedProjectId = state.projects[0] ? state.projects[0].id : null;
-      document.getElementById('projectMetaModal').classList.add('hidden');
-      saveState();
-      renderProjects();
-      showToast('Project deleted');
-    });
-
-    document.getElementById('btnSaveProjItem').addEventListener('click', () => {
-      const pr = getActiveProject();
-      if (!pr) return;
-      const title = document.getElementById('inputProjItemTitle').value.trim();
-      const category = document.getElementById('inputProjItemCat').value.trim() || 'Other';
-      const vendor = document.getElementById('inputProjItemVendor').value.trim();
-      const amount = parseFloat(document.getElementById('inputProjItemAmt').value) || 0;
-      const date = document.getElementById('inputProjItemDate').value;
-      const mode = document.getElementById('selectProjItemMode').value;
-      const isPaid = document.getElementById('inputProjItemPaid').checked;
-      const note = document.getElementById('inputProjItemNote').value.trim();
-      if (!title || amount <= 0) { showToast('Enter item & amount'); return; }
-
-      if (state.editingProjItemId) {
-        const idx = pr.items.findIndex(x => x.id === state.editingProjItemId);
-        if (idx !== -1) pr.items[idx] = { ...pr.items[idx], title, category, vendor, amount, date, mode, isPaid, note };
-      } else {
-        pr.items.push({ id: `pi-${Date.now()}`, title, category, vendor, amount, date, mode, isPaid, note });
-      }
-      document.getElementById('projectItemModal').classList.add('hidden');
-      saveState();
-      renderProjects();
-      showToast('Saved');
-    });
-
-    document.getElementById('btnDeleteProjItem').addEventListener('click', () => {
-      const pr = getActiveProject();
-      if (!pr || !state.editingProjItemId) return;
-      pr.items = pr.items.filter(x => x.id !== state.editingProjItemId);
-      document.getElementById('projectItemModal').classList.add('hidden');
-      saveState();
-      renderProjects();
+    document.getElementById('btnDelSub').addEventListener('click', () => {
+      hhItems = hhItems.filter(x => x.id !== editingSubId);
+      document.getElementById('editSubModal').classList.add('hidden');
+      render();
       showToast('Deleted');
     });
 
-    
-    document.getElementById('btnCloseHhFix').addEventListener('click', () => document.getElementById('hhFixModal').classList.add('hidden'));
-    document.getElementById('btnCancelHhFix').addEventListener('click', () => document.getElementById('hhFixModal').classList.add('hidden'));
-    document.getElementById('btnSaveHhFix').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m) return;
-      const zr = m.expenses.find(e => e.isZanLinked || ['zan-home', 'household'].includes((e.title || '').toLowerCase()));
-      if (zr) {
-        zr.title = document.getElementById('inputHhTitle').value.trim() || 'Household';
-        zr.baseFix = parseFloat(document.getElementById('inputHhBaseFix').value) || 23000;
-        syncZanHomeTotal(m);
+    document.getElementById('btnCloseFix').addEventListener('click', () => document.getElementById('fixModal').classList.add('hidden'));
+    document.getElementById('btnCancelFix').addEventListener('click', () => document.getElementById('fixModal').classList.add('hidden'));
+    document.getElementById('btnSaveFix').addEventListener('click', () => {
+      const hhCard = expenses.find(e => e.isHousehold);
+      if (hhCard) {
+        hhCard.title = document.getElementById('inpFixTitle').value.trim() || 'Household';
+        hhCard.baseFix = Number(document.getElementById('inpFixAmt').value) || 23000;
       }
-      document.getElementById('hhFixModal').classList.add('hidden');
-      saveState();
-      renderAll();
-      showToast('Household settings updated');
+      document.getElementById('fixModal').classList.add('hidden');
+      render();
+      showToast('Base fix updated');
     });
-    document.getElementById('btnDeleteHhCard').addEventListener('click', () => {
-      const m = getActiveMonth();
-      if (!m) return;
-      m.expenses = m.expenses.filter(e => !(e.isZanLinked || ['zan-home', 'household'].includes((e.title || '').toLowerCase())));
-      document.getElementById('hhFixModal').classList.add('hidden');
-      saveState();
-      renderAll();
+    document.getElementById('btnDelHouseholdCard').addEventListener('click', () => {
+      expenses = expenses.filter(e => !e.isHousehold);
+      document.getElementById('fixModal').classList.add('hidden');
+      render();
       showToast('Household card deleted');
     });
 
-    // Init
-    loadState();
-    renderAll();
+    document.getElementById('btnOpenAdd').addEventListener('click', () => {
+      document.getElementById('inpDemoTitle').value = '';
+      document.getElementById('inpDemoAmt').value = '';
+      document.getElementById('chkIsHousehold').checked = false;
+      document.getElementById('addDemoModal').classList.remove('hidden');
+    });
+    document.getElementById('btnCloseAdd').addEventListener('click', () => document.getElementById('addDemoModal').classList.add('hidden'));
+    document.getElementById('btnCancelAdd').addEventListener('click', () => document.getElementById('addDemoModal').classList.add('hidden'));
+    document.getElementById('btnSaveAdd').addEventListener('click', () => {
+      const tit = document.getElementById('inpDemoTitle').value.trim() || 'Expense';
+      const amt = Number(document.getElementById('inpDemoAmt').value) || 0;
+      const isHH = document.getElementById('chkIsHousehold').checked;
+      expenses.push({ id: 'e-' + Date.now(), title: tit, amount: amt, isPaid: false, isHousehold: isHH, baseFix: 23000 });
+      document.getElementById('addDemoModal').classList.add('hidden');
+      render();
+      showToast('Saved');
+    });
+
+    render();
   </script>
 </body>
 </html>
